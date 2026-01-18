@@ -12,9 +12,9 @@ export default function MegaMenu({ type }) {
 
                 <div className="mega-column">
                     <h4>Catégories</h4>
-                    <Link to="/products?gender=femmes">Tous les produits</Link>
+                    <Link to="/products?gender=femmes&per_page=200">Tous les produits</Link>
                     <Link to="/products?gender=femmes&category=leggings">Leggings</Link>
-                    <Link to="/products?gender=femmes&category=jogging">Jogging</Link>
+                    <Link to="/products?gender=femmes&category=joggings">Joggings</Link>
                     <Link to="/products?gender=femmes&category=sweats">Sweats</Link>
                     <Link to="/products?gender=femmes&category=vestes">Vestes</Link>
                     <Link to="/products?gender=femmes&category=shorts">Shorts</Link>
@@ -37,7 +37,7 @@ export default function MegaMenu({ type }) {
 
                 <div className="mega-column">
                     <h4>Catégories</h4>
-                    <Link to="/products?gender=hommes">Tous les produits</Link>
+                    <Link to="/products?gender=hommes&per_page=200">Tous les produits</Link>
                     <Link to="/products?gender=hommes&category=accessoires">Accessoires</Link>
                     <Link to="/products?gender=hommes&category=sweats">Sweats</Link>
                     <Link to="/products?gender=hommes&category=vestes">Vestes</Link>
@@ -59,36 +59,35 @@ export default function MegaMenu({ type }) {
                 </div>
 
                 <div className="mega-column">
-                    <h4>Protéines</h4>
+                    <h4>Nutrition</h4>
+                    <Link to="/products?gender=nutrition&per_page=200">Tous les produits</Link>
                     <Link to="/products?gender=nutrition&category=proteines-poudre">Protéines en poudre</Link>
                     <Link to="/products?gender=nutrition&category=isolats">Isolats</Link>
-                    <Link to="/products?gender=nutrition&category=hydrolysees">Hydrolysées</Link>
                     <Link to="/products?gender=nutrition&category=barres">Barres protéinées</Link>
-                </div>
-
-                <div className="mega-column">
-                    <h4>Performance</h4>
-                    <Link to="/products?gender=nutrition&category=masse">Prise de masse</Link>
                     <Link to="/products?gender=nutrition&category=creatine">Créatine</Link>
-                    <Link to="/products?gender=nutrition&category=preworkout">Pre-workout</Link>
-                    <Link to="/products?gender=nutrition&category=boissons">Boissons énergétiques</Link>
+                    <Link to="/products?gender=nutrition&category=boissons">Boissons</Link>
                 </div>
             </div>
         );
     }
 
-    if (type === "equipements") {
+    if (type === "equipments") {
         return (
             <div className="mega-menu">
                 <div className="mega-column">
+                    <h4>Découvrir</h4>
+                    <Link to="/products?gender=equipments&tag=bestseller">Bestsellers</Link>
+                    <Link to="/products?gender=equipments&tag=new">Nouveautés</Link>
+                </div>
+
+                <div className="mega-column">
                     <h4>Équipements</h4>
-                    <Link to="/products?gender=equipements&category=barres">Barres & disques</Link>
-                    <Link to="/products?gender=equipements&category=musculation">Matériel de musculation</Link>
-                    <Link to="/products?gender=equipements&category=rigs">Rigs & racks</Link>
-                    <Link to="/products?gender=equipements&category=prepa">Préparation physique</Link>
-                    <Link to="/products?gender=equipements&category=calisthenie">Calisthénie & gymnastique</Link>
-                    <Link to="/products?gender=equipements&category=bandes">Bandes & sangles</Link>
-                    <Link to="/products?gender=equipements&category=mobilite">Mobilité</Link>
+                    <Link to="/products?gender=equipments&per_page=200">Tous les produits</Link>
+                    <Link to="/products?gender=equipments&category=barres">Barres</Link>
+                    <Link to="/products?gender=equipments&category=musculation">Musculation</Link>
+                    <Link to="/products?gender=equipments&category=prepa">Préparation</Link>
+                    <Link to="/products?gender=equipments&category=calisthenie">Calisthénie</Link>
+                    <Link to="/products?gender=equipments&category=mobilite">Mobilité</Link>
                 </div>
             </div>
         );
