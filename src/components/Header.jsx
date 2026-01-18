@@ -6,7 +6,7 @@ const NAV_ITEMS = [
     { key: "femmes", label: "Femmes" },
     { key: "hommes", label: "Hommes" },
     { key: "nutrition", label: "Nutrition" },
-    { key: "equipements", label: "Équipements" },
+    { key: "equipments", label: "Équipements" },
 ];
 
 export default function Header() {
