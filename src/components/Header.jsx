@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import MegaMenu from "./MegaMenu";
+import { useCart } from "../context/CartContext.jsx";
 
 const NAV_ITEMS = [
     { key: "femmes", label: "Femmes" },
@@ -11,6 +12,7 @@ const NAV_ITEMS = [
 
 export default function Header() {
     const [openMenu, setOpenMenu] = useState(null);
+    const { count, openCart } = useCart();
 
     return (
         <header className="header">
@@ -50,7 +52,10 @@ export default function Header() {
                     />
 
                     <Link to="/login" className="icon">👤</Link>
-                    <Link to="/cart" className="icon">🛒</Link>
+                    <button className="cart-icon-btn" onClick={openCart} aria-label="Ouvrir le panier">
+                        🛒
+                        {count > 0 && <span className="cart-badge">{count}</span>}
+                    </button>
                 </div>
             </div>
         </header>
