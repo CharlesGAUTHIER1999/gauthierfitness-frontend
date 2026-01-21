@@ -159,33 +159,25 @@ export default function ProductDetail() {
                                     v.color_label ||
                                     v.slug;
 
-    return (
-        <div className="product-detail">
-            <img
-                src={product.image || "/placeholder.jpg"}
-                alt={product.name}
-            />
-
-            <div className="product-info">
-                <h1>{product.name}</h1>
-                <p className="price">{product.price_ttc} €</p>
-                <p>{product.description}</p>
-
-                {product.attributes?.sizes && (
-                    <div>
-                        <h4>Tailles</h4>
-                        {product.attributes.sizes.map(s => (
-                            <button key={s}>{s}</button>
-                        ))}
-                    </div>
-                )}
-
-                {product.attributes?.formats && (
-                    <div>
-                        <h4>Formats</h4>
-                        {product.attributes.formats.map(f => (
-                            <button key={f}>{f}</button>
-                        ))}
+                                return (
+                                    <button
+                                        key={v.slug}
+                                        type="button"
+                                        className={`pd-swatch ${
+                                            v.slug === product.slug ? "is-active" : ""
+                                        }`}
+                                        onClick={() => navigate(`/products/${v.slug}`)}
+                                        title={label}
+                                        aria-label={label}
+                                    >
+                                        <img
+                                            src={v.thumb_url || product.main_image}
+                                            alt={label}
+                                        />
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 
