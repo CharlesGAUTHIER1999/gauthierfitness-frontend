@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProduct } from "../services/productService";
 import SizeGuideDrawer from "../components/SizeGuideDrawer.jsx";
+import { useCart } from "../context/CartContext.jsx";
 
 export default function ProductDetail() {
     const { slug } = useParams();
     const navigate = useNavigate();
 
     const [product, setProduct] = useState(null);
+    const { addItem, openCart } = useCart();
 
     // stockage des options
     const [selectedSizeOpt, setSelectedSizeOpt] = useState(null);
@@ -262,9 +264,40 @@ export default function ProductDetail() {
                 )}
 
                 <div className="pd-cta">
-                    <button className="pd-add" disabled={!canAddToCart} onClick={() => {}}>
+                    <button
+                        className="pd-add"
+                        disabled={!canAddToCart}
+                        onClick={() => {
+                            const opt =
+                                selectedSizeOpt ??
+                                selectedFormatOpt ??
+                                selectedCapacityOpt ??
+                                null;
+
+                            addItem({
+                                productId: product.id,
+                                optionId: opt?.id ?? null,
+                                optionLabel: opt?.label || opt?.code || null,
+                                optionType: opt?.type ?? null,
+                                variantTitle: product.variant_name || variantTitle, // "Couleurs" / "Goûts"
+                                variantValue:
+                                    product.variant_value_label ||
+                                    product.flavor_label ||
+                                    product.color_label ||
+                                    null,
+
+                                name: product.name,
+                                price: product.price_ttc,
+                                image: product.main_image,
+                                quantity: 1,
+                            });
+
+                            openCart(); // UX premium : ouvre le drawer direct
+                        }}
+                    >
                         Ajouter au panier
                     </button>
+
                 </div>
 
                 <ul className="pd-bullets">
