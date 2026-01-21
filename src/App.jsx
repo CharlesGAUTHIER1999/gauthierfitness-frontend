@@ -10,9 +10,11 @@ import { AuthProvider } from "./store/auth";
 import CartPage from "./pages/CartPage.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
+import CartDrawer from "./components/CartDrawer.jsx";
 
 export default function App() {
     return (
+
         <BrowserRouter>
             <AuthProvider>
                 <AppLayout>
@@ -29,6 +31,7 @@ export default function App() {
                     </Routes>
                 </AppLayout>
             </AuthProvider>
+            <CartDrawer />
         </BrowserRouter>
     );
 }
