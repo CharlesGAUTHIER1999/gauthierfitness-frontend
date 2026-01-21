@@ -41,9 +41,10 @@ function cartReducer(state, action) {
                         key,
                         productId: item.productId,
                         optionId: item.optionId ?? null,
-                        optionLabel: item.optionLabel ?? null,
 
-                        // (optionnel) si tu veux afficher couleur/goût plus tard
+                        optionLabel: item.optionLabel ?? null,
+                        optionType: item.optionType ?? null,
+
                         variantTitle: item.variantTitle ?? null,
                         variantValue: item.variantValue ?? null,
 
@@ -71,9 +72,7 @@ function cartReducer(state, action) {
             return {
                 ...state,
                 items: state.items.map((i) =>
-                    i.key === key
-                        ? { ...i, quantity: Math.max(1, i.quantity - 1) }
-                        : i
+                    i.key === key ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
                 ),
             };
         }
@@ -100,20 +99,36 @@ export function CartProvider({ children }) {
     const [state, dispatch] = useReducer(cartReducer, { items: [] });
     const [isOpen, setIsOpen] = useState(false);
 
-    // init localStorage
+    // ✅ IMPORTANT : on n’écrit pas dans le localStorage avant d’avoir chargé
+    const [hydrated, setHydrated] = useState(false);
+
+    // init localStorage (une seule fois au mount)
     useEffect(() => {
         try {
             const raw = localStorage.getItem("cart");
-            if (raw) dispatch({ type: "INIT", payload: JSON.parse(raw) });
-        } catch {}
+            if (raw) {
+                const items = JSON.parse(raw);
+                dispatch({ type: "INIT", payload: { items: Array.isArray(items) ? items : [] } });
+                console.log("Loaded cart:", items);
+            } else {
+                dispatch({ type: "INIT", payload: { items: [] } });
+                console.log("Loaded cart: (empty)");
+            }
+        } catch (e) {
+            console.warn("Failed to load cart from localStorage:", e);
+            dispatch({ type: "INIT", payload: { items: [] } });
+        } finally {
+            setHydrated(true);
+        }
     }, []);
 
-    // persist
+    // persist (uniquement après hydration)
     useEffect(() => {
+        if (!hydrated) return;
         try {
-            localStorage.setItem("cart", JSON.stringify(state));
+            localStorage.setItem("cart", JSON.stringify(state.items));
         } catch {}
-    }, [state]);
+    }, [hydrated, state.items]);
 
     const count = useMemo(
         () => state.items.reduce((acc, i) => acc + i.quantity, 0),
@@ -137,7 +152,6 @@ export function CartProvider({ children }) {
 
             addItem: (item) => dispatch({ type: "ADD_ITEM", payload: item }),
 
-            // ✅ ICI: on accepte (productId, optionId) comme ton CartDrawer
             inc: (productId, optionId) =>
                 dispatch({ type: "INC", payload: makeKey(productId, optionId) }),
 
