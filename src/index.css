@@ -231,9 +231,9 @@ p {
     padding: 40px 0;
   }
 
-  .shop-look h2,
-  .recommendations h2 {
-    font-size: 22px;
+  .footer-bottom {
+    flex-direction: column;
+    gap: 10px;
   }
 }
 
@@ -286,7 +286,6 @@ p {
   text-transform: uppercase;
   margin-bottom: 16px;
   font-weight: 600;
-  color: #111;
 }
 
 .promise-item p {
