@@ -11,6 +11,7 @@ import CartPage from "./pages/CartPage.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
+import CheckoutPage from "./pages/CheckoutPage.jsx";
 
 export default function App() {
     return (
@@ -26,6 +27,7 @@ export default function App() {
                         <Route path="/products" element={<Products />} />
                         <Route path="/products/:slug" element={<ProductDetail />} />
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
                         <Route path="/payment-success" element={<PaymentSuccess />} />
                         <Route path="/payment-cancel" element={<PaymentCancel />} />
                     </Routes>

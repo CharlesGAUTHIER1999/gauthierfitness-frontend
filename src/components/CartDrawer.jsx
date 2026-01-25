@@ -1,7 +1,9 @@
 import { useEffect, useRef, useMemo } from "react";
 import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CartDrawer() {
+    const navigate = useNavigate();
     const { isOpen, closeCart, items, subtotal, inc, dec, remove } = useCart();
 
     const drawerRef = useRef(null);
@@ -191,8 +193,14 @@ export default function CartDrawer() {
                         Taxes incluses. Frais d'expédition calculés à l'étape de paiement.
                     </div>
 
-                    <button className="cart-cta" disabled={items.length === 0}>
-                        PROCÉDER AU PAIEMENT
+                    <button
+                        className="cart-cta"
+                        disabled={items.length === 0}
+                        onClick={() => {
+                            closeCart();
+                            navigate("/checkout");
+                        }}>
+                        Procéder au paiement
                     </button>
                 </div>
             </aside>
