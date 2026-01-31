@@ -231,9 +231,9 @@ p {
     padding: 40px 0;
   }
 
-  .footer-bottom {
-    flex-direction: column;
-    gap: 10px;
+  .shop-look h2,
+  .recommendations h2 {
+    font-size: 22px;
   }
 }
 
