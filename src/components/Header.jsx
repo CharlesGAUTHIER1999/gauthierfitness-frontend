@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MegaMenu from "./MegaMenu";
 import { useCart } from "../context/CartContext.jsx";
+import { useAuth } from "../store/auth";
 
 const NAV_ITEMS = [
     { key: "femmes", label: "Femmes" },
@@ -14,17 +15,26 @@ export default function Header() {
     const [openMenu, setOpenMenu] = useState(null);
     const { count, openCart } = useCart();
 
+    const { isAuthenticated, user } = useAuth();
+    const profileHref = isAuthenticated ? "/account" : "/login";
+
+    const initials = useMemo(() => {
+        const f = user?.firstname?.trim()?.[0];
+        const l = user?.lastname?.trim()?.[0];
+        return f && l ? `${f}${l}`.toUpperCase() : null;
+    }, [user]);
+
+    function closeMenu() {
+        setOpenMenu(null);
+    }
+
     return (
         <header className="header">
             <div className="header-inner">
-
-                {/* Logo */}
-                <Link to="/" className="logo">
-                    {/* plus tard <img src="/logo.svg" /> */}
+                <Link to="/" className="logo" onClick={closeMenu}>
                     GAUTHIER Fitness
                 </Link>
 
-                {/* Navigation */}
                 <nav className="nav">
                     {NAV_ITEMS.map(({ key, label }) => (
                         <div
@@ -38,12 +48,11 @@ export default function Header() {
                         </div>
                     ))}
 
-                    <Link to="/about" className="nav-item">
+                    <Link to="/about" className="nav-item" onClick={closeMenu}>
                         À propos
                     </Link>
                 </nav>
 
-                {/* Actions */}
                 <div className="actions">
                     <input
                         type="text"
@@ -51,10 +60,25 @@ export default function Header() {
                         className="search"
                     />
 
-                    <Link to="/login" className="icon">👤</Link>
-                    <button className="cart-icon-btn" onClick={openCart} aria-label="Ouvrir le panier">
-                        🛒
-                        {count > 0 && <span className="cart-badge">{count}</span>}
+                    <Link
+                        to={profileHref}
+                        className={`icon ${isAuthenticated && initials ? "icon-initials" : ""}`}
+                        aria-label="Mon compte"
+                        onClick={closeMenu}
+                    >
+                        {isAuthenticated && initials ? initials : "👤"}
+                    </Link>
+
+                    <button
+                        type="button"
+                        className="cart-icon-btn"
+                        onClick={() => {
+                            closeMenu();
+                            openCart();
+                        }}
+                        aria-label="Ouvrir le panier"
+                    >
+                        🛒{count > 0 && <span className="cart-badge">{count}</span>}
                     </button>
                 </div>
             </div>
