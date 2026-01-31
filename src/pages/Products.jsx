@@ -20,7 +20,7 @@ export default function Products() {
             !!filters.gender && !filters.category && !filters.tag;
 
         if (!hasPerPage && isAllForGender) {
-            filters.per_page = 200;
+            filters.per_page = 40;
         }
 
         getProducts(filters)

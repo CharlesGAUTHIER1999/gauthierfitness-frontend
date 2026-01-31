@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../store/auth";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function Register() {
+    const { register, token } = useAuth();
+    const navigate = useNavigate();
+
     const [form, setForm] = useState({
         firstname: "",
         lastname: "",
@@ -10,21 +13,58 @@ export default function Register() {
         password: "",
     });
 
-    const { register } = useAuth(); // ✅ ICI
-    const navigate = useNavigate();
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) =>
-        setForm({ ...form, [e.target.name]: e.target.value });
+    useEffect(() => {
+        if (token) navigate("/account");
+    }, [token, navigate]);
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    }
 
     async function submit(e) {
         e.preventDefault();
-        await register(form);
-        navigate("/dashboard");
+        setError(null);
+        setLoading(true);
+
+        try {
+            const payload = {
+                firstname: form.firstname.trim(),
+                lastname: form.lastname.trim(),
+                email: form.email.trim().toLowerCase(),
+                password: form.password, // ne pas trim
+            };
+
+            await register(payload);
+            navigate("/");
+        } catch (e) {
+            // Laravel validation: { message, errors: { field: [msg] } }
+            const validation = e?.response?.data?.errors;
+            if (validation && typeof validation === "object") {
+                const firstKey = Object.keys(validation)[0];
+                const firstMsg = validation[firstKey]?.[0];
+                setError(firstMsg || "Erreur de validation.");
+            } else {
+                const msg =
+                    e?.response?.data?.message ||
+                    e?.response?.data?.error ||
+                    e?.message ||
+                    "Impossible de créer le compte.";
+                setError(msg);
+            }
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
-        <form onSubmit={submit} style={{ maxWidth: 300, margin: "50px auto" }}>
+        <form onSubmit={submit} style={{ maxWidth: 320, margin: "50px auto" }}>
             <h2>Créer un compte</h2>
+
+            {error && <div className="ck-error">{error}</div>}
 
             <input
                 name="firstname"
@@ -32,7 +72,10 @@ export default function Register() {
                 value={form.firstname}
                 onChange={handleChange}
                 required
-            /><br /><br />
+                autoComplete="given-name"
+            />
+            <br />
+            <br />
 
             <input
                 name="lastname"
@@ -40,7 +83,10 @@ export default function Register() {
                 value={form.lastname}
                 onChange={handleChange}
                 required
-            /><br /><br />
+                autoComplete="family-name"
+            />
+            <br />
+            <br />
 
             <input
                 type="email"
@@ -49,7 +95,10 @@ export default function Register() {
                 value={form.email}
                 onChange={handleChange}
                 required
-            /><br /><br />
+                autoComplete="email"
+            />
+            <br />
+            <br />
 
             <input
                 type="password"
@@ -58,9 +107,15 @@ export default function Register() {
                 value={form.password}
                 onChange={handleChange}
                 required
-            /><br /><br />
+                autoComplete="new-password"
+                minLength={6}
+            />
+            <br />
+            <br />
 
-            <button type="submit">S'enregistrer</button>
+            <button type="submit" disabled={loading}>
+                {loading ? "Création..." : "S'enregistrer"}
+            </button>
 
             <p>
                 Déjà inscrit ? <Link to="/login">Connexion</Link>

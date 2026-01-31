@@ -1,18 +1,32 @@
 import axios from "axios";
 
+const baseURL =
+    import.meta.env.VITE_API_URL?.replace(/\/$/, "") ||
+    "http://127.0.0.1:8000/api";
+
 const api = axios.create({
-    baseURL: "http://localhost:8000/api",
-    withCredentials: true,
+    baseURL,
+    headers: { Accept: "application/json" },
+    timeout: 15000,
 });
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
-
     if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
 });
+
+api.interceptors.response.use(
+    (res) => res,
+    (error) => {
+        if (error?.response?.status === 401) {
+            localStorage.removeItem("token");
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default api;
