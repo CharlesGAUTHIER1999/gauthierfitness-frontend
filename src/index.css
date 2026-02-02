@@ -1284,3 +1284,453 @@ p {
   text-decoration:none;
   color:#111;
 }
+
+/* =========================
+   CHECKOUT (Teveo-like)
+========================= */
+
+:root {
+  --ck-text: #111;
+  --ck-muted: #6b7280;
+  --ck-border: #e5e5e5;
+  --ck-border-soft: #eee;
+  --ck-bg: #fff;
+  --ck-bg-soft: #fafafa;
+  --ck-radius: 14px;
+  --ck-radius-sm: 10px;
+}
+
+.checkout {
+  background: var(--ck-bg);
+}
+
+.checkout-shell {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 28px 0 40px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+}
+
+.checkout-left {
+  min-width: 0;
+}
+
+.checkout-right {
+  position: sticky;
+  top: 18px;
+  align-self: start;
+}
+
+.checkout-form {
+  display: grid;
+  gap: 18px;
+}
+
+/* ---------- Blocks ---------- */
+
+.ck-block {
+  padding: 0;
+}
+
+.ck-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ck-block-head h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: -0.2px;
+  color: var(--ck-text);
+}
+
+.ck-link {
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--ck-text);
+}
+
+/* ---------- Form grid ---------- */
+
+.ck-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.ck-col-12 { grid-column: span 12; }
+.ck-col-6 { grid-column: span 6; }
+
+.ck-field {
+  display: grid;
+  gap: 6px;
+}
+
+.ck-label {
+  font-size: 12px;
+  color: var(--ck-text);
+  font-weight: 500;
+}
+
+.ck-input {
+  height: 44px;
+  border: 1px solid var(--ck-border);
+  border-radius: var(--ck-radius-sm);
+  padding: 0 12px;
+  outline: none;
+  font-size: 14px;
+  background: var(--ck-bg);
+  color: var(--ck-text);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.ck-input:hover {
+  border-color: #cfcfcf;
+}
+
+.ck-input:focus {
+  border-color: var(--ck-text);
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.ck-muted {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ck-muted);
+  line-height: 1.3;
+}
+
+/* ---------- Shipping ---------- */
+
+.ck-radio-card {
+  border: 1px solid var(--ck-border);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--ck-bg);
+}
+
+.ck-radio {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.ck-radio input {
+  margin-top: 3px;
+}
+
+.ck-radio-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  font-size: 14px;
+  color: var(--ck-text);
+}
+
+.ck-radio-price {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* ---------- Payment placeholder (si tu l'utilises encore) ---------- */
+
+.ck-payment-placeholder {
+  border: 1px dashed var(--ck-border);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  color: var(--ck-muted);
+  background: var(--ck-bg);
+}
+
+/* ---------- Payment Element wrapper ---------- */
+
+.ck-payment-box {
+  border: 1px solid var(--ck-border-soft);
+  border-radius: var(--ck-radius);
+  padding: 14px;
+  background: var(--ck-bg);
+}
+
+.ck-payment-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.ck-payment-title {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--ck-text);
+}
+
+.ck-payment-sub {
+  font-size: 12px;
+  color: var(--ck-muted);
+  line-height: 1.25;
+}
+
+.ck-payment-element {
+  border-top: 1px solid var(--ck-border-soft);
+  padding-top: 12px;
+}
+
+/* ---------- Errors ---------- */
+
+.ck-error {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #f3b4b4;
+  background: #fff5f5;
+  color: #8a1f1f;
+  border-radius: var(--ck-radius-sm);
+  font-size: 13px;
+}
+
+/* ---------- Buttons ---------- */
+
+.ck-submit {
+  height: 48px;
+  width: 100%;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ck-text);
+  color: #fff;
+  font-weight: 650;
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease, opacity 120ms ease;
+}
+
+.ck-submit:hover {
+  filter: brightness(0.95);
+}
+
+.ck-submit:active {
+  transform: translateY(1px);
+}
+
+.ck-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- Summary (right column) ---------- */
+
+.ck-summary {
+  border: 1px solid var(--ck-border-soft);
+  border-radius: var(--ck-radius);
+  padding: 14px;
+  background: var(--ck-bg);
+}
+
+.ck-summary-items {
+  display: grid;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ck-border-soft);
+  margin-bottom: 12px;
+}
+
+.ck-summary-item {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.ck-summary-img {
+  position: relative;
+  width: 56px;
+  height: 70px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f4f4f4;
+}
+
+.ck-summary-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ck-summary-qty {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--ck-text);
+  color: #fff;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: center;
+  padding: 0 6px;
+}
+
+.ck-summary-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ck-text);
+  line-height: 1.2;
+}
+
+.ck-summary-meta {
+  font-size: 12px;
+  color: var(--ck-muted);
+  margin-top: 4px;
+}
+
+.ck-summary-price {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ck-text);
+  white-space: nowrap;
+}
+
+.ck-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ck-text);
+  margin-top: 8px;
+}
+
+.ck-summary-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ck-border-soft);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ck-text);
+}
+
+/* ---------- Payment result pages ---------- */
+
+.pay-result {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.pay-result h1 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: var(--ck-text);
+}
+
+.pay-result-box {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--ck-border-soft);
+  border-radius: 12px;
+  background: var(--ck-bg-soft);
+}
+
+.pay-result-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--ck-text);
+  background: var(--ck-text);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.btn:hover {
+  filter: brightness(0.95);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn.btn-outline {
+  background: transparent;
+  color: var(--ck-text);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  .checkout-shell {
+    grid-template-columns: 1fr;
+    padding: 18px 0 28px;
+  }
+
+  .checkout-right {
+    position: static;
+  }
+
+  .ck-block-head h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .ck-col-6 {
+    grid-column: span 12;
+  }
+}
+
+
+.ck-express {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ck-or {
+  position: relative;
+  text-align: center;
+  margin: 2px 0 4px;
+}
+
+.ck-or span {
+  display: inline-block;
+  font-size: 12px;
+  color: #6b7280;
+  background: #fff;
+  padding: 0 10px;
+}
+
+.ck-or::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: #eee;
+  transform: translateY(-50%);
+  z-index: -1;
+}

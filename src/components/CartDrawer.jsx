@@ -1,31 +1,28 @@
 import { useEffect, useRef, useMemo } from "react";
 import { useCart } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
 
 export default function CartDrawer() {
+    const navigate = useNavigate();
     const { isOpen, closeCart, items, subtotal, inc, dec, remove } = useCart();
 
     const drawerRef = useRef(null);
     const closeBtnRef = useRef(null);
     const lastActiveRef = useRef(null);
 
-    // ✅ Free shipping UI (front-only)
     const FREE_SHIPPING_THRESHOLD = 70;
 
     const freeShip = useMemo(() => {
         const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
         const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
         const isFree = subtotal >= FREE_SHIPPING_THRESHOLD;
-
         return { remaining, progress, isFree };
     }, [subtotal]);
 
     useEffect(() => {
         if (isOpen) {
             lastActiveRef.current = document.activeElement;
-
-            requestAnimationFrame(() => {
-                closeBtnRef.current?.focus();
-            });
+            requestAnimationFrame(() => closeBtnRef.current?.focus());
         } else {
             const drawer = drawerRef.current;
             if (drawer && drawer.contains(document.activeElement)) {
@@ -46,7 +43,6 @@ export default function CartDrawer() {
                 ref={drawerRef}
                 className={`cart-drawer ${isOpen ? "is-open" : ""}`}
                 aria-hidden={!isOpen}
-                // ✅ inert empêche toute interaction/focus quand fermé
                 {...(!isOpen ? { inert: true } : {})}
             >
                 <div className="cart-drawer-header">
@@ -61,12 +57,11 @@ export default function CartDrawer() {
                     </button>
                 </div>
 
-                {/* ✅ bandeau livraison gratuite */}
                 <div className="cart-free-ship">
                     <div className="cart-free-ship-row">
-            <span className="cart-free-ship-icon" aria-hidden="true">
-              {freeShip.isFree ? "✓" : "🚚"}
-            </span>
+                        <span className="cart-free-ship-icon" aria-hidden="true">
+                            {freeShip.isFree ? "✓" : "🚚"}
+                        </span>
 
                         {freeShip.isFree ? (
                             <p className="cart-free-ship-text">
@@ -124,11 +119,7 @@ export default function CartDrawer() {
 
                                             {it.optionLabel && (
                                                 <div className="cart-item-meta-line">
-                                                    {(it.optionType === "format" && "Format") ||
-                                                        (it.optionType === "capacity" && "Capacité") ||
-                                                        (it.optionType === "size" && "Taille") ||
-                                                        "Option"}{" "}
-                                                    : {it.optionLabel}
+                                                    Option : {it.optionLabel}
                                                 </div>
                                             )}
                                         </div>
@@ -137,7 +128,7 @@ export default function CartDrawer() {
                                             <div className="qty">
                                                 <button
                                                     type="button"
-                                                    onClick={() => dec(it.productId, it.optionId)}
+                                                    onClick={() => dec(it)}   // ✅ FIX
                                                     aria-label="Réduire"
                                                 >
                                                     –
@@ -145,7 +136,7 @@ export default function CartDrawer() {
                                                 <span>{it.quantity}</span>
                                                 <button
                                                     type="button"
-                                                    onClick={() => inc(it.productId, it.optionId)}
+                                                    onClick={() => inc(it)}   // ✅ FIX
                                                     aria-label="Augmenter"
                                                 >
                                                     +
@@ -154,7 +145,7 @@ export default function CartDrawer() {
 
                                             <button
                                                 className="cart-remove"
-                                                onClick={() => remove(it.productId, it.optionId)}
+                                                onClick={() => remove(it)}   // ✅ FIX
                                                 aria-label={`Supprimer ${it.name}`}
                                                 title="Supprimer"
                                             >
@@ -191,8 +182,15 @@ export default function CartDrawer() {
                         Taxes incluses. Frais d'expédition calculés à l'étape de paiement.
                     </div>
 
-                    <button className="cart-cta" disabled={items.length === 0}>
-                        PROCÉDER AU PAIEMENT
+                    <button
+                        className="cart-cta"
+                        disabled={items.length === 0}
+                        onClick={() => {
+                            closeCart();
+                            navigate("/checkout");
+                        }}
+                    >
+                        Procéder au paiement
                     </button>
                 </div>
             </aside>

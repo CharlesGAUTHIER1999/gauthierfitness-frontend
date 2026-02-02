@@ -14,6 +14,7 @@ import { AuthProvider, useAuth } from "./store/auth";
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 import AddressesPage from "./pages/AddressesPage.jsx";
+import CheckoutPage from "./pages/CheckoutPage.jsx";
 
 function GuestOnly({ children }) {
     const { token, loading } = useAuth();
@@ -35,7 +36,7 @@ export default function App() {
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/payment-success" element={<PaymentSuccess />} />
                         <Route path="/payment-cancel" element={<PaymentCancel />} />
-
+                        <Route path="/checkout" element={<CheckoutPage />} />
                         <Route
                             path="/login"
                             element={
