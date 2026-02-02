@@ -6,6 +6,7 @@ import React, {
     useReducer,
     useState,
 } from "react";
+import api from "../api/axios";
 
 function makeKey(productId, optionId) {
     return `${productId}:${optionId ?? "none"}`;
@@ -27,7 +28,7 @@ function cartReducer(state, action) {
                     ...state,
                     items: state.items.map((i) =>
                         i.key === key
-                            ? { ...i, quantity: i.quantity + (item.quantity ?? 1) }
+                            ? { ...i, quantity: i.quantity + item.quantity }
                             : i
                     ),
                 };
@@ -39,15 +40,11 @@ function cartReducer(state, action) {
                     ...state.items,
                     {
                         key,
+                        cartItemId: item.cartItemId, // id DB
                         productId: item.productId,
                         optionId: item.optionId ?? null,
-
                         optionLabel: item.optionLabel ?? null,
-                        optionType: item.optionType ?? null,
-
-                        variantTitle: item.variantTitle ?? null,
                         variantValue: item.variantValue ?? null,
-
                         name: item.name,
                         price: Number(item.price) || 0,
                         image: item.image || "/placeholder.jpg",
@@ -57,33 +54,21 @@ function cartReducer(state, action) {
             };
         }
 
-        case "INC": {
-            const key = action.payload;
+        case "SET_QTY": {
+            const { key, quantity } = action.payload;
             return {
                 ...state,
                 items: state.items.map((i) =>
-                    i.key === key ? { ...i, quantity: i.quantity + 1 } : i
+                    i.key === key ? { ...i, quantity } : i
                 ),
             };
         }
 
-        case "DEC": {
-            const key = action.payload;
+        case "REMOVE":
             return {
                 ...state,
-                items: state.items.map((i) =>
-                    i.key === key ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
-                ),
+                items: state.items.filter((i) => i.key !== action.payload),
             };
-        }
-
-        case "REMOVE": {
-            const key = action.payload;
-            return {
-                ...state,
-                items: state.items.filter((i) => i.key !== key),
-            };
-        }
 
         case "CLEAR":
             return { items: [] };
@@ -98,49 +83,46 @@ const CartContext = createContext(null);
 export function CartProvider({ children }) {
     const [state, dispatch] = useReducer(cartReducer, { items: [] });
     const [isOpen, setIsOpen] = useState(false);
-
-    // ✅ IMPORTANT : on n’écrit pas dans le localStorage avant d’avoir chargé
     const [hydrated, setHydrated] = useState(false);
 
-    // init localStorage (une seule fois au mount)
     useEffect(() => {
         try {
             const raw = localStorage.getItem("cart");
             if (raw) {
-                const items = JSON.parse(raw);
-                dispatch({ type: "INIT", payload: { items: Array.isArray(items) ? items : [] } });
-                console.log("Loaded cart:", items);
-            } else {
-                dispatch({ type: "INIT", payload: { items: [] } });
-                console.log("Loaded cart: (empty)");
+                dispatch({
+                    type: "INIT",
+                    payload: { items: JSON.parse(raw) },
+                });
             }
         } catch (e) {
-            console.warn("Failed to load cart from localStorage:", e);
-            dispatch({ type: "INIT", payload: { items: [] } });
+            console.warn("Failed to load cart:", e);
         } finally {
             setHydrated(true);
         }
     }, []);
 
-    // persist (uniquement après hydration)
     useEffect(() => {
         if (!hydrated) return;
-        try {
-            localStorage.setItem("cart", JSON.stringify(state.items));
-        } catch {}
+        localStorage.setItem("cart", JSON.stringify(state.items));
     }, [hydrated, state.items]);
 
     const count = useMemo(
-        () => state.items.reduce((acc, i) => acc + i.quantity, 0),
+        () => state.items.reduce((a, i) => a + i.quantity, 0),
         [state.items]
     );
 
     const subtotal = useMemo(
-        () => state.items.reduce((acc, i) => acc + i.price * i.quantity, 0),
+        () => state.items.reduce((a, i) => a + i.price * i.quantity, 0),
         [state.items]
     );
 
-    const api = useMemo(
+    // (optionnel) si tu veux plus tard hydrater depuis DB
+    async function syncFromBackend() {
+        // const res = await api.get("/cart");
+        // dispatch({ type: "INIT", payload: { items: normalize(res.data.items) } });
+    }
+
+    const value = useMemo(
         () => ({
             items: state.items,
             count,
@@ -150,23 +132,75 @@ export function CartProvider({ children }) {
             openCart: () => setIsOpen(true),
             closeCart: () => setIsOpen(false),
 
-            addItem: (item) => dispatch({ type: "ADD_ITEM", payload: item }),
+            syncFromBackend,
 
-            inc: (productId, optionId) =>
-                dispatch({ type: "INC", payload: makeKey(productId, optionId) }),
+            addItem: async (item) => {
+                const res = await api.post("/cart/items", {
+                    product_id: item.productId,
+                    product_option_id: item.optionId ?? null,
+                    quantity: item.quantity ?? 1,
+                });
 
-            dec: (productId, optionId) =>
-                dispatch({ type: "DEC", payload: makeKey(productId, optionId) }),
+                dispatch({
+                    type: "ADD_ITEM",
+                    payload: {
+                        ...item,
+                        cartItemId: res.data.id,
+                    },
+                });
+            },
 
-            remove: (productId, optionId) =>
-                dispatch({ type: "REMOVE", payload: makeKey(productId, optionId) }),
+            inc: async (item) => {
+                if (!item?.cartItemId) {
+                    // fallback purement local
+                    dispatch({
+                        type: "SET_QTY",
+                        payload: { key: item.key, quantity: item.quantity + 1 },
+                    });
+                    return;
+                }
+
+                await api.patch(`/cart/items/${item.cartItemId}`, {
+                    quantity: item.quantity + 1,
+                });
+
+                dispatch({
+                    type: "SET_QTY",
+                    payload: { key: item.key, quantity: item.quantity + 1 },
+                });
+            },
+
+            dec: async (item) => {
+                const q = Math.max(1, item.quantity - 1);
+
+                if (!item?.cartItemId) {
+                    dispatch({ type: "SET_QTY", payload: { key: item.key, quantity: q } });
+                    return;
+                }
+
+                await api.patch(`/cart/items/${item.cartItemId}`, {
+                    quantity: q,
+                });
+
+                dispatch({
+                    type: "SET_QTY",
+                    payload: { key: item.key, quantity: q },
+                });
+            },
+
+            remove: async (item) => {
+                if (item?.cartItemId) {
+                    await api.delete(`/cart/items/${item.cartItemId}`);
+                }
+                dispatch({ type: "REMOVE", payload: item.key });
+            },
 
             clear: () => dispatch({ type: "CLEAR" }),
         }),
         [state.items, count, subtotal, isOpen]
     );
 
-    return <CartContext.Provider value={api}>{children}</CartContext.Provider>;
+    return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
