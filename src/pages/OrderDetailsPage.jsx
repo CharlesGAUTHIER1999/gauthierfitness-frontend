@@ -41,9 +41,18 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="pay-result">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "baseline",
+                    gap: 12,
+                }}
+            >
                 <h1>Détails de la commande</h1>
-                <Link className="ck-link" to="/account/orders">Retour</Link>
+                <Link className="ck-link" to="/account/orders">
+                    Retour
+                </Link>
             </div>
 
             <div className="pay-result-box">
@@ -61,63 +70,215 @@ export default function OrderDetailsPage() {
                             <strong>{statusLabel(order.order_status)}</strong>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 16 }}>
-                            <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 12 }}>
-                                <div style={{ fontWeight: 650, marginBottom: 8 }}>Adresse de livraison</div>
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "1fr 1fr",
+                                gap: 14,
+                                marginBottom: 16,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    border: "1px solid #eee",
+                                    borderRadius: 12,
+                                    padding: 12,
+                                }}
+                            >
+                                <div style={{ fontWeight: 650, marginBottom: 8 }}>
+                                    Adresse de livraison
+                                </div>
                                 <div className="ck-muted" style={{ lineHeight: 1.5 }}>
-                                    <div>{shipment?.firstname} {shipment?.lastname}</div>
+                                    <div>
+                                        {shipment?.firstname} {shipment?.lastname}
+                                    </div>
                                     <div>{shipment?.address}</div>
-                                    <div>{shipment?.zip} {shipment?.city}</div>
+                                    <div>
+                                        {shipment?.zip} {shipment?.city}
+                                    </div>
                                     <div>{shipment?.country}</div>
                                 </div>
                             </div>
 
-                            <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 12 }}>
-                                <div style={{ fontWeight: 650, marginBottom: 8 }}>Adresse de facturation</div>
+                            <div
+                                style={{
+                                    border: "1px solid #eee",
+                                    borderRadius: 12,
+                                    padding: 12,
+                                }}
+                            >
+                                <div style={{ fontWeight: 650, marginBottom: 8 }}>
+                                    Adresse de facturation
+                                </div>
                                 <div className="ck-muted" style={{ lineHeight: 1.5 }}>
-                                    <div>{shipment?.firstname} {shipment?.lastname}</div>
+                                    <div>
+                                        {shipment?.firstname} {shipment?.lastname}
+                                    </div>
                                     <div>{shipment?.address}</div>
-                                    <div>{shipment?.zip} {shipment?.city}</div>
+                                    <div>
+                                        {shipment?.zip} {shipment?.city}
+                                    </div>
                                     <div>{shipment?.country}</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div style={{ overflowX: "auto", border: "1px solid #eee", borderRadius: 12 }}>
-                            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                        <div
+                            style={{
+                                overflowX: "auto",
+                                border: "1px solid #eee",
+                                borderRadius: 12,
+                            }}
+                        >
+                            <table
+                                style={{
+                                    width: "100%",
+                                    borderCollapse: "collapse",
+                                    fontSize: 14,
+                                }}
+                            >
                                 <thead>
-                                <tr style={{ textAlign: "left", borderBottom: "1px solid #eee" }}>
+                                <tr
+                                    style={{
+                                        textAlign: "left",
+                                        borderBottom: "1px solid #eee",
+                                    }}
+                                >
                                     <th style={{ padding: "10px 12px" }}>Produit</th>
-                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>Prix</th>
-                                    <th style={{ padding: "10px 12px", textAlign: "center" }}>Quantité</th>
-                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>Total</th>
+                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>
+                                        Prix
+                                    </th>
+                                    <th style={{ padding: "10px 12px", textAlign: "center" }}>
+                                        Quantité
+                                    </th>
+                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>
+                                        Total
+                                    </th>
                                 </tr>
                                 </thead>
+
                                 <tbody>
                                 {items.map((it) => {
                                     const name = it?.product?.name || "Produit";
                                     const qty = Number(it?.quantity || 0);
                                     const unit = Number(it?.unit_price || 0);
                                     const line = Number(it?.total || unit * qty);
-                                    const optLabel = it?.option?.label ? ` • ${it.option.label}` : "";
+                                    const optLabel = it?.option?.label
+                                        ? ` • ${it.option.label}`
+                                        : "";
+                                    const previewSrc =
+                                        it?.customization_preview_path ||
+                                        it?.product?.main_image ||
+                                        "/placeholder.jpg";
+                                    const snapshot = it?.customization_snapshot || null;
+                                    const isCustomized = Boolean(it?.custom_product_session_id);
 
                                     return (
-                                        <tr key={it.id} style={{ borderBottom: "1px solid #f2f2f2" }}>
+                                        <tr
+                                            key={it.id}
+                                            style={{ borderBottom: "1px solid #f2f2f2" }}
+                                        >
                                             <td style={{ padding: "12px" }}>
-                                                <div style={{ fontWeight: 650 }}>{name}{optLabel}</div>
-                                                {it?.product?.slug && (
-                                                    <div className="ck-muted" style={{ marginTop: 4 }}>
-                                                        <Link className="ck-link" to={`/products/${it.product.slug}`}>
-                                                            Voir le produit
-                                                        </Link>
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        gap: 12,
+                                                        alignItems: "flex-start",
+                                                    }}
+                                                >
+                                                    <img
+                                                        src={previewSrc}
+                                                        alt={name}
+                                                        style={{
+                                                            width: 72,
+                                                            height: 72,
+                                                            objectFit: "cover",
+                                                            borderRadius: 10,
+                                                            border: "1px solid #eee",
+                                                            flexShrink: 0,
+                                                        }}
+                                                    />
+
+                                                    <div>
+                                                        <div style={{ fontWeight: 650 }}>
+                                                            {name}
+                                                            {optLabel}
+                                                        </div>
+
+                                                        {isCustomized && (
+                                                            <div
+                                                                className="ck-muted"
+                                                                style={{ marginTop: 4 }}
+                                                            >
+                                                                Produit personnalisé
+                                                            </div>
+                                                        )}
+
+                                                        {snapshot?.player_name?.value && (
+                                                            <div
+                                                                className="ck-muted"
+                                                                style={{ marginTop: 4 }}
+                                                            >
+                                                                Nom : {snapshot.player_name.value}
+                                                            </div>
+                                                        )}
+
+                                                        {snapshot?.player_number?.value && (
+                                                            <div
+                                                                className="ck-muted"
+                                                                style={{ marginTop: 2 }}
+                                                            >
+                                                                Numéro : {snapshot.player_number.value}
+                                                            </div>
+                                                        )}
+
+                                                        {snapshot?.template_id && (
+                                                            <div
+                                                                className="ck-muted"
+                                                                style={{ marginTop: 2 }}
+                                                            >
+                                                                Template : {snapshot.template_id}
+                                                            </div>
+                                                        )}
+
+                                                        {it?.product?.slug && (
+                                                            <div
+                                                                className="ck-muted"
+                                                                style={{ marginTop: 6 }}
+                                                            >
+                                                                <Link
+                                                                    className="ck-link"
+                                                                    to={`/products/${it.product.slug}`}
+                                                                >
+                                                                    Voir le produit
+                                                                </Link>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
+                                                </div>
                                             </td>
-                                            <td style={{ padding: "12px", textAlign: "right", fontWeight: 650 }}>
+
+                                            <td
+                                                style={{
+                                                    padding: "12px",
+                                                    textAlign: "right",
+                                                    fontWeight: 650,
+                                                }}
+                                            >
                                                 {formatPriceEUR(unit)}
                                             </td>
-                                            <td style={{ padding: "12px", textAlign: "center" }}>{qty}</td>
-                                            <td style={{ padding: "12px", textAlign: "right", fontWeight: 650 }}>
+
+                                            <td style={{ padding: "12px", textAlign: "center" }}>
+                                                {qty}
+                                            </td>
+
+                                            <td
+                                                style={{
+                                                    padding: "12px",
+                                                    textAlign: "right",
+                                                    fontWeight: 650,
+                                                }}
+                                            >
                                                 {formatPriceEUR(line)}
                                             </td>
                                         </tr>
@@ -127,34 +288,89 @@ export default function OrderDetailsPage() {
                             </table>
                         </div>
 
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 16 }}>
-                            <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 12 }}>
-                                <div style={{ fontWeight: 650, marginBottom: 10 }}>Détails de la commande</div>
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "1fr 1fr",
+                                gap: 14,
+                                marginTop: 16,
+                            }}
+                        >
+                            <div
+                                style={{
+                                    border: "1px solid #eee",
+                                    borderRadius: 12,
+                                    padding: 12,
+                                }}
+                            >
+                                <div style={{ fontWeight: 650, marginBottom: 10 }}>
+                                    Détails de la commande
+                                </div>
                                 <div style={{ display: "grid", gap: 8 }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            gap: 10,
+                                        }}
+                                    >
                                         <span className="ck-muted">Transporteur</span>
-                                        <span style={{ fontWeight: 650 }}>{shipment?.carrier || "—"}</span>
+                                        <span style={{ fontWeight: 650 }}>
+                                            {shipment?.carrier || "—"}
+                                        </span>
                                     </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            gap: 10,
+                                        }}
+                                    >
                                         <span className="ck-muted">Paiement</span>
-                                        <span style={{ fontWeight: 650 }}>{payment?.provider || "stripe"}</span>
+                                        <span style={{ fontWeight: 650 }}>
+                                            {payment?.provider || "stripe"}
+                                        </span>
                                     </div>
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+
+                                    <div
+                                        style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            gap: 10,
+                                        }}
+                                    >
                                         <span className="ck-muted">Statut paiement</span>
-                                        <span style={{ fontWeight: 650 }}>{payment?.status || order.payment_status}</span>
+                                        <span style={{ fontWeight: 650 }}>
+                                            {payment?.status || order.payment_status}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 12 }}>
+                            <div
+                                style={{
+                                    border: "1px solid #eee",
+                                    borderRadius: 12,
+                                    padding: 12,
+                                }}
+                            >
                                 <div style={{ fontWeight: 650, marginBottom: 10 }}>Total</div>
-                                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        gap: 10,
+                                    }}
+                                >
                                     <span className="ck-muted">Total TTC</span>
                                     <span style={{ fontWeight: 750, fontSize: 18 }}>
                                         {formatPriceEUR(order.total_ttc)}
                                     </span>
                                 </div>
-                                <div className="ck-muted" style={{ marginTop: 8 }}>Taxes incluses.</div>
+                                <div className="ck-muted" style={{ marginTop: 8 }}>
+                                    Taxes incluses.
+                                </div>
                             </div>
                         </div>
                     </>
