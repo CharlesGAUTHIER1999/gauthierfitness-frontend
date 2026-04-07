@@ -90,7 +90,6 @@ export function CartProvider({ children }) {
 
     const refetchCart = useCallback(async () => {
         const token = localStorage.getItem("token");
-
         if (!token) {
             dispatch({ type: "CLEAR" });
             return;
@@ -112,9 +111,11 @@ export function CartProvider({ children }) {
         }
     }, []);
 
+    // boot: hydrate depuis DB
     useEffect(() => {
         void refetchCart();
-    }, [refetchCart]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const addItem = useCallback(
         async ({
@@ -163,8 +164,8 @@ export function CartProvider({ children }) {
             currency: state.currency,
             isOpen,
 
-            openCart,
-            closeCart,
+            openCart: () => setIsOpen(true),
+            closeCart: () => setIsOpen(false),
 
             refetchCart,
             addItem,
@@ -192,10 +193,6 @@ export function CartProvider({ children }) {
 
 export function useCart() {
     const ctx = useContext(CartContext);
-
-    if (!ctx) {
-        throw new Error("useCart must be used within CartProvider");
-    }
-
+    if (!ctx) throw new Error("useCart must be used within CartProvider");
     return ctx;
 }
