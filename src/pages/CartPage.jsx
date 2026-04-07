@@ -29,8 +29,17 @@ export default function CartPage() {
 
                     <div>
                         <strong>{it.name}</strong>
+
+                        {it.isCustomized && <div>Produit personnalisé</div>}
+
                         {it.variantValue && <div>{it.variantValue}</div>}
                         {it.optionLabel && <div>{it.optionLabel}</div>}
+
+                        {it.customization?.configuration?.text_layers?.length > 0 && (
+                            <div>
+                                Texte : {it.customization.configuration.text_layers[0]?.text}
+                            </div>
+                        )}
                     </div>
 
                     <div>

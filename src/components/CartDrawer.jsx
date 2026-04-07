@@ -32,19 +32,26 @@ export default function CartDrawer() {
             >
                 <div className="cart-drawer-header">
                     <h3>Votre panier</h3>
-                    <button ref={closeBtnRef} className="cart-close" onClick={closeCart} aria-label="Fermer">
+                    <button
+                        ref={closeBtnRef}
+                        className="cart-close"
+                        onClick={closeCart}
+                        aria-label="Fermer"
+                    >
                         ✕
                     </button>
                 </div>
 
                 <div className="cart-free-ship">
                     <div className="cart-free-ship-row">
-                        <span className="cart-free-ship-icon" aria-hidden="true">
-                            {freeShip.isFree ? "✓" : "🚚"}
-                        </span>
+            <span className="cart-free-ship-icon" aria-hidden="true">
+              {freeShip.isFree ? "✓" : "🚚"}
+            </span>
 
                         {freeShip.isFree ? (
-                            <p className="cart-free-ship-text">Vous avez obtenu la livraison gratuite !</p>
+                            <p className="cart-free-ship-text">
+                                Vous avez obtenu la livraison gratuite !
+                            </p>
                         ) : (
                             <p className="cart-free-ship-text">
                                 Plus que <strong>{freeShip.remaining.toFixed(2)} €</strong> pour la livraison gratuite
@@ -78,14 +85,27 @@ export default function CartDrawer() {
                                         </div>
 
                                         <div className="cart-item-meta">
+                                            {it.isCustomized && (
+                                                <div className="cart-item-meta-line">
+                                                    Produit personnalisé
+                                                </div>
+                                            )}
+
                                             {it.variantValue && it.variantTitle && (
                                                 <div className="cart-item-meta-line">
                                                     {it.variantTitle} : {it.variantValue}
                                                 </div>
                                             )}
+
                                             {it.optionLabel && (
                                                 <div className="cart-item-meta-line">
                                                     Option : {it.optionLabel}
+                                                </div>
+                                            )}
+
+                                            {it.customization?.configuration?.text_layers?.length > 0 && (
+                                                <div className="cart-item-meta-line">
+                                                    Texte : {it.customization.configuration.text_layers[0]?.text}
                                                 </div>
                                             )}
                                         </div>

@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { useAuth } from "../store/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 
 export default function Login() {
     const { login } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+
+    const redirect = searchParams.get("redirect") || "/";
 
     async function submit(e) {
         e.preventDefault();
@@ -17,7 +20,7 @@ export default function Login() {
         try {
             const safeEmail = email.trim().toLowerCase();
             await login(safeEmail, password);
-            navigate("/");
+            navigate(redirect, { replace: true });
         } catch (e) {
             const msg =
                 e?.response?.data?.message ||
