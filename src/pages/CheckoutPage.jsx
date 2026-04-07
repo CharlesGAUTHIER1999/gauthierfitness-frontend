@@ -347,12 +347,36 @@ export default function CheckoutPage() {
                                 {items.map((it) => (
                                     <div key={it.key} className="ck-summary-item">
                                         <div className="ck-summary-img">
-                                            <img src={it.image} alt={it.name} />
+                                            <img
+                                                src={it.customizationPreviewPath || it.image}
+                                                alt={it.name}
+                                            />
                                             <span className="ck-summary-qty">{it.quantity}</span>
                                         </div>
 
                                         <div className="ck-summary-info">
                                             <div className="ck-summary-name">{it.name}</div>
+
+                                            {it.isCustomized && (
+                                                <div className="ck-summary-meta" style={{ marginTop: 4 }}>
+                                                    Produit personnalisé
+                                                </div>
+                                            )}
+
+                                            {it.customization?.player_name?.value && (
+                                                <div className="ck-summary-meta">
+                                                    Nom : {it.customization.player_name.value}
+                                                </div>
+                                            )}
+
+                                            {it.customization?.player_number?.value && (
+                                                <div className="ck-summary-meta">
+                                                    Numéro : {it.customization.player_number.value}
+                                                </div>
+                                            )}
+
+
+
                                             <div className="ck-summary-meta">
                                                 {it.variantTitle && it.variantValue ? `${it.variantValue}` : null}
                                                 {it.optionLabel ? ` • ${it.optionLabel}` : null}

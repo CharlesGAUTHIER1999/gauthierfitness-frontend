@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
+import ProductCustomizePage from "./pages/ProductCustomizePage";
 import Dashboard from "./pages/Dashboard";
 import CartPage from "./pages/CartPage.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
@@ -15,13 +16,13 @@ import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 import AddressesPage from "./pages/AddressesPage.jsx";
 import CheckoutPage from "./pages/CheckoutPage.jsx";
-import OrdersPage from  "./pages/OrdersPage.jsx";
-import OrderDetailsPage from  "./pages/OrderDetailsPage.jsx";
+import OrdersPage from "./pages/OrdersPage.jsx";
+import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
 function GuestOnly({ children }) {
     const { token, loading } = useAuth();
 
-    if (loading) return null; // ou un spinner
+    if (loading) return null;
     if (token) return <Navigate to="/account" replace />;
     return children;
 }
@@ -35,10 +36,19 @@ export default function App() {
                         <Route path="/" element={<Home />} />
                         <Route path="/products" element={<Products />} />
                         <Route path="/products/:slug" element={<ProductDetail />} />
+                        <Route
+                            path="/products/:slug/customize"
+                            element={
+                                <ProtectedRoute>
+                                    <ProductCustomizePage />
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route path="/cart" element={<CartPage />} />
                         <Route path="/payment-success" element={<PaymentSuccess />} />
                         <Route path="/payment-cancel" element={<PaymentCancel />} />
                         <Route path="/checkout" element={<CheckoutPage />} />
+
                         <Route
                             path="/login"
                             element={
@@ -47,6 +57,7 @@ export default function App() {
                                 </GuestOnly>
                             }
                         />
+
                         <Route
                             path="/register"
                             element={
@@ -64,6 +75,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+
                         <Route
                             path="/account/orders"
                             element={
@@ -72,6 +84,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+
                         <Route
                             path="/account/orders/:id"
                             element={
@@ -80,6 +93,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+
                         <Route
                             path="/account/addresses"
                             element={
@@ -88,6 +102,7 @@ export default function App() {
                                 </ProtectedRoute>
                             }
                         />
+
                         <Route
                             path="/dashboard"
                             element={

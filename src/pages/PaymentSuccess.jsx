@@ -4,6 +4,8 @@ import { useCart } from "../context/CartContext.jsx";
 
 export default function PaymentSuccess() {
     const location = useLocation();
+    const { refetchCart, clear, closeCart } = useCart();
+    const [done, setDone] = useState(false);
 
     const params = useMemo(
         () => new URLSearchParams(location.search),
@@ -12,7 +14,6 @@ export default function PaymentSuccess() {
 
     const redirectStatus = params.get("redirect_status");
     const paymentIntent = params.get("payment_intent");
-
     const isDev = import.meta.env.DEV;
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export default function PaymentSuccess() {
         (async () => {
             try {
                 await refetchCart();
+                clear();
                 closeCart?.();
             } finally {
                 if (!cancelled) {
@@ -32,7 +34,7 @@ export default function PaymentSuccess() {
         return () => {
             cancelled = true;
         };
-    }, [refetchCart, closeCart]);
+    }, [refetchCart, clear, closeCart]);
 
     return (
         <div className="pay-result">

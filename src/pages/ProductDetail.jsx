@@ -7,11 +7,9 @@ import { useCart } from "../context/CartContext.jsx";
 export default function ProductDetail() {
     const { slug } = useParams();
     const navigate = useNavigate();
-
     const [product, setProduct] = useState(null);
     const { addItem, openCart } = useCart();
 
-    // stockage des options
     const [selectedSizeOpt, setSelectedSizeOpt] = useState(null);
     const [selectedFormatOpt, setSelectedFormatOpt] = useState(null);
     const [selectedCapacityOpt, setSelectedCapacityOpt] = useState(null);
@@ -36,13 +34,14 @@ export default function ProductDetail() {
     const images = useMemo(() => {
         const imgs = Array.isArray(product?.images) ? product.images : [];
 
-        // fallback si API renvoie main_image/hover_image mais pas images[]
         if (imgs.length === 0) {
             const fallback = [];
-            if (product?.main_image)
+            if (product?.main_image) {
                 fallback.push({ id: "main", url: product.main_image, is_main: true });
-            if (product?.hover_image)
+            }
+            if (product?.hover_image) {
                 fallback.push({ id: "hover", url: product.hover_image, is_main: false });
+            }
             return fallback;
         }
 
@@ -85,24 +84,39 @@ export default function ProductDetail() {
         selectedCapacityOpt,
     ]);
 
-    // ✅ Nom du bloc variantes : "Goûts" pour nutrition / "Couleur" sinon
     const variantTitle = useMemo(() => {
-        // Si ton API renvoie déjà variant_name / variant_type, on l'utilise
         if (product?.variant_name) return product.variant_name;
         if (product?.variant_type === "flavor") return "Goûts";
-
-        // Fallback robuste: en nutrition tu as toujours un format (500g/900g/etc.)
         if (formatOptions.length > 0) return "Goûts";
-
         return "Couleur";
     }, [product?.variant_name, product?.variant_type, formatOptions.length]);
 
     if (!product) return <p>Chargement...</p>;
+
     const price = Number(product.price_ttc || 0).toFixed(2);
+
+    const selectedPrimaryOption =
+        selectedSizeOpt ?? selectedFormatOpt ?? selectedCapacityOpt ?? null;
+
+    const isCustomizable = Boolean(product?.is_customizable);
+
+    function handleCustomize() {
+        const redirectUrl = `/products/${product.slug}/customize`;
+
+        if (!localStorage.getItem("token")) {
+            navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+            return;
+        }
+
+        navigate(redirectUrl, {
+            state: {
+                selectedOptionId: selectedPrimaryOption?.id ?? null,
+            },
+        });
+    }
 
     return (
         <div className="pd">
-            {/* GALERIE */}
             <section className="pd-gallery" aria-label="Galerie produit">
                 {images.length > 0 ? (
                     images.map((img, index) => (
@@ -130,7 +144,6 @@ export default function ProductDetail() {
                 )}
             </section>
 
-            {/* PANNEAU DROIT */}
             <aside className="pd-panel">
                 <div className="pd-header">
                     {product?.supplier?.name && (
@@ -139,12 +152,13 @@ export default function ProductDetail() {
                     <h1 className="pd-title">{product.name}</h1>
                     <div className="pd-price-row">
                         <p className="pd-price">{price}€</p>
-                        <p className="pd-tax">Taxes incluses. Frais d'expédition calculés à l'étape de paiement.</p>
+                        <p className="pd-tax">
+                            Taxes incluses. Frais d'expédition calculés à l'étape de paiement.
+                        </p>
                     </div>
                     <p className="pd-desc">{product.description}</p>
                 </div>
 
-                {/* ✅ Variantes (Couleurs / Goûts) */}
                 {product?.variants?.length > 0 && (
                     <div className="pd-block">
                         <div className="pd-block-head">
@@ -163,9 +177,7 @@ export default function ProductDetail() {
                                     <button
                                         key={v.slug}
                                         type="button"
-                                        className={`pd-swatch ${
-                                            v.slug === product.slug ? "is-active" : ""
-                                        }`}
+                                        className={`pd-swatch ${v.slug === product.slug ? "is-active" : ""}`}
                                         onClick={() => navigate(`/products/${v.slug}`)}
                                         title={label}
                                         aria-label={label}
@@ -181,12 +193,15 @@ export default function ProductDetail() {
                     </div>
                 )}
 
-                {/* Tailles */}
                 {sizeOptions.length > 0 && (
                     <div className="pd-block">
                         <div className="pd-block-head">
                             <h4>Taille</h4>
-                            <button type="button" className="pd-link" onClick={() => setSizeGuideOpen(true)}>
+                            <button
+                                type="button"
+                                className="pd-link"
+                                onClick={() => setSizeGuideOpen(true)}
+                            >
                                 Guide des tailles
                             </button>
                         </div>
@@ -211,7 +226,6 @@ export default function ProductDetail() {
                     </div>
                 )}
 
-                {/* Formats (nutrition) */}
                 {formatOptions.length > 0 && (
                     <div className="pd-block">
                         <div className="pd-block-head">
@@ -237,7 +251,6 @@ export default function ProductDetail() {
                     </div>
                 )}
 
-                {/* Capacity */}
                 {capacityOptions.length > 0 && (
                     <div className="pd-block">
                         <div className="pd-block-head">
@@ -267,43 +280,41 @@ export default function ProductDetail() {
                     <button
                         className="pd-add"
                         disabled={!canAddToCart}
-                        onClick={() => {
-                            const opt =
-                                selectedSizeOpt ??
-                                selectedFormatOpt ??
-                                selectedCapacityOpt ??
-                                null;
-
-                            addItem({
-                                productId: product.id,
-                                optionId: opt?.id ?? null,
-                                optionLabel: opt?.label || opt?.code || null,
-                                optionType: opt?.type ?? null,
-                                variantTitle: product.variant_name || variantTitle, // "Couleurs" / "Goûts"
-                                variantValue:
-                                    product.variant_value_label ||
-                                    product.flavor_label ||
-                                    product.color_label ||
-                                    null,
-
-                                name: product.name,
-                                price: product.price_ttc,
-                                image: product.main_image,
-                                quantity: 1,
-                            });
-
-                            openCart(); // UX premium : ouvre le drawer direct
+                        onClick={async () => {
+                            try {
+                                await addItem({
+                                    productId: product.id,
+                                    optionId: selectedPrimaryOption?.id ?? null,
+                                    quantity: 1,
+                                });
+                                openCart();
+                            } catch (e) {
+                                console.error("Erreur ajout panier :", e);
+                            }
                         }}
                     >
                         Ajouter au panier
                     </button>
-
                 </div>
+
+                {isCustomizable && (
+                    <div className="pd-cta" style={{ marginTop: 12 }}>
+                        <button
+                            type="button"
+                            className="pd-add"
+                            disabled={!canAddToCart}
+                            onClick={handleCustomize}
+                        >
+                            Personnaliser ce produit
+                        </button>
+                    </div>
+                )}
 
                 <ul className="pd-bullets">
                     <li>Article disponible - Délai de livraison : 4–7 jours ouvrés</li>
                 </ul>
             </aside>
+
             <SizeGuideDrawer
                 open={sizeGuideOpen}
                 onClose={() => setSizeGuideOpen(false)}
