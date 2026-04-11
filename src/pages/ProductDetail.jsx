@@ -111,6 +111,9 @@ export default function ProductDetail() {
         navigate(redirectUrl, {
             state: {
                 selectedOptionId: selectedPrimaryOption?.id ?? null,
+                selectedOptionType: selectedPrimaryOption?.type ?? null,
+                selectedOptionCode: selectedPrimaryOption?.code ?? null,
+                selectedOptionLabel: selectedPrimaryOption?.label ?? null,
             },
         });
     }

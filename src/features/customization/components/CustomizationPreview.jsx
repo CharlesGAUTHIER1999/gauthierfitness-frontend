@@ -8,6 +8,7 @@ import {
     Line,
     Group,
 } from "react-konva";
+import { getProductCustomizerViewConfig } from "../utils/productCustomizerConfigs";
 
 function useHtmlImage(src) {
     const [image, setImage] = useState(null);
@@ -44,6 +45,12 @@ function useHtmlImage(src) {
     return image;
 }
 
+function getProductImageUrl(image) {
+    if (!image) return null;
+    if (typeof image === "string") return image;
+    return image.full_url || image.url || null;
+}
+
 function getPatternImageSrc(patternId) {
     if (!patternId) return null;
 
@@ -74,42 +81,27 @@ function getGradientImageSrc(gradientId) {
     }
 }
 
-function getViewImage(product, view) {
+function getFallbackViewImage(product, view) {
     const images = Array.isArray(product?.images) ? product.images : [];
 
     if (!images.length) {
-        return product?.main_image || null;
+        return getProductImageUrl(product?.main_image) || null;
     }
 
     if (view === "back") {
-        return images[1]?.url || images[0]?.url || product?.main_image || null;
+        return (
+            getProductImageUrl(images[1]) ||
+            getProductImageUrl(images[0]) ||
+            getProductImageUrl(product?.main_image) ||
+            null
+        );
     }
 
-    return images[0]?.url || product?.main_image || null;
-}
-
-function getTemplateConfig(templateId, view) {
-    if (view === "back") {
-        return {
-            printZone: { x: 272, y: 205, width: 215, height: 238 },
-            designZone: { x: 272, y: 118, width: 205, height: 376 },
-            logo: { x: 245, y: 220, width: 64, height: 64 },
-        };
-    }
-
-    if (templateId === "clean-front-template") {
-        return {
-            printZone: { x: 300, y: 220, width: 165, height: 135 },
-            designZone: { x: 278, y: 118, width: 200, height: 372 },
-            logo: { x: 286, y: 205, width: 42, height: 42 },
-        };
-    }
-
-    return {
-        printZone: { x: 268, y: 224, width: 225, height: 162 },
-        designZone: { x: 274, y: 118, width: 208, height: 380 },
-        logo: { x: 245, y: 220, width: 64, height: 64 },
-    };
+    return (
+        getProductImageUrl(images[0]) ||
+        getProductImageUrl(product?.main_image) ||
+        null
+    );
 }
 
 function getTemplateDecor(templateId, view, textColor) {
@@ -154,8 +146,9 @@ export default function CustomizationPreview({
     const height = 760;
 
     const currentView = configuration?.view || "front";
+
     const currentImageSrc = useMemo(
-        () => getViewImage(product, currentView),
+        () => getFallbackViewImage(product, currentView),
         [product, currentView]
     );
 
@@ -178,14 +171,31 @@ export default function CustomizationPreview({
             ? configuration.player_number.value.trim()
             : "";
 
-    const templateConfig = getTemplateConfig(configuration?.template_id, currentView);
+    const templateConfig =
+        getProductCustomizerViewConfig(
+            product,
+            currentView,
+            configuration?.template_id
+        ) || {
+            printZone: currentView === "back"
+                ? { x: 272, y: 205, width: 215, height: 238 }
+                : { x: 268, y: 224, width: 225, height: 162 },
+            designZone: currentView === "back"
+                ? { x: 272, y: 118, width: 205, height: 376 }
+                : { x: 274, y: 118, width: 208, height: 380 },
+            logoZone: configuration?.template_id === "clean-front-template" && currentView === "front"
+                ? { x: 286, y: 205, width: 42, height: 42 }
+                : { x: 245, y: 220, width: 64, height: 64 },
+        };
+
     const printZone = templateConfig.printZone;
     const designZone = templateConfig.designZone;
+    const logoZone = templateConfig.logoZone;
 
-    const logoX = configuration?.logo?.x ?? templateConfig.logo.x;
-    const logoY = configuration?.logo?.y ?? templateConfig.logo.y;
-    const logoWidth = configuration?.logo?.width ?? templateConfig.logo.width;
-    const logoHeight = configuration?.logo?.height ?? templateConfig.logo.height;
+    const logoX = configuration?.logo?.x ?? logoZone.x;
+    const logoY = configuration?.logo?.y ?? logoZone.y;
+    const logoWidth = configuration?.logo?.width ?? logoZone.width;
+    const logoHeight = configuration?.logo?.height ?? logoZone.height;
 
     const textColor = configuration?.text_style?.color || "#111111";
     const decor = getTemplateDecor(configuration?.template_id, currentView, textColor);
