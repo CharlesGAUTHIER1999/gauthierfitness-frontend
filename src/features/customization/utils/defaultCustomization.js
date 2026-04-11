@@ -1,7 +1,10 @@
+import { getProductCustomizerConfig } from "./productCustomizerConfigs";
+
 export const DEFAULT_TEMPLATE_ID = "basic-front-template";
 
-function getDefaultTextColor(product) {
-    return product?.color_label?.toLowerCase?.().includes("blanc") ? "#111111" : "#ffffff";
+function getDefaultTextColor(product, selectedColorCode) {
+    const colorCode = selectedColorCode || product?.color_code || "";
+    return colorCode === "white" ? "#111111" : "#ffffff";
 }
 
 function createDefaultStyleSide() {
@@ -18,13 +21,24 @@ function createDefaultStyleSide() {
 }
 
 export function createDefaultCustomization(product) {
-    const defaultTextColor = getDefaultTextColor(product);
+    const customizerConfig = getProductCustomizerConfig(product);
+
+    const defaultProductColor =
+        product?.color_code ||
+        customizerConfig?.availableColors?.[0] ||
+        "default";
+
+    const defaultTextColor = getDefaultTextColor(product, defaultProductColor);
 
     return {
         view: "front",
-        product_color: product?.color_label || "default",
+        product_color: defaultProductColor,
         template_id: DEFAULT_TEMPLATE_ID,
-        text_style: { color: defaultTextColor, },
+
+        text_style: {
+            color: defaultTextColor,
+        },
+
         text_layers: [],
         image_layers: [],
 

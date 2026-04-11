@@ -90,7 +90,9 @@ function StyleSelectionBlock({
                                     />
                                 </div>
 
-                                <span className="pc-style-option-label">{option.label}</span>
+                                <span className="pc-style-option-label">
+                                    {option.label}
+                                </span>
                             </button>
                         );
                     })}
@@ -101,7 +103,11 @@ function StyleSelectionBlock({
 }
 
 export default function CustomizationPanel({
+                                               product,
                                                configuration,
+                                               variants = [],
+                                               currentVariantSlug = null,
+                                               onVariantSelect,
                                                onTemplateChange,
                                                onViewChange,
                                                onAddTextLayer,
@@ -163,6 +169,52 @@ export default function CustomizationPanel({
                     </div>
                 </div>
             </div>
+
+            {variants.length > 0 && (
+                <div className="pc-sidebar-card">
+                    <div className="pc-section">
+                        <h4 className="pc-section-title">Couleur du produit</h4>
+
+                        <div
+                            style={{
+                                display: "grid",
+                                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+                                gap: 10,
+                            }}
+                        >
+                            {variants.map((variant) => {
+                                const label =
+                                    variant.variant_value_label ||
+                                    variant.flavor_label ||
+                                    variant.color_label ||
+                                    variant.slug;
+
+                                const isActive = variant.slug === currentVariantSlug;
+
+                                return (
+                                    <button
+                                        key={variant.slug}
+                                        type="button"
+                                        className={`pc-style-option ${isActive ? "is-active" : ""}`}
+                                        onClick={() => onVariantSelect?.(variant.slug)}
+                                        title={label}
+                                        aria-label={label}
+                                    >
+                                        <div className="pc-style-thumb">
+                                            <img
+                                                src={variant.thumb_url || product?.main_image || "/placeholder.jpg"}
+                                                alt={label}
+                                                className="pc-style-thumb-image"
+                                            />
+                                        </div>
+                                        <span className="pc-style-option-label">{label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="pc-sidebar-card">
                 <TemplateSelector
