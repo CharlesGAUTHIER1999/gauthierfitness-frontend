@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import { createCustomizationSession } from "../services/customizationService";
 import { createDefaultCustomization } from "../utils/defaultCustomization";
+import { getProductCustomizerConfig } from "../utils/productCustomizerConfigs";
 import CustomizationPanel from "./CustomizationPanel";
 import CustomizationPreview from "./CustomizationPreview";
 
@@ -15,15 +16,35 @@ function ensureViewStyle(style, view) {
     );
 }
 
-export default function ProductCustomizer({ product, selectedOptionId = null, disabled = false, }) {
+function getProductImageUrl(image) {
+    if (!image) return null;
+    if (typeof image === "string") return image;
+    return image.full_url || image.url || null;
+}
+
+export default function ProductCustomizer({
+                                              product,
+                                              selectedOptionId = null,
+                                              selectedOptionMeta = null,
+                                              disabled = false,
+                                          }) {
     const navigate = useNavigate();
     const { addItem } = useCart();
-    const [configuration, setConfiguration] = useState(() =>  createDefaultCustomization(product) );
+
+    const productCustomizerConfig = useMemo(
+        () => getProductCustomizerConfig(product),
+        [product]
+    );
+
+    const [configuration, setConfiguration] = useState(() =>
+        createDefaultCustomization(product)
+    );
     const [session, setSession] = useState(null);
     const [saving, setSaving] = useState(false);
     const [finishing, setFinishing] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
     useEffect(() => {
@@ -41,6 +62,19 @@ export default function ProductCustomizer({ product, selectedOptionId = null, di
     function invalidateSavedSession() {
         setSession(null);
         setSuccessMessage("");
+    }
+
+    function handleVariantSelect(variantSlug) {
+        if (!variantSlug || variantSlug === product?.slug) return;
+
+        navigate(`/products/${variantSlug}/customize`, {
+            state: {
+                selectedOptionId,
+                selectedOptionType: selectedOptionMeta?.type ?? null,
+                selectedOptionCode: selectedOptionMeta?.code ?? null,
+                selectedOptionLabel: selectedOptionMeta?.label ?? null,
+            },
+        });
     }
 
     function handleTemplateChange(templateId) {
@@ -280,11 +314,14 @@ export default function ProductCustomizer({ product, selectedOptionId = null, di
             setError(null);
             setSuccessMessage("");
 
+            const fallbackPreviewPath =
+                getProductImageUrl(product?.main_image) || null;
+
             const createdSession = await createCustomizationSession({
                 productId: product.id,
                 productOptionId: selectedOptionId,
                 configuration,
-                previewImagePath: product.main_image || null,
+                previewImagePath: fallbackPreviewPath,
             });
 
             setSession(createdSession);
@@ -370,7 +407,11 @@ export default function ProductCustomizer({ product, selectedOptionId = null, di
             </div>
 
             <CustomizationPanel
+                product={product}
                 configuration={configuration}
+                variants={Array.isArray(product?.variants) ? product.variants : []}
+                currentVariantSlug={product?.slug}
+                onVariantSelect={handleVariantSelect}
                 onTemplateChange={handleTemplateChange}
                 onViewChange={handleViewChange}
                 onAddTextLayer={handleAddTextLayer}
