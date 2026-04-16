@@ -92,19 +92,6 @@ export default function ProductCustomizer({
         setSuccessMessage("");
     }
 
-    function handleVariantSelect(variantSlug) {
-        if (!variantSlug || variantSlug === product?.slug) return;
-
-        navigate(`/products/${variantSlug}/customize`, {
-            state: {
-                selectedOptionId,
-                selectedOptionType: selectedOptionMeta?.type ?? null,
-                selectedOptionCode: selectedOptionMeta?.code ?? null,
-                selectedOptionLabel: selectedOptionMeta?.label ?? null,
-            },
-        });
-    }
-
     function handleTemplateChange(templateId) {
         setConfiguration((prev) => ({
             ...prev,
@@ -471,14 +458,11 @@ export default function ProductCustomizer({
             setError(null);
             setSuccessMessage("");
 
-            const fallbackPreviewPath =
-                getProductImageUrl(product?.main_image) || null;
-
             const createdSession = await createCustomizationSession({
                 productId: product.id,
                 productOptionId: selectedOptionId,
                 configuration,
-                previewImagePath: fallbackPreviewPath,
+                previewImagePath: product.main_image || null,
             });
 
             setSession(createdSession);
@@ -565,11 +549,7 @@ export default function ProductCustomizer({
             </div>
 
             <CustomizationPanel
-                product={product}
                 configuration={configuration}
-                variants={Array.isArray(product?.variants) ? product.variants : []}
-                currentVariantSlug={product?.slug}
-                onVariantSelect={handleVariantSelect}
                 onTemplateChange={handleTemplateChange}
                 onViewChange={handleViewChange}
                 onAddTextLayer={handleAddTextLayer}
