@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
-import { createCustomizationSession } from "../services/customizationService";
+import {
+    createCustomizationSession,
+    uploadCustomizationImage,
+    uploadCustomizationLogo,
+} from "../services/customizationService";
 import { createDefaultCustomization } from "../utils/defaultCustomization";
 import { getProductCustomizerConfig } from "../utils/productCustomizerConfigs";
 import CustomizationPanel from "./CustomizationPanel";
@@ -20,6 +24,24 @@ function getProductImageUrl(image) {
     if (!image) return null;
     if (typeof image === "string") return image;
     return image.full_url || image.url || null;
+}
+
+function getDefaultImageLayerPosition(view) {
+    if (view === "back") {
+        return {
+            x: 315,
+            y: 255,
+            width: 90,
+            height: 90,
+        };
+    }
+
+    return {
+        x: 325,
+        y: 285,
+        width: 90,
+        height: 90,
+    };
 }
 
 export default function ProductCustomizer({
@@ -44,6 +66,10 @@ export default function ProductCustomizer({
     const [finishing, setFinishing] = useState(false);
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState("");
+    const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
+    const [uploadLogoError, setUploadLogoError] = useState(null);
+    const [uploadImageLoading, setUploadImageLoading] = useState(false);
+    const [uploadImageError, setUploadImageError] = useState(null);
 
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
@@ -52,6 +78,8 @@ export default function ProductCustomizer({
         setSession(null);
         setError(null);
         setSuccessMessage("");
+        setUploadLogoError(null);
+        setUploadImageError(null);
     }, [product?.id]);
 
     useEffect(() => {
@@ -62,19 +90,6 @@ export default function ProductCustomizer({
     function invalidateSavedSession() {
         setSession(null);
         setSuccessMessage("");
-    }
-
-    function handleVariantSelect(variantSlug) {
-        if (!variantSlug || variantSlug === product?.slug) return;
-
-        navigate(`/products/${variantSlug}/customize`, {
-            state: {
-                selectedOptionId,
-                selectedOptionType: selectedOptionMeta?.type ?? null,
-                selectedOptionCode: selectedOptionMeta?.code ?? null,
-                selectedOptionLabel: selectedOptionMeta?.label ?? null,
-            },
-        });
     }
 
     function handleTemplateChange(templateId) {
@@ -168,6 +183,109 @@ export default function ProductCustomizer({
         invalidateSavedSession();
     }
 
+    function handleRemoveLogo() {
+        setConfiguration((prev) => ({
+            ...prev,
+            logo: {
+                ...prev.logo,
+                enabled: false,
+                src: "",
+            },
+        }));
+        invalidateSavedSession();
+    }
+
+    async function handleUploadLogo(file) {
+        try {
+            setUploadLogoLoading(true);
+            setUploadLogoError(null);
+
+            const uploaded = await uploadCustomizationLogo(file);
+
+            setConfiguration((prev) => ({
+                ...prev,
+                logo: {
+                    ...prev.logo,
+                    enabled: true,
+                    src: uploaded?.url || "",
+                },
+            }));
+
+            invalidateSavedSession();
+        } catch (e) {
+            setUploadLogoError(
+                e?.response?.data?.message ||
+                "Impossible d'importer le logo."
+            );
+        } finally {
+            setUploadLogoLoading(false);
+        }
+    }
+
+    async function handleUploadImage(file) {
+        try {
+            setUploadImageLoading(true);
+            setUploadImageError(null);
+
+            setConfiguration((prev) => {
+                const existingLayers = Array.isArray(prev.image_layers) ? prev.image_layers : [];
+                if (existingLayers.length >= 3) {
+                    throw new Error("Maximum 3 images libres autorisées.");
+                }
+                return prev;
+            });
+
+            const uploaded = await uploadCustomizationImage(file);
+            const currentView = configuration?.view || "front";
+            const defaults = getDefaultImageLayerPosition(currentView);
+
+            setConfiguration((prev) => ({
+                ...prev,
+                image_layers: [
+                    ...(Array.isArray(prev.image_layers) ? prev.image_layers : []),
+                    {
+                        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                        src: uploaded?.url || "",
+                        original_name: uploaded?.original_name || file.name,
+                        view: currentView,
+                        x: defaults.x,
+                        y: defaults.y,
+                        width: defaults.width,
+                        height: defaults.height,
+                        rotation: 0,
+                    },
+                ],
+            }));
+
+            invalidateSavedSession();
+        } catch (e) {
+            setUploadImageError(
+                e?.message ||
+                e?.response?.data?.message ||
+                "Impossible d'importer l'image."
+            );
+        } finally {
+            setUploadImageLoading(false);
+        }
+    }
+
+    function handleRemoveImageLayer(layerId) {
+        setConfiguration((prev) => ({
+            ...prev,
+            image_layers: (prev.image_layers || []).filter((layer) => layer.id !== layerId),
+        }));
+        invalidateSavedSession();
+    }
+
+    function handleResetConfiguration() {
+        setConfiguration(createDefaultCustomization(product));
+        setSession(null);
+        setError(null);
+        setSuccessMessage("");
+        setUploadLogoError(null);
+        setUploadImageError(null);
+    }
+
     function handlePlayerNamePositionChange(position) {
         setConfiguration((prev) => ({
             ...prev,
@@ -208,6 +326,32 @@ export default function ProductCustomizer({
                 i === index ? { ...layer, ...position } : layer
             ),
         }));
+        invalidateSavedSession();
+    }
+
+    function handleImageLayerPositionChange(index, position) {
+        const currentView = configuration?.view || "front";
+
+        setConfiguration((prev) => {
+            let visibleIndex = -1;
+
+            return {
+                ...prev,
+                image_layers: (prev.image_layers || []).map((layer) => {
+                    const layerView = layer?.view || "front";
+                    if (layerView === currentView) {
+                        visibleIndex += 1;
+                    }
+
+                    if (layerView === currentView && visibleIndex === index) {
+                        return { ...layer, ...position };
+                    }
+
+                    return layer;
+                }),
+            };
+        });
+
         invalidateSavedSession();
     }
 
@@ -314,14 +458,11 @@ export default function ProductCustomizer({
             setError(null);
             setSuccessMessage("");
 
-            const fallbackPreviewPath =
-                getProductImageUrl(product?.main_image) || null;
-
             const createdSession = await createCustomizationSession({
                 productId: product.id,
                 productOptionId: selectedOptionId,
                 configuration,
-                previewImagePath: fallbackPreviewPath,
+                previewImagePath: product.main_image || null,
             });
 
             setSession(createdSession);
@@ -403,15 +544,12 @@ export default function ProductCustomizer({
                     onPlayerNumberPositionChange={handlePlayerNumberPositionChange}
                     onLogoPositionChange={handleLogoPositionChange}
                     onTextLayerPositionChange={handleTextLayerPositionChange}
+                    onImageLayerPositionChange={handleImageLayerPositionChange}
                 />
             </div>
 
             <CustomizationPanel
-                product={product}
                 configuration={configuration}
-                variants={Array.isArray(product?.variants) ? product.variants : []}
-                currentVariantSlug={product?.slug}
-                onVariantSelect={handleVariantSelect}
                 onTemplateChange={handleTemplateChange}
                 onViewChange={handleViewChange}
                 onAddTextLayer={handleAddTextLayer}
@@ -420,10 +558,19 @@ export default function ProductCustomizer({
                 onToggleLogo={handleToggleLogo}
                 onTextColorChange={handleTextColorChange}
                 onLogoSelect={handleLogoSelect}
+                onUploadLogo={handleUploadLogo}
+                uploadLogoLoading={uploadLogoLoading}
+                uploadLogoError={uploadLogoError}
+                onRemoveLogo={handleRemoveLogo}
+                onUploadImage={handleUploadImage}
+                uploadImageLoading={uploadImageLoading}
+                uploadImageError={uploadImageError}
+                onRemoveImageLayer={handleRemoveImageLayer}
                 onPatternToggle={handlePatternToggle}
                 onPatternSelect={handlePatternSelect}
                 onGradientToggle={handleGradientToggle}
                 onGradientSelect={handleGradientSelect}
+                onResetConfiguration={handleResetConfiguration}
                 onSave={handleSaveCustomization}
                 onFinish={handleFinishConfiguration}
                 saving={saving}
