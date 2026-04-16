@@ -116,10 +116,19 @@ export default function CustomizationPanel({
                                                onToggleLogo,
                                                onTextColorChange,
                                                onLogoSelect,
+                                               onUploadLogo,
+                                               uploadLogoLoading = false,
+                                               uploadLogoError = null,
+                                               onRemoveLogo,
+                                               onUploadImage,
+                                               uploadImageLoading = false,
+                                               uploadImageError = null,
+                                               onRemoveImageLayer,
                                                onPatternToggle,
                                                onPatternSelect,
                                                onGradientToggle,
                                                onGradientSelect,
+                                               onResetConfiguration,
                                                onSave,
                                                onFinish,
                                                saving,
@@ -135,6 +144,14 @@ export default function CustomizationPanel({
             gradient: { enabled: false, id: null },
         };
     }, [configuration?.style, currentView]);
+
+    const isUploadedLogo =
+        Boolean(configuration?.logo?.src) &&
+        !PRESET_LOGOS.some((logo) => logo.value === configuration?.logo?.src);
+
+    const currentViewImageLayers = Array.isArray(configuration?.image_layers)
+        ? configuration.image_layers.filter((layer) => (layer?.view || "front") === currentView)
+        : [];
 
     return (
         <aside className="pc-sidebar">
@@ -308,7 +325,7 @@ export default function CustomizationPanel({
 
                     <select
                         className="pc-input"
-                        value={configuration?.logo?.src || ""}
+                        value={isUploadedLogo ? "" : (configuration?.logo?.src || "")}
                         onChange={(e) => onLogoSelect(e.target.value)}
                         disabled={!configuration?.logo?.enabled}
                     >
@@ -318,6 +335,130 @@ export default function CustomizationPanel({
                             </option>
                         ))}
                     </select>
+
+                    <div className="pc-section" style={{ marginTop: 10 }}>
+                        <label className="pc-section-title" style={{ fontSize: 14 }}>
+                            Importer un logo personnalisé
+                        </label>
+
+                        <input
+                            className="pc-input"
+                            type="file"
+                            accept=".png,.jpg,.jpeg,.webp"
+                            disabled={!configuration?.logo?.enabled || uploadLogoLoading}
+                            onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                    onUploadLogo?.(file);
+                                }
+                                e.target.value = "";
+                            }}
+                        />
+
+                        {uploadLogoLoading && (
+                            <p className="pc-sidebar-text">Import du logo en cours...</p>
+                        )}
+
+                        {uploadLogoError && (
+                            <p className="pc-sidebar-text" style={{ color: "#b42318" }}>
+                                {uploadLogoError}
+                            </p>
+                        )}
+
+                        {isUploadedLogo && (
+                            <p className="pc-sidebar-text">Logo personnalisé importé.</p>
+                        )}
+
+                        {Boolean(configuration?.logo?.src) && (
+                            <button
+                                type="button"
+                                className="pc-secondary-btn"
+                                style={{ marginTop: 8 }}
+                                onClick={onRemoveLogo}
+                            >
+                                Supprimer le logo
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="pc-sidebar-card">
+                <div className="pc-section">
+                    <h4 className="pc-section-title">Image libre</h4>
+
+                    <input
+                        className="pc-input"
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.webp"
+                        disabled={uploadImageLoading}
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                onUploadImage?.(file);
+                            }
+                            e.target.value = "";
+                        }}
+                    />
+
+                    {uploadImageLoading && (
+                        <p className="pc-sidebar-text">Import de l'image en cours...</p>
+                    )}
+
+                    {uploadImageError && (
+                        <p className="pc-sidebar-text" style={{ color: "#b42318" }}>
+                            {uploadImageError}
+                        </p>
+                    )}
+
+                    <p className="pc-sidebar-text">
+                        Images sur cette vue : {currentViewImageLayers.length}
+                    </p>
+
+                    {currentViewImageLayers.length > 0 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                            {currentViewImageLayers.map((layer, index) => (
+                                <div
+                                    key={layer.id || `${layer.src}-${index}`}
+                                    style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "space-between",
+                                        gap: 10,
+                                        padding: "8px 10px",
+                                        border: "1px solid #e5e7eb",
+                                        borderRadius: 10,
+                                        background: "#fff",
+                                    }}
+                                >
+                                    <span
+                                        style={{
+                                            fontSize: 13,
+                                            color: "#374151",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                        }}
+                                    >
+                                        {layer.original_name || `Image ${index + 1}`}
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        className="pc-secondary-btn"
+                                        style={{
+                                            width: "auto",
+                                            minWidth: 0,
+                                            padding: "8px 10px",
+                                        }}
+                                        onClick={() => onRemoveImageLayer?.(layer.id)}
+                                    >
+                                        Supprimer
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -336,6 +477,16 @@ export default function CustomizationPanel({
                     disabled={saving || disabled}
                 >
                     {saving ? "Enregistrement..." : "Sauvegarder le brouillon"}
+                </button>
+
+                <button
+                    type="button"
+                    className="pc-secondary-btn"
+                    style={{ marginTop: 10 }}
+                    onClick={onResetConfiguration}
+                    disabled={saving || finishing}
+                >
+                    Réinitialiser la personnalisation
                 </button>
 
                 <button

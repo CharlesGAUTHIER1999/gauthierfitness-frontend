@@ -45,6 +45,30 @@ function useHtmlImage(src) {
     return image;
 }
 
+function UploadedImageLayer({ layer, index, onPositionChange }) {
+    const image = useHtmlImage(layer?.src || null);
+
+    if (!image) return null;
+
+    return (
+        <KonvaImage
+            image={image}
+            x={layer?.x ?? 320}
+            y={layer?.y ?? 280}
+            width={layer?.width ?? 90}
+            height={layer?.height ?? 90}
+            rotation={layer?.rotation ?? 0}
+            draggable
+            onDragEnd={(e) =>
+                onPositionChange?.(index, {
+                    x: e.target.x(),
+                    y: e.target.y(),
+                })
+            }
+        />
+    );
+}
+
 function getProductImageUrl(image) {
     if (!image) return null;
     if (typeof image === "string") return image;
@@ -141,6 +165,7 @@ export default function CustomizationPreview({
                                                  onPlayerNumberPositionChange,
                                                  onLogoPositionChange,
                                                  onTextLayerPositionChange,
+                                                 onImageLayerPositionChange,
                                              }) {
     const width = 760;
     const height = 760;
@@ -159,6 +184,10 @@ export default function CustomizationPreview({
 
     const textLayers = Array.isArray(configuration?.text_layers)
         ? configuration.text_layers
+        : [];
+
+    const imageLayers = Array.isArray(configuration?.image_layers)
+        ? configuration.image_layers.filter((layer) => (layer?.view || "front") === currentView)
         : [];
 
     const playerName =
@@ -354,6 +383,15 @@ export default function CustomizationPreview({
                             cornerRadius={16}
                             dash={[8, 8]}
                         />
+
+                        {imageLayers.map((layer, index) => (
+                            <UploadedImageLayer
+                                key={`${layer?.src || "image"}-${index}`}
+                                layer={layer}
+                                index={index}
+                                onPositionChange={onImageLayerPositionChange}
+                            />
+                        ))}
 
                         {configuration?.logo?.enabled && currentView === "front" && (
                             logoImage ? (
