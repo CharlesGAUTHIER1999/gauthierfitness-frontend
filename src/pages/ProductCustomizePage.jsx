@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { getProduct } from "../services/productService";
 import ProductCustomizer from "../features/customization/components/ProductCustomizer";
+import Product3DCustomizer from "../features/customization/components/Product3DCustomizer";
 import "../productcustomization.css";
 
 function findEquivalentOption(product, rawState) {
@@ -143,21 +144,39 @@ export default function ProductCustomizePage() {
                 </div>
             )}
 
-            <ProductCustomizer
-                product={product}
-                selectedOptionId={effectiveSelectedOptionId}
-                disabled={isMissingRequiredOption}
-                selectedOptionMeta={
-                    selectedOption
-                        ? {
-                            id: selectedOption.id,
-                            type: selectedOption.type || null,
-                            code: selectedOption.code || null,
-                            label: selectedOption.label || null,
-                        }
-                        : null
-                }
-            />
+            {product.customization?.mode === "3d" ? (
+                <Product3DCustomizer
+                    product={product}
+                    selectedOptionId={effectiveSelectedOptionId}
+                    disabled={isMissingRequiredOption}
+                    selectedOptionMeta={
+                        selectedOption
+                            ? {
+                                id: selectedOption.id,
+                                type: selectedOption.type || null,
+                                code: selectedOption.code || null,
+                                label: selectedOption.label || null,
+                            }
+                            : null
+                    }
+                />
+            ) : (
+                <ProductCustomizer
+                    product={product}
+                    selectedOptionId={effectiveSelectedOptionId}
+                    disabled={isMissingRequiredOption}
+                    selectedOptionMeta={
+                        selectedOption
+                            ? {
+                                id: selectedOption.id,
+                                type: selectedOption.type || null,
+                                code: selectedOption.code || null,
+                                label: selectedOption.label || null,
+                            }
+                            : null
+                    }
+                />
+            )}
         </div>
     );
 }

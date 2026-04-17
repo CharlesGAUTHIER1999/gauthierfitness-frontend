@@ -1,5 +1,23 @@
 import api from "../../../api/axios.js";
 
+/**
+ * Transforme une URL absolue du backend (http://localhost:8000/storage/...)
+ * en chemin relatif (/storage/...) pour passer par le proxy Vite en dev.
+ */
+function toRelativeStorageUrl(url) {
+    if (!url || typeof url !== "string") return url;
+    try {
+        const parsed = new URL(url);
+        // Si c'est une URL storage du backend, on ne garde que le pathname
+        if (parsed.pathname.startsWith("/storage")) {
+            return parsed.pathname;
+        }
+    } catch {
+        // Ce n'est pas une URL absolue → on la retourne telle quelle
+    }
+    return url;
+}
+
 export async function createCustomizationSession({
                                                      productId,
                                                      productOptionId = null,
@@ -32,7 +50,11 @@ export async function uploadCustomizationLogo(file) {
         },
     });
 
-    return data?.data;
+    const result = data?.data;
+    if (result?.url) {
+        result.url = toRelativeStorageUrl(result.url);
+    }
+    return result;
 }
 
 export async function uploadCustomizationImage(file) {
@@ -45,5 +67,9 @@ export async function uploadCustomizationImage(file) {
         },
     });
 
-    return data?.data;
+    const result = data?.data;
+    if (result?.url) {
+        result.url = toRelativeStorageUrl(result.url);
+    }
+    return result;
 }
