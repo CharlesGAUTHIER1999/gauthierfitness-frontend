@@ -135,6 +135,7 @@ export default function CustomizationPanel({
                                                finishing,
                                                disabled = false,
                                                hasSavedSession = false,
+                                               mode = "2d",
                                            }) {
     const currentView = configuration?.view || "front";
 
@@ -166,7 +167,14 @@ export default function CustomizationPanel({
 
             <div className="pc-sidebar-card">
                 <div className="pc-section">
-                    <h4 className="pc-section-title">Vue</h4>
+                    <h4 className="pc-section-title">
+                        {mode === "3d" ? "Zone d'application" : "Vue"}
+                    </h4>
+                    {mode === "3d" && (
+                        <p className="pc-sidebar-text" style={{ marginBottom: 8 }}>
+                            Choisissez sur quelle face appliquer logo, texte et numéro.
+                        </p>
+                    )}
 
                     <div className="pc-view-switch">
                         <button
