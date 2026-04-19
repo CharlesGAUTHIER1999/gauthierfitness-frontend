@@ -10,8 +10,11 @@ import { createDefaultCustomization } from "../utils/defaultCustomization";
 import CustomizationCanvas3D from "./CustomizationCanvas3D";
 import CustomizationPanel from "./CustomizationPanel";
 
-// Couleurs de base disponibles pour le configurateur 3D
-export const COLOR_SWATCHES_3D = [
+// Couleurs de base disponibles pour le configurateur 3D.
+// NB : on ne l'exporte PAS pour garder ce fichier 100% "React components only",
+// sinon Vite Fast Refresh invalide toute la page à chaque édition
+// (cf. https://github.com/vitejs/vite-plugin-react#consistent-components-exports)
+const COLOR_SWATCHES_3D = [
     { label: "Bleu fitness",  value: "#1d4ed8" },
     { label: "Noir",          value: "#111111" },
     { label: "Blanc",         value: "#f9fafb" },
@@ -203,6 +206,10 @@ export default function Product3DCustomizer({
                         original_name: uploaded?.original_name || file.name,
                         view: currentView,
                         x: 325, y: 285, width: 90, height: 90, rotation: 0,
+                        // GF12 V2 : par défaut sur la poitrine gauche (zone logo).
+                        // L'utilisateur peut ensuite drag où il veut.
+                        uv: { x: 0.45, y: 0.25 },
+                        size: { w: 0.05, h: 0.05 },
                     },
                 ],
             }));
@@ -221,6 +228,54 @@ export default function Product3DCustomizer({
             ...prev,
             image_layers: (prev.image_layers || []).filter((l) => l.id !== layerId),
         }));
+        invalidateSavedSession();
+    }
+
+    // GF12 V2 : handlers pour drag & drop UV des layers sur le t-shirt 3D
+    function handleUpdateTextLayer(layerId, patch) {
+        setConfiguration((prev) => ({
+            ...prev,
+            text_layers: (prev.text_layers || []).map((l) =>
+                l.id === layerId ? { ...l, ...patch } : l
+            ),
+        }));
+        // Pas d'invalidation de session ici : le drag est continu,
+        // on ne veut pas bombarder l'état "saved". L'invalidation se fait au pointerUp.
+    }
+
+    function handleUpdateImageLayer(layerId, patch) {
+        setConfiguration((prev) => ({
+            ...prev,
+            image_layers: (prev.image_layers || []).map((l) =>
+                l.id === layerId ? { ...l, ...patch } : l
+            ),
+        }));
+    }
+
+    // GF12 V2 : drag du logo, nom joueur, numéro joueur (éléments "système")
+    function handleUpdateLogoUV(uv) {
+        setConfiguration((prev) => ({
+            ...prev,
+            logo: { ...(prev.logo || {}), uv },
+        }));
+    }
+
+    function handleUpdatePlayerNameUV(uv) {
+        setConfiguration((prev) => ({
+            ...prev,
+            player_name: { ...(prev.player_name || {}), uv },
+        }));
+    }
+
+    function handleUpdatePlayerNumberUV(uv) {
+        setConfiguration((prev) => ({
+            ...prev,
+            player_number: { ...(prev.player_number || {}), uv },
+        }));
+    }
+
+    function handleDragEnd() {
+        // Invalide la session une seule fois à la fin du drag
         invalidateSavedSession();
     }
 
@@ -383,30 +438,16 @@ export default function Product3DCustomizer({
                     </div>
                 )}
 
-                {/* Sélecteur de couleur de base 3D */}
-                <div className="pc3d-color-bar">
-                    <span className="pc3d-color-bar-label">Couleur du produit</span>
-                    <div className="pc3d-color-swatches">
-                        {COLOR_SWATCHES_3D.map((swatch) => (
-                            <button
-                                key={swatch.value}
-                                type="button"
-                                title={swatch.label}
-                                aria-label={swatch.label}
-                                className={`pc3d-swatch ${
-                                    configuration.product_color_hex === swatch.value
-                                        ? "is-active"
-                                        : ""
-                                }`}
-                                style={{ backgroundColor: swatch.value }}
-                                onClick={() => handleColorHexChange(swatch.value)}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Canvas 3D */}
-                <CustomizationCanvas3D configuration={configuration} />
+                {/* Canvas 3D — GF12 V2 : plus de barre top, les swatches sont dans le panel droit */}
+                <CustomizationCanvas3D
+                    configuration={configuration}
+                    onUpdateTextLayer={handleUpdateTextLayer}
+                    onUpdateImageLayer={handleUpdateImageLayer}
+                    onUpdateLogoUV={handleUpdateLogoUV}
+                    onUpdatePlayerNameUV={handleUpdatePlayerNameUV}
+                    onUpdatePlayerNumberUV={handleUpdatePlayerNumberUV}
+                    onDragEnd={handleDragEnd}
+                />
             </div>
 
             <CustomizationPanel
@@ -435,6 +476,7 @@ export default function Product3DCustomizer({
                 onPatternSelect={handlePatternSelect}
                 onGradientToggle={handleGradientToggle}
                 onGradientSelect={handleGradientSelect}
+                onProductColorChange={handleColorHexChange}
                 onResetConfiguration={handleResetConfiguration}
                 onSave={handleSaveCustomization}
                 onFinish={handleFinishConfiguration}

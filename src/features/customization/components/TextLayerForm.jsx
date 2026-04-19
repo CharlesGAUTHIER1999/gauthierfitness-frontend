@@ -10,13 +10,17 @@ export default function TextLayerForm({ onAddText, textColor = "#111111" }) {
         if (!value) return;
 
         onAddText({
+            id: `txt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
             text: value,
             font: "Arial",
-            size: 28,
+            size: 60,
             color: textColor,
             x: 290,
             y: 315,
             rotation: 0,
+            // GF12 V2 : par défaut au même endroit que le nom du joueur
+            // (haut du dos). L'utilisateur peut ensuite drag où il veut.
+            uv: { x: 0.55, y: 0.55 },
         });
 
         setText("");
