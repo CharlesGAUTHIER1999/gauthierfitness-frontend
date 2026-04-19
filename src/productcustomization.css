@@ -642,6 +642,20 @@
     flex-wrap: wrap;
 }
 
+/* GF12 V2 : grille des swatches dans le panel droit */
+.pc3d-swatches-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 6px 2px 2px;
+    justify-content: flex-start;
+}
+
+.pc3d-swatches-grid .pc3d-swatch {
+    width: 32px;
+    height: 32px;
+}
+
 /* Pastille de couleur */
 .pc3d-swatch {
     width: 30px;

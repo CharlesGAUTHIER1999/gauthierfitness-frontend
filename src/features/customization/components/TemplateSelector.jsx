@@ -1,5 +1,10 @@
 const TEMPLATES = [
     {
+        id: null,
+        name: "Aucun",
+        description: "Pas de décor de fond",
+    },
+    {
         id: "basic-front-template",
         name: "Rayures / classique",
         description: "Placement centré sur la face avant",
@@ -18,11 +23,11 @@ export default function TemplateSelector({ value, onChange }) {
 
             <div className="pc-template-grid">
                 {TEMPLATES.map((tpl) => {
-                    const active = value === tpl.id;
+                    const active = (value || null) === tpl.id;
 
                     return (
                         <button
-                            key={tpl.id}
+                            key={tpl.id ?? "__none__"}
                             type="button"
                             className={`pc-template-card ${active ? "is-active" : ""}`}
                             onClick={() => onChange(tpl.id)}
