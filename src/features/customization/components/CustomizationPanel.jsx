@@ -9,6 +9,19 @@ const TEXT_COLORS = [
     { label: "Bleu", value: "#1565c0" },
 ];
 
+// GF12 V2 : Swatches de couleur du produit pour le mode 3D
+// (remontés depuis Product3DCustomizer vers le panel droit)
+const PRODUCT_COLOR_SWATCHES_3D = [
+    { label: "Bleu fitness",    value: "#1d4ed8" },
+    { label: "Noir",            value: "#111111" },
+    { label: "Blanc",           value: "#f9fafb" },
+    { label: "Rouge",           value: "#dc2626" },
+    { label: "Vert",            value: "#16a34a" },
+    { label: "Marine",          value: "#1e3a5f" },
+    { label: "Gris anthracite", value: "#374151" },
+    { label: "Bordeaux",        value: "#7f1d1d" },
+];
+
 const PRESET_LOGOS = [
     { label: "Aucun logo", value: "" },
     { label: "UBB", value: "/logos/ubb.png" },
@@ -128,6 +141,7 @@ export default function CustomizationPanel({
                                                onPatternSelect,
                                                onGradientToggle,
                                                onGradientSelect,
+                                               onProductColorChange,
                                                onResetConfiguration,
                                                onSave,
                                                onFinish,
@@ -195,7 +209,37 @@ export default function CustomizationPanel({
                 </div>
             </div>
 
-            {variants.length > 0 && (
+            {/* GF12 V2 : Swatches de couleur du produit en mode 3D */}
+            {mode === "3d" && (
+                <div className="pc-sidebar-card">
+                    <div className="pc-section">
+                        <h4 className="pc-section-title">Couleur du produit</h4>
+                        <p className="pc-sidebar-text" style={{ marginBottom: 10 }}>
+                            Choisissez la couleur de base du vêtement.
+                        </p>
+
+                        <div className="pc3d-swatches-grid">
+                            {PRODUCT_COLOR_SWATCHES_3D.map((swatch) => {
+                                const isActive =
+                                    configuration?.product_color_hex === swatch.value;
+                                return (
+                                    <button
+                                        key={swatch.value}
+                                        type="button"
+                                        title={swatch.label}
+                                        aria-label={swatch.label}
+                                        className={`pc3d-swatch ${isActive ? "is-active" : ""}`}
+                                        style={{ backgroundColor: swatch.value }}
+                                        onClick={() => onProductColorChange?.(swatch.value)}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {mode !== "3d" && variants.length > 0 && (
                 <div className="pc-sidebar-card">
                     <div className="pc-section">
                         <h4 className="pc-section-title">Couleur du produit</h4>
