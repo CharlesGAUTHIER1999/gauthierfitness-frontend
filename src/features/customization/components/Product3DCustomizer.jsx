@@ -7,6 +7,7 @@ import {
     uploadCustomizationImage,
 } from "../services/customizationService";
 import { createDefaultCustomization } from "../utils/defaultCustomization";
+import { getProductCustomizer3DConfig } from "../utils/productCustomizerConfigs";
 import CustomizationCanvas3D from "./CustomizationCanvas3D";
 import CustomizationPanel from "./CustomizationPanel";
 
@@ -65,6 +66,10 @@ export default function Product3DCustomizer({
     const [uploadImageError, setUploadImageError] = useState(null);
 
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
+
+    // GF13 : config 3D du produit courant (GLB, UV zones, chest center du template).
+    // Résolue depuis productCustomizerConfigs.model3d avec fallback par défaut.
+    const model3d = useMemo(() => getProductCustomizer3DConfig(product), [product?.id]);
 
     useEffect(() => {
         setConfiguration(createDefault3DCustomization(product));
@@ -441,6 +446,7 @@ export default function Product3DCustomizer({
                 {/* Canvas 3D — GF12 V2 : plus de barre top, les swatches sont dans le panel droit */}
                 <CustomizationCanvas3D
                     configuration={configuration}
+                    model3d={model3d}
                     onUpdateTextLayer={handleUpdateTextLayer}
                     onUpdateImageLayer={handleUpdateImageLayer}
                     onUpdateLogoUV={handleUpdateLogoUV}
