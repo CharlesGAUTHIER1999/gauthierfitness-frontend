@@ -4,7 +4,15 @@ import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import * as THREE from "three";
 import { useTextureComposer } from "../hooks/useTextureComposer";
 
+// GF13 : on préload les GLB connus du projet pour que le premier rendu
+// soit instantané. Les nouveaux GLB ajoutés via productCustomizerConfigs
+// seront simplement chargés au mount du canvas (léger lag la 1ère fois).
 useGLTF.preload("/models/tshirt.glb");
+useGLTF.preload("/models/tsoversized.glb");
+useGLTF.preload("/models/sweatclassic.glb");
+useGLTF.preload("/models/sweatzippe.glb");
+useGLTF.preload("/models/vesteclassic.glb");
+useGLTF.preload("/models/vestecoupevent.glb");
 
 // GF12 V2 : silence les warnings Three.js dépréciés qu'on ne peut pas
 // corriger côté app (ils viennent de drei / r3f en interne, pas de notre code).
@@ -26,12 +34,9 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
 // Passe à true pour voir les UV reçus + résultats hit-test en console.
 const DEBUG_DRAG = false;
 
-// GF12 V2 : le GLB Studio-Lab contient 3 t-shirts (3 styles) dans le même fichier.
-// 0 = A01 (1671 verts, low-poly)
-// 1 = A02 (6310 verts, medium)
-// 2 = A03 (24106 verts, high-poly / détaillé)
-// Change la valeur pour switcher, puis on fige quand on a trouvé le bon.
-const ACTIVE_MESH_INDEX = 2;
+// GF13 : l'index du mesh actif est désormais lu depuis la config produit
+// (model3d.activeMeshIndex dans productCustomizerConfigs). Le GLB Studio-Lab
+// a besoin de 2 (high-poly), les GLB mono-mesh auront 0.
 
 // GF12 V2 : zone UV "safe" où on autorise les textes/images à vivre.
 // Si le user drag en dehors (bras, dos, col du t-shirt), on clamp pour
@@ -75,74 +80,114 @@ function TShirtMesh({
                         onDragStart,
                         onDragMove,
                         onDragEnd,
+                        glbPath,
+                        activeMeshIndex,
+                        meshMode,
                     }) {
-    const { scene } = useGLTF("/models/tshirt.glb");
+    const { scene } = useGLTF(glbPath);
     const groupRef  = useRef();
     const dragState = useRef(null); // { id, type, pointerId }
 
     useEffect(() => {
         if (!scene) return;
 
-        // GF12 V2 : diagnostic structure du GLB (temporaire, à retirer une fois calé)
+        // GF12 V2 / GF13 : diagnostic structure du GLB
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
         });
-        console.log("[3D] Structure modèle :", meshes.length, "mesh(es)");
+        console.log("[3D] Structure modèle :", meshes.length, "mesh(es), mode =", meshMode);
         console.table(meshes.map((m, i) => ({
             index:    i,
             name:     m.name || "(sans nom)",
             material: m.material?.name || "(sans nom)",
             vertices: m.geometry?.attributes?.position?.count || 0,
             hasUV:    !!m.geometry?.attributes?.uv,
-            active:   i === ACTIVE_MESH_INDEX,
+            active:   meshMode === "pick" ? i === activeMeshIndex : true,
         })));
 
-        // GF12 V2 : virer les autres styles du pack (pas juste les cacher,
-        // sinon Stage calcule le centre de la scène en les incluant).
-        // On ne fait ça qu'une fois (idempotent via userData._pruned).
-        if (!scene.userData._pruned) {
-            const toRemove = meshes.filter((_, i) => i !== ACTIVE_MESH_INDEX);
-            toRemove.forEach((m) => m.parent?.remove(m));
-            scene.userData._pruned = true;
+        // ── Mode "pick" : GLB pack (Studio-Lab). On choisit UN mesh, on vire les autres.
+        if (meshMode === "pick") {
+            if (!scene.userData._pruned) {
+                const toRemove = meshes.filter((_, i) => i !== activeMeshIndex);
+                toRemove.forEach((m) => m.parent?.remove(m));
+                scene.userData._pruned = true;
+            }
+
+            const activeMesh = meshes[activeMeshIndex];
+            if (!activeMesh) return;
+
+            if (!scene.userData._centered) {
+                activeMesh.geometry.computeBoundingBox();
+                const box    = activeMesh.geometry.boundingBox;
+                const center = box.getCenter(new THREE.Vector3());
+                activeMesh.geometry.translate(-center.x, -center.y, -center.z);
+                activeMesh.position.set(0, 0, 0);
+                scene.userData._centered = true;
+
+                activeMesh.geometry.computeBoundingBox();
+                const newBox  = activeMesh.geometry.boundingBox;
+                const newSize = newBox.getSize(new THREE.Vector3());
+                const newCtr  = newBox.getCenter(new THREE.Vector3());
+                console.log("[3D] Mesh actif :", activeMesh.name,
+                    "| taille :", newSize.x.toFixed(3), newSize.y.toFixed(3), newSize.z.toFixed(3),
+                    "| centre :", newCtr.x.toFixed(3), newCtr.y.toFixed(3), newCtr.z.toFixed(3));
+            }
+
+            if (!activeMesh.userData._cloned) {
+                activeMesh.material = activeMesh.material.clone();
+                activeMesh.userData._cloned = true;
+            }
+            if (texture) {
+                activeMesh.material.map         = texture;
+                activeMesh.material.needsUpdate = true;
+            }
+            activeMesh.castShadow    = true;
+            activeMesh.receiveShadow = true;
+            return;
         }
 
-        const activeMesh = meshes[ACTIVE_MESH_INDEX];
-        if (!activeMesh) return;
+        // ── Mode "all" : GLB classique. Tous les meshes constituent le garment.
+        // On applique la texture à chacun, et on centre l'ensemble sur le barycentre global.
+        if (meshes.length === 0) return;
 
-        // Recentrer le mesh actif à l'origine monde (le modèle Studio-Lab
-        // a ses 3 tshirts alignés sur X, donc A03 est décalé de ~0.8m).
-        // On translate directement la GÉOMÉTRIE en local space → immunisé
-        // aux transforms des parents (Stage wrappe tout dans un group).
         if (!scene.userData._centered) {
-            activeMesh.geometry.computeBoundingBox();
-            const box    = activeMesh.geometry.boundingBox;
-            const center = box.getCenter(new THREE.Vector3());
-            activeMesh.geometry.translate(-center.x, -center.y, -center.z);
-            // Reset position locale au cas où (pour ne pas double-compenser)
-            activeMesh.position.set(0, 0, 0);
+            // Bounding box globale (union de toutes les bbox locales exprimées en world)
+            const globalBox = new THREE.Box3();
+            meshes.forEach((m) => {
+                m.geometry.computeBoundingBox();
+                const b = m.geometry.boundingBox.clone();
+                // On veut la bbox en local-space commun (scene), donc on applique la matrix monde
+                m.updateWorldMatrix(true, false);
+                b.applyMatrix4(m.matrixWorld);
+                globalBox.union(b);
+            });
+            const center = globalBox.getCenter(new THREE.Vector3());
+
+            // On translate le scene root pour centrer tout le modèle sur l'origine.
+            // (On ne touche pas aux géométries individuelles pour garder les UV/normales intactes.)
+            scene.position.sub(center);
             scene.userData._centered = true;
 
-            activeMesh.geometry.computeBoundingBox();
-            const newBox = activeMesh.geometry.boundingBox;
-            const newSize = newBox.getSize(new THREE.Vector3());
-            const newCtr  = newBox.getCenter(new THREE.Vector3());
-            console.log("[3D] Mesh actif :", activeMesh.name,
-                "| taille :", newSize.x.toFixed(3), newSize.y.toFixed(3), newSize.z.toFixed(3),
-                "| centre géométrie :", newCtr.x.toFixed(3), newCtr.y.toFixed(3), newCtr.z.toFixed(3));
+            const size = globalBox.getSize(new THREE.Vector3());
+            console.log("[3D] Modèle (mode all) centré |",
+                "taille :", size.x.toFixed(3), size.y.toFixed(3), size.z.toFixed(3),
+                "| offset appliqué :", center.x.toFixed(3), center.y.toFixed(3), center.z.toFixed(3));
         }
 
-        if (!activeMesh.userData._cloned) {
-            activeMesh.material = activeMesh.material.clone();
-            activeMesh.userData._cloned = true;
-        }
-        if (texture) {
-            activeMesh.material.map         = texture;
-            activeMesh.material.needsUpdate = true;
-        }
-        activeMesh.castShadow    = true;
-        activeMesh.receiveShadow = true;
-    }, [scene, texture]);
+        meshes.forEach((m) => {
+            if (!m.userData._cloned && m.material) {
+                m.material = m.material.clone();
+                m.userData._cloned = true;
+            }
+            if (texture && m.material && m.geometry?.attributes?.uv) {
+                m.material.map         = texture;
+                m.material.needsUpdate = true;
+            }
+            m.castShadow    = true;
+            m.receiveShadow = true;
+        });
+    }, [scene, texture, meshMode, activeMeshIndex]);
 
     function hitTestUV(u, v) {
         const list = bboxesRef?.current || [];
@@ -262,6 +307,7 @@ function Loader() {
 
 export default function CustomizationCanvas3D({
                                                    configuration,
+                                                   model3d,
                                                    onUpdateTextLayer,
                                                    onUpdateImageLayer,
                                                    onUpdateLogoUV,
@@ -269,9 +315,27 @@ export default function CustomizationCanvas3D({
                                                    onUpdatePlayerNumberUV,
                                                    onDragEnd,
                                                }) {
+    // Debug UV : uniquement si ?debuguv est présent dans l'URL.
+    // Invisible par défaut en dev ET en prod — ajouter ?debuguv pour l'activer.
+    const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
     const [debugUV, setDebugUV]       = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const { texture, bboxesRef }      = useTextureComposer(configuration, debugUV);
+
+    // GF13 : la config 3D (GLB, UV zones, chest center du template) est lue
+    // depuis productCustomizerConfigs.model3d via la prop model3d. Fallback
+    // défensif si un produit 3D n'a pas de config (ne devrait pas arriver).
+    const glbPath         = model3d?.glb             || "/models/tshirt.glb";
+    const meshMode        = model3d?.meshMode        || "pick";
+    const activeMeshIndex = model3d?.activeMeshIndex ?? 0;
+    const uvZones           = model3d?.uvZones;
+    const templateChest     = model3d?.templateChest;
+    const transformFallback = model3d?.transformFallback;
+
+    const { texture, bboxesRef } = useTextureComposer(
+        configuration,
+        debugUV,
+        { uvZones, templateChest, transformFallback }
+    );
 
     function handleDragStart() {
         setIsDragging(true);
@@ -298,14 +362,16 @@ export default function CustomizationCanvas3D({
 
     return (
         <div className="pc3d-canvas-wrapper">
-            <button
-                type="button"
-                className="pc3d-debug-btn"
-                onClick={() => setDebugUV((v) => !v)}
-                title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
-            >
-                {debugUV ? "🎨 Mode normal" : "🔧 Debug UV"}
-            </button>
+            {debugUVAllowed && (
+                <button
+                    type="button"
+                    className="pc3d-debug-btn"
+                    onClick={() => setDebugUV((v) => !v)}
+                    title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
+                >
+                    {debugUV ? "🎨 Mode normal" : "🔧 Debug UV"}
+                </button>
+            )}
 
             <Canvas
                 camera={{ position: [0, 0, 5], fov: 45 }}
@@ -320,11 +386,15 @@ export default function CustomizationCanvas3D({
                 >
                     <Suspense fallback={<Loader />}>
                         <TShirtMesh
+                            key={glbPath}
                             texture={texture}
                             bboxesRef={bboxesRef}
                             onDragStart={handleDragStart}
                             onDragMove={handleDragMove}
                             onDragEnd={handleDragEnd}
+                            glbPath={glbPath}
+                            activeMeshIndex={activeMeshIndex}
+                            meshMode={meshMode}
                         />
                     </Suspense>
                 </Stage>

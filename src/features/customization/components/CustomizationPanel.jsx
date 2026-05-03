@@ -1,16 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import TemplateSelector from "./TemplateSelector";
 import TextLayerForm from "./TextLayerForm";
 
+// ── Constantes ─────────────────────────────────────────────────────────────────
+
 const TEXT_COLORS = [
-    { label: "Noir", value: "#111111" },
+    { label: "Noir",  value: "#111111" },
     { label: "Blanc", value: "#ffffff" },
     { label: "Rouge", value: "#c62828" },
-    { label: "Bleu", value: "#1565c0" },
+    { label: "Bleu",  value: "#1565c0" },
 ];
 
-// GF12 V2 : Swatches de couleur du produit pour le mode 3D
-// (remontés depuis Product3DCustomizer vers le panel droit)
 const PRODUCT_COLOR_SWATCHES_3D = [
     { label: "Bleu fitness",    value: "#1d4ed8" },
     { label: "Noir",            value: "#111111" },
@@ -23,13 +23,13 @@ const PRODUCT_COLOR_SWATCHES_3D = [
 ];
 
 const PRESET_LOGOS = [
-    { label: "Aucun logo", value: "" },
-    { label: "UBB", value: "/logos/ubb.png" },
-    { label: "FFR", value: "/logos/ffr.jpg" },
-    { label: "ST", value: "/logos/stadetoulousain.jpg" },
-    { label: "SR", value: "/logos/staderochelais.jpg" },
-    { label: "Badge noir", value: "/logos/badge-black.jpg" },
-    { label: "Badge blanc", value: "/logos/badge-white.jpg" },
+    { label: "Aucun logo",   value: "" },
+    { label: "UBB",          value: "/logos/ubb.png" },
+    { label: "FFR",          value: "/logos/ffr.jpg" },
+    { label: "Stade Toul.",  value: "/logos/stadetoulousain.jpg" },
+    { label: "Stade Roch.",  value: "/logos/staderochelais.jpg" },
+    { label: "Badge noir",   value: "/logos/badge-black.jpg" },
+    { label: "Badge blanc",  value: "/logos/badge-white.jpg" },
 ];
 
 const PATTERN_OPTIONS = [
@@ -44,222 +44,191 @@ const GRADIENT_OPTIONS = [
     { id: "degrade3", label: "Dégradé 3", thumb: "/degrades/degrade3.jpg" },
 ];
 
-function StyleSelectionBlock({
-                                 title,
-                                 enabled,
-                                 selectedId,
-                                 options,
-                                 onToggle,
-                                 onSelect,
-                             }) {
-    const [expanded, setExpanded] = useState(false);
+const TABS = [
+    { id: "style",  label: "Style"  },
+    { id: "texte",  label: "Texte"  },
+    { id: "medias", label: "Médias" },
+];
+
+// ── Sous-composants internes ────────────────────────────────────────────────────
+
+function VisualGallery({ title, enabled, selectedId, options, onToggle, onSelect }) {
+    const [open, setOpen] = useState(false);
 
     return (
-        <div className="pc-style-card">
-            <div className="pc-style-head">
-                <div className="pc-style-head-left">
-                    <p className="pc-style-label">{title}</p>
-                    <p className="pc-style-subtext">
-                        Active {title.toLowerCase()} puis choisis un visuel.
-                    </p>
+        <div className="pc-accordion">
+            <div className="pc-accordion-head">
+                <div className="pc-accordion-left">
+                    <span className="pc-accordion-title">{title}</span>
                 </div>
-
-                <div className="pc-style-actions">
-                    <input
-                        type="checkbox"
-                        className="pc-toggle"
-                        checked={Boolean(enabled)}
-                        onChange={(e) => onToggle(e.target.checked)}
-                    />
-
+                <div className="pc-accordion-controls">
                     <button
                         type="button"
-                        className="pc-style-expand-btn"
-                        onClick={() => setExpanded((prev) => !prev)}
-                        aria-label={`Ouvrir la liste ${title.toLowerCase()}`}
+                        role="switch"
+                        aria-checked={enabled}
+                        className={`pc-toggle-btn ${enabled ? "is-on" : ""}`}
+                        onClick={() => onToggle(!enabled)}
+                        aria-label={`Activer ${title}`}
+                    />
+                    <button
+                        type="button"
+                        className={`pc-accordion-chevron ${open ? "is-open" : ""}`}
+                        onClick={() => setOpen((v) => !v)}
+                        aria-label="Voir les options"
                     >
-                        {expanded ? "−" : "›"}
+                        ›
                     </button>
                 </div>
             </div>
 
-            {expanded && (
+            {open && (
                 <div className="pc-style-gallery">
-                    {options.map((option) => {
-                        const isActive = selectedId === option.id;
-
-                        return (
-                            <button
-                                key={option.id}
-                                type="button"
-                                className={`pc-style-option ${isActive ? "is-active" : ""}`}
-                                onClick={() => onSelect(option.id)}
-                            >
-                                <div className="pc-style-thumb">
-                                    <img
-                                        src={option.thumb}
-                                        alt={option.label}
-                                        className="pc-style-thumb-image"
-                                    />
-                                </div>
-
-                                <span className="pc-style-option-label">
-                                    {option.label}
-                                </span>
-                            </button>
-                        );
-                    })}
+                    {options.map((option) => (
+                        <button
+                            key={option.id}
+                            type="button"
+                            className={`pc-style-option ${selectedId === option.id ? "is-active" : ""}`}
+                            onClick={() => onSelect(option.id)}
+                        >
+                            <div className="pc-style-thumb">
+                                <img
+                                    src={option.thumb}
+                                    alt={option.label}
+                                    className="pc-style-thumb-image"
+                                />
+                            </div>
+                            <span className="pc-style-option-label">{option.label}</span>
+                        </button>
+                    ))}
                 </div>
             )}
         </div>
     );
 }
 
-export default function CustomizationPanel({
-                                               product,
-                                               configuration,
-                                               variants = [],
-                                               currentVariantSlug = null,
-                                               onVariantSelect,
-                                               onTemplateChange,
-                                               onViewChange,
-                                               onAddTextLayer,
-                                               onPlayerNameChange,
-                                               onPlayerNumberChange,
-                                               onToggleLogo,
-                                               onTextColorChange,
-                                               onLogoSelect,
-                                               onUploadLogo,
-                                               uploadLogoLoading = false,
-                                               uploadLogoError = null,
-                                               onRemoveLogo,
-                                               onUploadImage,
-                                               uploadImageLoading = false,
-                                               uploadImageError = null,
-                                               onRemoveImageLayer,
-                                               onPatternToggle,
-                                               onPatternSelect,
-                                               onGradientToggle,
-                                               onGradientSelect,
-                                               onProductColorChange,
-                                               onResetConfiguration,
-                                               onSave,
-                                               onFinish,
-                                               saving,
-                                               finishing,
-                                               disabled = false,
-                                               hasSavedSession = false,
-                                               mode = "2d",
-                                           }) {
-    const currentView = configuration?.view || "front";
+const UploadIcon = () => (
+    <svg
+        className="pc-upload-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+    >
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" y1="3" x2="12" y2="15" />
+    </svg>
+);
 
-    const currentStyle = useMemo(() => {
-        return configuration?.style?.[currentView] || {
-            pattern: { enabled: false, id: null },
-            gradient: { enabled: false, id: null },
-        };
-    }, [configuration?.style, currentView]);
-
-    const isUploadedLogo =
-        Boolean(configuration?.logo?.src) &&
-        !PRESET_LOGOS.some((logo) => logo.value === configuration?.logo?.src);
-
-    const currentViewImageLayers = Array.isArray(configuration?.image_layers)
-        ? configuration.image_layers.filter((layer) => (layer?.view || "front") === currentView)
-        : [];
+function UploadButton({ label, accept, disabled, loading, onChange, children }) {
+    const ref = useRef(null);
 
     return (
-        <aside className="pc-sidebar">
-            <div className="pc-sidebar-card">
-                <h3 className="pc-sidebar-title">Configuration</h3>
-                <p className="pc-sidebar-text">
-                    Choisis un design de base, sélectionne la face avant ou arrière,
-                    ajoute un nom, un numéro, un logo ou un texte libre, puis termine
-                    la configuration.
-                </p>
-            </div>
+        <div className="pc-upload-wrap">
+            <button
+                type="button"
+                className="pc-upload-btn"
+                disabled={disabled || loading}
+                onClick={() => ref.current?.click()}
+            >
+                <UploadIcon />
+                {loading ? "Import en cours…" : label}
+            </button>
+            <input
+                ref={ref}
+                type="file"
+                accept={accept}
+                disabled={disabled || loading}
+                style={{ display: "none" }}
+                onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onChange(file);
+                    e.target.value = "";
+                }}
+            />
+            {children}
+        </div>
+    );
+}
 
-            <div className="pc-sidebar-card">
-                <div className="pc-section">
-                    <h4 className="pc-section-title">
-                        {mode === "3d" ? "Zone d'application" : "Vue"}
-                    </h4>
-                    {mode === "3d" && (
-                        <p className="pc-sidebar-text" style={{ marginBottom: 8 }}>
-                            Choisissez sur quelle face appliquer logo, texte et numéro.
-                        </p>
-                    )}
+// ── Tabs content ───────────────────────────────────────────────────────────────
 
-                    <div className="pc-view-switch">
-                        <button
-                            type="button"
-                            className={`pc-view-btn ${configuration?.view === "front" ? "is-active" : ""}`}
-                            onClick={() => onViewChange("front")}
-                        >
-                            Face avant
-                        </button>
-                        <button
-                            type="button"
-                            className={`pc-view-btn ${configuration?.view === "back" ? "is-active" : ""}`}
-                            onClick={() => onViewChange("back")}
-                        >
-                            Face arrière
-                        </button>
-                    </div>
+function StyleTab({
+    configuration,
+    mode,
+    variants,
+    currentVariantSlug,
+    product,
+    currentView,
+    currentStyle,
+    onViewChange,
+    onProductColorChange,
+    onVariantSelect,
+    onTemplateChange,
+    onPatternToggle,
+    onPatternSelect,
+    onGradientToggle,
+    onGradientSelect,
+}) {
+    return (
+        <div className="pc-tab-body">
+            {/* Zone d'application */}
+            <div className="pc-field-group">
+                <p className="pc-field-label">Zone d'application</p>
+                <div className="pc-view-switch">
+                    <button
+                        type="button"
+                        className={`pc-view-btn ${currentView === "front" ? "is-active" : ""}`}
+                        onClick={() => onViewChange("front")}
+                    >
+                        Face avant
+                    </button>
+                    <button
+                        type="button"
+                        className={`pc-view-btn ${currentView === "back" ? "is-active" : ""}`}
+                        onClick={() => onViewChange("back")}
+                    >
+                        Face arrière
+                    </button>
                 </div>
             </div>
 
-            {/* GF12 V2 : Swatches de couleur du produit en mode 3D */}
-            {mode === "3d" && (
-                <div className="pc-sidebar-card">
-                    <div className="pc-section">
-                        <h4 className="pc-section-title">Couleur du produit</h4>
-                        <p className="pc-sidebar-text" style={{ marginBottom: 10 }}>
-                            Choisissez la couleur de base du vêtement.
-                        </p>
-
-                        <div className="pc3d-swatches-grid">
-                            {PRODUCT_COLOR_SWATCHES_3D.map((swatch) => {
-                                const isActive =
-                                    configuration?.product_color_hex === swatch.value;
-                                return (
-                                    <button
-                                        key={swatch.value}
-                                        type="button"
-                                        title={swatch.label}
-                                        aria-label={swatch.label}
-                                        className={`pc3d-swatch ${isActive ? "is-active" : ""}`}
-                                        style={{ backgroundColor: swatch.value }}
-                                        onClick={() => onProductColorChange?.(swatch.value)}
-                                    />
-                                );
-                            })}
-                        </div>
+            {/* Couleur produit */}
+            {mode === "3d" ? (
+                <div className="pc-field-group">
+                    <p className="pc-field-label">Couleur du vêtement</p>
+                    <div className="pc-swatches-row">
+                        {PRODUCT_COLOR_SWATCHES_3D.map((swatch) => (
+                            <button
+                                key={swatch.value}
+                                type="button"
+                                title={swatch.label}
+                                aria-label={swatch.label}
+                                className={`pc3d-swatch ${configuration?.product_color_hex === swatch.value ? "is-active" : ""}`}
+                                style={{ backgroundColor: swatch.value }}
+                                onClick={() => onProductColorChange?.(swatch.value)}
+                            />
+                        ))}
                     </div>
                 </div>
-            )}
-
-            {mode !== "3d" && variants.length > 0 && (
-                <div className="pc-sidebar-card">
-                    <div className="pc-section">
-                        <h4 className="pc-section-title">Couleur du produit</h4>
-
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                                gap: 10,
-                            }}
-                        >
+            ) : (
+                variants.length > 0 && (
+                    <div className="pc-field-group">
+                        <p className="pc-field-label">Couleur / variante</p>
+                        <div className="pc-variants-grid">
                             {variants.map((variant) => {
                                 const label =
                                     variant.variant_value_label ||
                                     variant.flavor_label ||
                                     variant.color_label ||
                                     variant.slug;
-
                                 const isActive = variant.slug === currentVariantSlug;
-
                                 return (
                                     <button
                                         key={variant.slug}
@@ -267,7 +236,6 @@ export default function CustomizationPanel({
                                         className={`pc-style-option ${isActive ? "is-active" : ""}`}
                                         onClick={() => onVariantSelect?.(variant.slug)}
                                         title={label}
-                                        aria-label={label}
                                     >
                                         <div className="pc-style-thumb">
                                             <img
@@ -282,18 +250,21 @@ export default function CustomizationPanel({
                             })}
                         </div>
                     </div>
-                </div>
+                )
             )}
 
-            <div className="pc-sidebar-card">
+            {/* Templates */}
+            <div className="pc-field-group">
                 <TemplateSelector
                     value={configuration?.template_id}
                     onChange={onTemplateChange}
                 />
             </div>
 
-            <div className="pc-sidebar-card">
-                <StyleSelectionBlock
+            {/* Motifs & Dégradés */}
+            <div className="pc-field-group">
+                <p className="pc-field-label">Effets visuels</p>
+                <VisualGallery
                     title="Motifs"
                     enabled={currentStyle?.pattern?.enabled}
                     selectedId={currentStyle?.pattern?.id}
@@ -301,255 +272,387 @@ export default function CustomizationPanel({
                     onToggle={onPatternToggle}
                     onSelect={onPatternSelect}
                 />
+                <VisualGallery
+                    title="Dégradés"
+                    enabled={currentStyle?.gradient?.enabled}
+                    selectedId={currentStyle?.gradient?.id}
+                    options={GRADIENT_OPTIONS}
+                    onToggle={onGradientToggle}
+                    onSelect={onGradientSelect}
+                />
+            </div>
+        </div>
+    );
+}
 
-                <div style={{ marginTop: 16 }}>
-                    <StyleSelectionBlock
-                        title="Dégradés"
-                        enabled={currentStyle?.gradient?.enabled}
-                        selectedId={currentStyle?.gradient?.id}
-                        options={GRADIENT_OPTIONS}
-                        onToggle={onGradientToggle}
-                        onSelect={onGradientSelect}
-                    />
+function TexteTab({
+    configuration,
+    onTextColorChange,
+    onPlayerNameChange,
+    onPlayerNumberChange,
+    onAddTextLayer,
+}) {
+    return (
+        <div className="pc-tab-body">
+            {/* Couleur du texte */}
+            <div className="pc-field-group">
+                <p className="pc-field-label">Couleur du texte</p>
+                <div className="pc-color-grid">
+                    {TEXT_COLORS.map((color) => (
+                        <button
+                            key={color.value}
+                            type="button"
+                            className={`pc-color-chip ${
+                                configuration?.text_style?.color === color.value ? "is-active" : ""
+                            }`}
+                            onClick={() => onTextColorChange(color.value)}
+                        >
+                            <span
+                                className="pc-color-dot"
+                                style={{ backgroundColor: color.value }}
+                            />
+                            {color.label}
+                        </button>
+                    ))}
                 </div>
             </div>
 
-            <div className="pc-sidebar-card">
-                <div className="pc-section">
-                    <h4 className="pc-section-title">Couleur du texte</h4>
-                    <div className="pc-color-grid">
-                        {TEXT_COLORS.map((color) => (
-                            <button
-                                key={color.value}
-                                type="button"
-                                className={`pc-color-chip ${
-                                    configuration?.text_style?.color === color.value ? "is-active" : ""
-                                }`}
-                                onClick={() => onTextColorChange(color.value)}
-                            >
-                                <span
-                                    className="pc-color-dot"
-                                    style={{ backgroundColor: color.value }}
-                                />
-                                {color.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
+            {/* Nom du joueur */}
+            <div className="pc-field-group">
+                <label className="pc-field-label" htmlFor="pc-player-name">
+                    Nom du joueur
+                </label>
+                <input
+                    id="pc-player-name"
+                    className="pc-input"
+                    type="text"
+                    value={configuration?.player_name?.value || ""}
+                    onChange={(e) => onPlayerNameChange(e.target.value)}
+                    placeholder="Ex : GAUTHIER"
+                    maxLength={18}
+                />
             </div>
 
-            <div className="pc-sidebar-card">
-                <div className="pc-section">
-                    <h4 className="pc-section-title">Nom du joueur</h4>
-                    <input
-                        className="pc-input"
-                        type="text"
-                        value={configuration?.player_name?.value || ""}
-                        onChange={(e) => onPlayerNameChange(e.target.value)}
-                        placeholder="Ex: GAUTHIER"
-                        maxLength={18}
-                    />
-                </div>
-
-                <div className="pc-section" style={{ marginTop: 14 }}>
-                    <h4 className="pc-section-title">Numéro</h4>
-                    <input
-                        className="pc-input"
-                        type="text"
-                        value={configuration?.player_number?.value || ""}
-                        onChange={(e) => onPlayerNumberChange(e.target.value)}
-                        placeholder="Ex: 7"
-                        maxLength={3}
-                    />
-                </div>
+            {/* Numéro */}
+            <div className="pc-field-group">
+                <label className="pc-field-label" htmlFor="pc-player-number">
+                    Numéro
+                </label>
+                <input
+                    id="pc-player-number"
+                    className="pc-input"
+                    type="text"
+                    value={configuration?.player_number?.value || ""}
+                    onChange={(e) => onPlayerNumberChange(e.target.value)}
+                    placeholder="Ex : 7"
+                    maxLength={3}
+                />
             </div>
 
-            <div className="pc-sidebar-card">
-                <div className="pc-section">
-                    <label className="pc-checkbox-row">
-                        <input
-                            type="checkbox"
-                            checked={Boolean(configuration?.logo?.enabled)}
-                            onChange={(e) => onToggleLogo(e.target.checked)}
-                        />
-                        <span>Afficher un logo poitrine</span>
-                    </label>
-
-                    <select
-                        className="pc-input"
-                        value={isUploadedLogo ? "" : (configuration?.logo?.src || "")}
-                        onChange={(e) => onLogoSelect(e.target.value)}
-                        disabled={!configuration?.logo?.enabled}
-                    >
-                        {PRESET_LOGOS.map((logo) => (
-                            <option key={logo.value} value={logo.value}>
-                                {logo.label}
-                            </option>
-                        ))}
-                    </select>
-
-                    <div className="pc-section" style={{ marginTop: 10 }}>
-                        <label className="pc-section-title" style={{ fontSize: 14 }}>
-                            Importer un logo personnalisé
-                        </label>
-
-                        <input
-                            className="pc-input"
-                            type="file"
-                            accept=".png,.jpg,.jpeg,.webp"
-                            disabled={!configuration?.logo?.enabled || uploadLogoLoading}
-                            onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                    onUploadLogo?.(file);
-                                }
-                                e.target.value = "";
-                            }}
-                        />
-
-                        {uploadLogoLoading && (
-                            <p className="pc-sidebar-text">Import du logo en cours...</p>
-                        )}
-
-                        {uploadLogoError && (
-                            <p className="pc-sidebar-text" style={{ color: "#b42318" }}>
-                                {uploadLogoError}
-                            </p>
-                        )}
-
-                        {isUploadedLogo && (
-                            <p className="pc-sidebar-text">Logo personnalisé importé.</p>
-                        )}
-
-                        {Boolean(configuration?.logo?.src) && (
-                            <button
-                                type="button"
-                                className="pc-secondary-btn"
-                                style={{ marginTop: 8 }}
-                                onClick={onRemoveLogo}
-                            >
-                                Supprimer le logo
-                            </button>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <div className="pc-sidebar-card">
-                <div className="pc-section">
-                    <h4 className="pc-section-title">Image libre</h4>
-
-                    <input
-                        className="pc-input"
-                        type="file"
-                        accept=".png,.jpg,.jpeg,.webp"
-                        disabled={uploadImageLoading}
-                        onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                                onUploadImage?.(file);
-                            }
-                            e.target.value = "";
-                        }}
-                    />
-
-                    {uploadImageLoading && (
-                        <p className="pc-sidebar-text">Import de l'image en cours...</p>
-                    )}
-
-                    {uploadImageError && (
-                        <p className="pc-sidebar-text" style={{ color: "#b42318" }}>
-                            {uploadImageError}
-                        </p>
-                    )}
-
-                    <p className="pc-sidebar-text">
-                        Images sur cette vue : {currentViewImageLayers.length}
-                    </p>
-
-                    {currentViewImageLayers.length > 0 && (
-                        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                            {currentViewImageLayers.map((layer, index) => (
-                                <div
-                                    key={layer.id || `${layer.src}-${index}`}
-                                    style={{
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "space-between",
-                                        gap: 10,
-                                        padding: "8px 10px",
-                                        border: "1px solid #e5e7eb",
-                                        borderRadius: 10,
-                                        background: "#fff",
-                                    }}
-                                >
-                                    <span
-                                        style={{
-                                            fontSize: 13,
-                                            color: "#374151",
-                                            overflow: "hidden",
-                                            textOverflow: "ellipsis",
-                                            whiteSpace: "nowrap",
-                                        }}
-                                    >
-                                        {layer.original_name || `Image ${index + 1}`}
-                                    </span>
-
-                                    <button
-                                        type="button"
-                                        className="pc-secondary-btn"
-                                        style={{
-                                            width: "auto",
-                                            minWidth: 0,
-                                            padding: "8px 10px",
-                                        }}
-                                        onClick={() => onRemoveImageLayer?.(layer.id)}
-                                    >
-                                        Supprimer
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <div className="pc-sidebar-card">
+            {/* Texte libre */}
+            <div className="pc-field-group">
                 <TextLayerForm
                     onAddText={onAddTextLayer}
                     textColor={configuration?.text_style?.color}
                 />
             </div>
+        </div>
+    );
+}
 
-            <div className="pc-sidebar-card">
-                <button
-                    type="button"
-                    className="pc-secondary-btn"
-                    onClick={onSave}
-                    disabled={saving || disabled}
-                >
-                    {saving ? "Enregistrement..." : "Sauvegarder le brouillon"}
-                </button>
+function MediasTab({
+    configuration,
+    currentView,
+    onToggleLogo,
+    onLogoSelect,
+    onUploadLogo,
+    uploadLogoLoading,
+    uploadLogoError,
+    onRemoveLogo,
+    onUploadImage,
+    uploadImageLoading,
+    uploadImageError,
+    onRemoveImageLayer,
+}) {
+    const isUploadedLogo =
+        Boolean(configuration?.logo?.src) &&
+        !PRESET_LOGOS.some((l) => l.value === configuration?.logo?.src);
 
-                <button
-                    type="button"
-                    className="pc-secondary-btn"
-                    style={{ marginTop: 10 }}
-                    onClick={onResetConfiguration}
-                    disabled={saving || finishing}
+    const currentViewImageLayers = Array.isArray(configuration?.image_layers)
+        ? configuration.image_layers.filter(
+              (layer) => (layer?.view || "front") === currentView
+          )
+        : [];
+
+    return (
+        <div className="pc-tab-body">
+            {/* Logo */}
+            <div className="pc-field-group">
+                <div className="pc-field-row">
+                    <p className="pc-field-label" style={{ margin: 0 }}>
+                        Logo poitrine
+                    </p>
+                    <button
+                        type="button"
+                        role="switch"
+                        aria-checked={Boolean(configuration?.logo?.enabled)}
+                        className={`pc-toggle-btn ${configuration?.logo?.enabled ? "is-on" : ""}`}
+                        onClick={() => onToggleLogo(!configuration?.logo?.enabled)}
+                        aria-label="Activer le logo"
+                    />
+                </div>
+
+                {!configuration?.logo?.enabled && (
+                    <p className="pc-medias-hint">
+                        Activez le toggle pour choisir ou importer un logo sur la poitrine.
+                    </p>
+                )}
+
+                {configuration?.logo?.enabled && (
+                    <>
+                        <select
+                            className="pc-input"
+                            value={isUploadedLogo ? "" : (configuration?.logo?.src || "")}
+                            onChange={(e) => onLogoSelect(e.target.value)}
+                        >
+                            {PRESET_LOGOS.map((logo) => (
+                                <option key={logo.value} value={logo.value}>
+                                    {logo.label}
+                                </option>
+                            ))}
+                        </select>
+
+                        <UploadButton
+                            label="Importer un logo personnalisé"
+                            accept=".png,.jpg,.jpeg,.webp"
+                            loading={uploadLogoLoading}
+                            onChange={onUploadLogo}
+                        >
+                            {uploadLogoError && (
+                                <p className="pc-upload-error">{uploadLogoError}</p>
+                            )}
+                            {isUploadedLogo && (
+                                <p className="pc-upload-ok">Logo personnalisé importé</p>
+                            )}
+                        </UploadButton>
+
+                        {Boolean(configuration?.logo?.src) && (
+                            <button
+                                type="button"
+                                className="pc-remove-btn"
+                                onClick={onRemoveLogo}
+                            >
+                                Supprimer le logo
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Image libre */}
+            <div className="pc-field-group">
+                <p className="pc-field-label">
+                    Image libre
+                    {currentViewImageLayers.length > 0 && (
+                        <span className="pc-field-count">
+                            {currentViewImageLayers.length}
+                        </span>
+                    )}
+                </p>
+
+                <UploadButton
+                    label="Ajouter une image"
+                    accept=".png,.jpg,.jpeg,.webp"
+                    loading={uploadImageLoading}
+                    onChange={onUploadImage}
                 >
-                    Réinitialiser la personnalisation
-                </button>
+                    {uploadImageError && (
+                        <p className="pc-upload-error">{uploadImageError}</p>
+                    )}
+                </UploadButton>
+
+                {currentViewImageLayers.length > 0 && (
+                    <div className="pc-image-list">
+                        {currentViewImageLayers.map((layer, index) => (
+                            <div
+                                key={layer.id || `${layer.src}-${index}`}
+                                className="pc-image-item"
+                            >
+                                <span className="pc-image-name">
+                                    {layer.original_name || `Image ${index + 1}`}
+                                </span>
+                                <button
+                                    type="button"
+                                    className="pc-remove-btn pc-remove-btn-sm"
+                                    onClick={() => onRemoveImageLayer?.(layer.id)}
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+// ── Composant principal ────────────────────────────────────────────────────────
+
+export default function CustomizationPanel({
+    product,
+    configuration,
+    variants = [],
+    currentVariantSlug = null,
+    onVariantSelect,
+    onTemplateChange,
+    onViewChange,
+    onAddTextLayer,
+    onPlayerNameChange,
+    onPlayerNumberChange,
+    onToggleLogo,
+    onTextColorChange,
+    onLogoSelect,
+    onUploadLogo,
+    uploadLogoLoading = false,
+    uploadLogoError = null,
+    onRemoveLogo,
+    onUploadImage,
+    uploadImageLoading = false,
+    uploadImageError = null,
+    onRemoveImageLayer,
+    onPatternToggle,
+    onPatternSelect,
+    onGradientToggle,
+    onGradientSelect,
+    onProductColorChange,
+    onResetConfiguration,
+    onSave,
+    onFinish,
+    saving,
+    finishing,
+    disabled = false,
+    hasSavedSession = false,
+    mode = "2d",
+}) {
+    const [activeTab, setActiveTab] = useState("style");
+
+    const currentView = configuration?.view || "front";
+
+    const currentStyle = useMemo(
+        () =>
+            configuration?.style?.[currentView] || {
+                pattern:  { enabled: false, id: null },
+                gradient: { enabled: false, id: null },
+            },
+        [configuration?.style, currentView]
+    );
+
+    return (
+        <aside className="pc-sidebar">
+            {/* En-tête */}
+            <div className="pc-panel-header">
+                <h3 className="pc-panel-title">Configuration</h3>
+                {product?.name && (
+                    <p className="pc-panel-subtitle">{product.name}</p>
+                )}
+            </div>
+
+            {/* Navigation par onglets */}
+            <div className="pc-tabs" role="tablist">
+                {TABS.map((tab) => (
+                    <button
+                        key={tab.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        className={`pc-tab ${activeTab === tab.id ? "is-active" : ""}`}
+                        onClick={() => setActiveTab(tab.id)}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Contenu de l'onglet actif */}
+            <div className="pc-tab-content" role="tabpanel">
+                {activeTab === "style" && (
+                    <StyleTab
+                        configuration={configuration}
+                        mode={mode}
+                        variants={variants}
+                        currentVariantSlug={currentVariantSlug}
+                        product={product}
+                        currentView={currentView}
+                        currentStyle={currentStyle}
+                        onViewChange={onViewChange}
+                        onProductColorChange={onProductColorChange}
+                        onVariantSelect={onVariantSelect}
+                        onTemplateChange={onTemplateChange}
+                        onPatternToggle={onPatternToggle}
+                        onPatternSelect={onPatternSelect}
+                        onGradientToggle={onGradientToggle}
+                        onGradientSelect={onGradientSelect}
+                    />
+                )}
+
+                {activeTab === "texte" && (
+                    <TexteTab
+                        configuration={configuration}
+                        onTextColorChange={onTextColorChange}
+                        onPlayerNameChange={onPlayerNameChange}
+                        onPlayerNumberChange={onPlayerNumberChange}
+                        onAddTextLayer={onAddTextLayer}
+                    />
+                )}
+
+                {activeTab === "medias" && (
+                    <MediasTab
+                        configuration={configuration}
+                        currentView={currentView}
+                        onToggleLogo={onToggleLogo}
+                        onLogoSelect={onLogoSelect}
+                        onUploadLogo={onUploadLogo}
+                        uploadLogoLoading={uploadLogoLoading}
+                        uploadLogoError={uploadLogoError}
+                        onRemoveLogo={onRemoveLogo}
+                        onUploadImage={onUploadImage}
+                        uploadImageLoading={uploadImageLoading}
+                        uploadImageError={uploadImageError}
+                        onRemoveImageLayer={onRemoveImageLayer}
+                    />
+                )}
+            </div>
+
+            {/* Footer CTA — toujours visible */}
+            <div className="pc-panel-footer">
+                <div className="pc-footer-secondary">
+                    <button
+                        type="button"
+                        className="pc-secondary-btn"
+                        onClick={onSave}
+                        disabled={saving || disabled}
+                    >
+                        {saving ? "Enregistrement…" : "Brouillon"}
+                    </button>
+                    <button
+                        type="button"
+                        className="pc-secondary-btn"
+                        onClick={onResetConfiguration}
+                        disabled={saving || finishing}
+                    >
+                        Réinitialiser
+                    </button>
+                </div>
 
                 <button
                     type="button"
                     className="pc-primary-btn"
                     onClick={onFinish}
                     disabled={disabled || finishing}
-                    style={{ marginTop: 12 }}
                 >
                     {finishing
-                        ? "Finalisation..."
+                        ? "Finalisation…"
                         : hasSavedSession
                             ? "Terminer la configuration"
                             : "Sauvegarder et terminer"}
