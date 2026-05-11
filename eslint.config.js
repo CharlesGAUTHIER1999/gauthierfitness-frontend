@@ -32,6 +32,15 @@ export default defineConfig([
           argsIgnorePattern: "^_",
         },
       ],
+
+      // Hooks — exhaustive-deps en warning (intentionnel dans certains effets)
+      "react-hooks/exhaustive-deps": "warn",
+
+      // React Refresh — les hooks exportés (useAuth, etc.) sont autorisés
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
     },
   },
 ]);

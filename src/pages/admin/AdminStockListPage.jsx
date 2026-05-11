@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAdminStock } from "../../api/adminApi";
 
@@ -15,16 +15,16 @@ export default function AdminStockListPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError]     = useState(null);
 
-    const load = useCallback(() => {
+    useEffect(() => {
+        let cancelled = false;
         setLoading(true);
         setError(null);
         getAdminStock({ search: search || undefined, page })
-            .then(setData)
-            .catch(() => setError("Impossible de charger les stocks."))
-            .finally(() => setLoading(false));
+            .then(d  => { if (!cancelled) setData(d); })
+            .catch(() => { if (!cancelled) setError("Impossible de charger les stocks."); })
+            .finally(() => { if (!cancelled) setLoading(false); });
+        return () => { cancelled = true; };
     }, [search, page]);
-
-    useEffect(() => { load(); }, [load]);
 
     const products = data?.data || [];
 
@@ -52,42 +52,42 @@ export default function AdminStockListPage() {
                 <div className="adm-table-wrapper">
                     <table className="adm-table">
                         <thead>
-                            <tr>
-                                <th>Produit</th>
-                                <th>SKU</th>
-                                <th>Stock total</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>Produit</th>
+                            <th>SKU</th>
+                            <th>Stock total</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {products.length === 0 ? (
-                                <tr>
-                                    <td colSpan={4} className="adm-empty">
-                                        Aucun produit trouvé.
+                        {products.length === 0 ? (
+                            <tr>
+                                <td colSpan={4} className="adm-empty">
+                                    Aucun produit trouvé.
+                                </td>
+                            </tr>
+                        ) : (
+                            products.map((p) => (
+                                <tr key={p.id}>
+                                    <td>
+                                        <span className="adm-product-name">{p.name}</span>
+                                        <span className="adm-product-slug">{p.slug}</span>
+                                    </td>
+                                    <td className="adm-date">{p.sku || "—"}</td>
+                                    <td>
+                                        <StockBadge qty={p.stock_qty ?? 0} />
+                                    </td>
+                                    <td>
+                                        <Link
+                                            to={`/admin/products/${p.id}/stock`}
+                                            className="adm-action-btn"
+                                        >
+                                            Gérer
+                                        </Link>
                                     </td>
                                 </tr>
-                            ) : (
-                                products.map((p) => (
-                                    <tr key={p.id}>
-                                        <td>
-                                            <span className="adm-product-name">{p.name}</span>
-                                            <span className="adm-product-slug">{p.slug}</span>
-                                        </td>
-                                        <td className="adm-date">{p.sku || "—"}</td>
-                                        <td>
-                                            <StockBadge qty={p.stock_qty ?? 0} />
-                                        </td>
-                                        <td>
-                                            <Link
-                                                to={`/admin/products/${p.id}/stock`}
-                                                className="adm-action-btn"
-                                            >
-                                                Gérer
-                                            </Link>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                            ))
+                        )}
                         </tbody>
                     </table>
                 </div>

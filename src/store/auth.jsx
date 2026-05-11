@@ -78,7 +78,8 @@ export function AuthProvider({ children }) {
         return () => {
             mounted = false;
         };
-    }, []); // important: une fois au mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // intentionnel : une seule exécution au mount
 
     const login = async (email, password) => {
         const res = await api.post("/login", {
@@ -124,6 +125,7 @@ export function AuthProvider({ children }) {
         }
     };
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const value = useMemo(
         () => ({
             user,
@@ -134,12 +136,13 @@ export function AuthProvider({ children }) {
             register,
             logout,
         }),
-        [user, token, loading]
+        [user, token, loading] // login/logout/register sont stables (closures sur setters)
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
     return useContext(AuthContext);
 }
