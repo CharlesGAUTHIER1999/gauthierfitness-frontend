@@ -16,14 +16,14 @@ import CustomizationPanel from "./CustomizationPanel";
 // sinon Vite Fast Refresh invalide toute la page à chaque édition
 // (cf. https://github.com/vitejs/vite-plugin-react#consistent-components-exports)
 const COLOR_SWATCHES_3D = [
-    { label: "Bleu fitness",  value: "#1d4ed8" },
-    { label: "Noir",          value: "#111111" },
-    { label: "Blanc",         value: "#f9fafb" },
-    { label: "Rouge",         value: "#dc2626" },
-    { label: "Vert",          value: "#16a34a" },
-    { label: "Marine",        value: "#1e3a5f" },
+    { label: "Bleu fitness", value: "#1d4ed8" },
+    { label: "Noir", value: "#111111" },
+    { label: "Blanc", value: "#f9fafb" },
+    { label: "Rouge", value: "#dc2626" },
+    { label: "Vert", value: "#16a34a" },
+    { label: "Marine", value: "#1e3a5f" },
     { label: "Gris anthracite", value: "#374151" },
-    { label: "Bordeaux",      value: "#7f1d1d" },
+    { label: "Bordeaux", value: "#7f1d1d" },
 ];
 
 function ensureViewStyle(style, view) {
@@ -37,6 +37,7 @@ function ensureViewStyle(style, view) {
 
 function createDefault3DCustomization(product) {
     const base = createDefaultCustomization(product);
+
     return {
         ...base,
         product_color_hex: COLOR_SWATCHES_3D[0].value,
@@ -44,11 +45,11 @@ function createDefault3DCustomization(product) {
 }
 
 export default function Product3DCustomizer({
-    product,
-    selectedOptionId = null,
-    selectedOptionMeta = null,
-    disabled = false,
-}) {
+                                                product,
+                                                selectedOptionId = null,
+                                                selectedOptionMeta = null,
+                                                disabled = false,
+                                            }) {
     const navigate = useNavigate();
     const { addItem } = useCart();
 
@@ -69,14 +70,17 @@ export default function Product3DCustomizer({
 
     // GF13 : config 3D du produit courant (GLB, UV zones, chest center du template).
     // Résolue depuis productCustomizerConfigs.model3d avec fallback par défaut.
-    const model3d = useMemo(() => getProductCustomizer3DConfig(product), [product?.id]);
+    const model3d = useMemo(
+        () => getProductCustomizer3DConfig(product),
+        [product]
+    );
 
     useEffect(() => {
         setConfiguration(createDefault3DCustomization(product));
         setSession(null);
         setError(null);
         setSuccessMessage("");
-    }, [product?.id]);
+    }, [product]);
 
     useEffect(() => {
         setSession(null);
@@ -92,6 +96,7 @@ export default function Product3DCustomizer({
 
     function handleVariantSelect(variantSlug) {
         if (!variantSlug || variantSlug === product?.slug) return;
+
         navigate(`/products/${variantSlug}/customize`, {
             state: {
                 selectedOptionId,
@@ -121,10 +126,11 @@ export default function Product3DCustomizer({
         setConfiguration((prev) => ({
             ...prev,
             text_style: { ...prev.text_style, color },
-            player_name:   { ...prev.player_name,   color },
-            player_number: { ...prev.player_number,  color },
+            player_name: { ...prev.player_name, color },
+            player_number: { ...prev.player_number, color },
             text_layers: (prev.text_layers || []).map((l) => ({ ...l, color })),
         }));
+
         invalidateSavedSession();
     }
 
@@ -133,6 +139,7 @@ export default function Product3DCustomizer({
             ...prev,
             text_layers: [...(prev.text_layers || []), textLayer],
         }));
+
         invalidateSavedSession();
     }
 
@@ -141,6 +148,7 @@ export default function Product3DCustomizer({
             ...prev,
             player_name: { ...prev.player_name, value },
         }));
+
         invalidateSavedSession();
     }
 
@@ -149,6 +157,7 @@ export default function Product3DCustomizer({
             ...prev,
             player_number: { ...prev.player_number, value },
         }));
+
         invalidateSavedSession();
     }
 
@@ -157,6 +166,7 @@ export default function Product3DCustomizer({
             ...prev,
             logo: { ...prev.logo, enabled },
         }));
+
         invalidateSavedSession();
     }
 
@@ -165,6 +175,7 @@ export default function Product3DCustomizer({
             ...prev,
             logo: { ...prev.logo, src },
         }));
+
         invalidateSavedSession();
     }
 
@@ -173,6 +184,7 @@ export default function Product3DCustomizer({
             ...prev,
             logo: { ...prev.logo, enabled: false, src: "" },
         }));
+
         invalidateSavedSession();
     }
 
@@ -180,11 +192,14 @@ export default function Product3DCustomizer({
         try {
             setUploadLogoLoading(true);
             setUploadLogoError(null);
+
             const uploaded = await uploadCustomizationLogo(file);
+
             setConfiguration((prev) => ({
                 ...prev,
                 logo: { ...prev.logo, enabled: true, src: uploaded?.url || "" },
             }));
+
             invalidateSavedSession();
         } catch (e) {
             setUploadLogoError(
@@ -199,8 +214,10 @@ export default function Product3DCustomizer({
         try {
             setUploadImageLoading(true);
             setUploadImageError(null);
+
             const uploaded = await uploadCustomizationImage(file);
             const currentView = configuration?.view || "front";
+
             setConfiguration((prev) => ({
                 ...prev,
                 image_layers: [
@@ -210,7 +227,11 @@ export default function Product3DCustomizer({
                         src: uploaded?.url || "",
                         original_name: uploaded?.original_name || file.name,
                         view: currentView,
-                        x: 325, y: 285, width: 90, height: 90, rotation: 0,
+                        x: 325,
+                        y: 285,
+                        width: 90,
+                        height: 90,
+                        rotation: 0,
                         // GF12 V2 : par défaut sur la poitrine gauche (zone logo).
                         // L'utilisateur peut ensuite drag où il veut.
                         uv: { x: 0.45, y: 0.25 },
@@ -218,10 +239,13 @@ export default function Product3DCustomizer({
                     },
                 ],
             }));
+
             invalidateSavedSession();
         } catch (e) {
             setUploadImageError(
-                e?.message || e?.response?.data?.message || "Impossible d'importer l'image."
+                e?.message ||
+                e?.response?.data?.message ||
+                "Impossible d'importer l'image."
             );
         } finally {
             setUploadImageLoading(false);
@@ -233,6 +257,7 @@ export default function Product3DCustomizer({
             ...prev,
             image_layers: (prev.image_layers || []).filter((l) => l.id !== layerId),
         }));
+
         invalidateSavedSession();
     }
 
@@ -288,6 +313,7 @@ export default function Product3DCustomizer({
         setConfiguration((prev) => {
             const view = prev.view || "front";
             const current = ensureViewStyle(prev.style, view);
+
             return {
                 ...prev,
                 style: {
@@ -296,12 +322,13 @@ export default function Product3DCustomizer({
                         ...current,
                         pattern: {
                             enabled,
-                            id: enabled ? (current.pattern?.id || "motif1") : null,
+                            id: enabled ? current.pattern?.id || "motif1" : null,
                         },
                     },
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -309,14 +336,19 @@ export default function Product3DCustomizer({
         setConfiguration((prev) => {
             const view = prev.view || "front";
             const current = ensureViewStyle(prev.style, view);
+
             return {
                 ...prev,
                 style: {
                     ...prev.style,
-                    [view]: { ...current, pattern: { enabled: true, id: patternId } },
+                    [view]: {
+                        ...current,
+                        pattern: { enabled: true, id: patternId },
+                    },
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -324,6 +356,7 @@ export default function Product3DCustomizer({
         setConfiguration((prev) => {
             const view = prev.view || "front";
             const current = ensureViewStyle(prev.style, view);
+
             return {
                 ...prev,
                 style: {
@@ -332,12 +365,13 @@ export default function Product3DCustomizer({
                         ...current,
                         gradient: {
                             enabled,
-                            id: enabled ? (current.gradient?.id || "degrade1") : null,
+                            id: enabled ? current.gradient?.id || "degrade1" : null,
                         },
                     },
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -345,14 +379,19 @@ export default function Product3DCustomizer({
         setConfiguration((prev) => {
             const view = prev.view || "front";
             const current = ensureViewStyle(prev.style, view);
+
             return {
                 ...prev,
                 style: {
                     ...prev.style,
-                    [view]: { ...current, gradient: { enabled: true, id: gradientId } },
+                    [view]: {
+                        ...current,
+                        gradient: { enabled: true, id: gradientId },
+                    },
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -370,23 +409,29 @@ export default function Product3DCustomizer({
             setError("Veuillez d'abord sélectionner l'option requise.");
             return null;
         }
+
         try {
             setSaving(true);
             setError(null);
             setSuccessMessage("");
+
             const createdSession = await createCustomizationSession({
                 productId: product.id,
                 productOptionId: selectedOptionId,
                 configuration,
                 previewImagePath: null,
             });
+
             setSession(createdSession);
             setSuccessMessage("Configuration enregistrée.");
+
             return createdSession;
         } catch (e) {
             setError(
-                e?.response?.data?.message || "Impossible d'enregistrer la personnalisation."
+                e?.response?.data?.message ||
+                "Impossible d'enregistrer la personnalisation."
             );
+
             return null;
         } finally {
             setSaving(false);
@@ -402,27 +447,34 @@ export default function Product3DCustomizer({
             setError("Veuillez d'abord sélectionner l'option requise.");
             return;
         }
+
         try {
             setFinishing(true);
             setError(null);
+
             let currentSession = session;
+
             if (!currentSession?.id) {
                 currentSession = await saveCustomization();
             }
+
             if (!currentSession?.id) {
                 setFinishing(false);
                 return;
             }
+
             await addItem({
                 productId: product.id,
                 optionId: selectedOptionId,
                 quantity: 1,
                 customProductSessionId: currentSession.id,
             });
+
             navigate("/checkout");
         } catch (e) {
             setError(
-                e?.response?.data?.message || "Impossible de terminer la configuration."
+                e?.response?.data?.message ||
+                "Impossible de terminer la configuration."
             );
         } finally {
             setFinishing(false);
@@ -437,6 +489,7 @@ export default function Product3DCustomizer({
                         {error}
                     </div>
                 )}
+
                 {successMessage && (
                     <div className="pc-alert pc-alert-success" role="status">
                         {successMessage}

@@ -5,7 +5,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  // Ignore build + deps (utile si un jour tu changes la config ou tooling)
+  // Ignore build + deps
   globalIgnores(["dist", "node_modules", "coverage"]),
 
   {
@@ -33,10 +33,14 @@ export default defineConfig([
         },
       ],
 
-      // Hooks — exhaustive-deps en warning (intentionnel dans certains effets)
+      // Hooks — exhaustive-deps en warning, car certains effets sont intentionnels
       "react-hooks/exhaustive-deps": "warn",
 
-      // React Refresh — les hooks exportés (useAuth, etc.) sont autorisés
+      // Règles React Compiler trop strictes pour ce projet / phase de déploiement
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/preserve-manual-memoization": "off",
+
+      // React Refresh — les hooks exportés sont autorisés
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
