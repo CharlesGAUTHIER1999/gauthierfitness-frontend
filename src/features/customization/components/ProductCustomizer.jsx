@@ -7,7 +7,6 @@ import {
     uploadCustomizationLogo,
 } from "../services/customizationService";
 import { createDefaultCustomization } from "../utils/defaultCustomization";
-import { getProductCustomizerConfig } from "../utils/productCustomizerConfigs";
 import CustomizationPanel from "./CustomizationPanel";
 import CustomizationPreview from "./CustomizationPreview";
 
@@ -18,12 +17,6 @@ function ensureViewStyle(style, view) {
             gradient: { enabled: false, id: null },
         }
     );
-}
-
-function getProductImageUrl(image) {
-    if (!image) return null;
-    if (typeof image === "string") return image;
-    return image.full_url || image.url || null;
 }
 
 function getDefaultImageLayerPosition(view) {
@@ -47,16 +40,10 @@ function getDefaultImageLayerPosition(view) {
 export default function ProductCustomizer({
                                               product,
                                               selectedOptionId = null,
-                                              selectedOptionMeta = null,
                                               disabled = false,
                                           }) {
     const navigate = useNavigate();
     const { addItem } = useCart();
-
-    const productCustomizerConfig = useMemo(
-        () => getProductCustomizerConfig(product),
-        [product]
-    );
 
     const [configuration, setConfiguration] = useState(() =>
         createDefaultCustomization(product)
@@ -80,7 +67,7 @@ export default function ProductCustomizer({
         setSuccessMessage("");
         setUploadLogoError(null);
         setUploadImageError(null);
-    }, [product?.id]);
+    }, [product?.id, product]);
 
     useEffect(() => {
         setSession(null);
@@ -228,10 +215,14 @@ export default function ProductCustomizer({
             setUploadImageError(null);
 
             setConfiguration((prev) => {
-                const existingLayers = Array.isArray(prev.image_layers) ? prev.image_layers : [];
+                const existingLayers = Array.isArray(prev.image_layers)
+                    ? prev.image_layers
+                    : [];
+
                 if (existingLayers.length >= 3) {
                     throw new Error("Maximum 3 images libres autorisées.");
                 }
+
                 return prev;
             });
 
@@ -339,6 +330,7 @@ export default function ProductCustomizer({
                 ...prev,
                 image_layers: (prev.image_layers || []).map((layer) => {
                     const layerView = layer?.view || "front";
+
                     if (layerView === currentView) {
                         visibleIndex += 1;
                     }
@@ -376,6 +368,7 @@ export default function ProductCustomizer({
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -398,6 +391,7 @@ export default function ProductCustomizer({
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -422,6 +416,7 @@ export default function ProductCustomizer({
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -444,6 +439,7 @@ export default function ProductCustomizer({
                 },
             };
         });
+
         invalidateSavedSession();
     }
 
@@ -467,12 +463,14 @@ export default function ProductCustomizer({
 
             setSession(createdSession);
             setSuccessMessage("Configuration enregistrée.");
+
             return createdSession;
         } catch (e) {
             setError(
                 e?.response?.data?.message ||
                 "Impossible d'enregistrer la personnalisation."
             );
+
             return null;
         } finally {
             setSaving(false);

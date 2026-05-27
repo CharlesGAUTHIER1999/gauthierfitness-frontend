@@ -4,15 +4,7 @@ import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import * as THREE from "three";
 import { useTextureComposer } from "../hooks/useTextureComposer";
 
-// GF13 : on préload les GLB connus du projet pour que le premier rendu
-// soit instantané. Les nouveaux GLB ajoutés via productCustomizerConfigs
-// seront simplement chargés au mount du canvas (léger lag la 1ère fois).
 useGLTF.preload("/models/tshirt.glb");
-useGLTF.preload("/models/tsoversized.glb");
-useGLTF.preload("/models/sweatclassic.glb");
-useGLTF.preload("/models/sweatzippe.glb");
-useGLTF.preload("/models/vesteclassic.glb");
-useGLTF.preload("/models/vestecoupevent.glb");
 
 // GF12 V2 : silence les warnings Three.js dépréciés qu'on ne peut pas
 // corriger côté app (ils viennent de drei / r3f en interne, pas de notre code).
@@ -20,8 +12,8 @@ useGLTF.preload("/models/vestecoupevent.glb");
 if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     const origWarn = console.warn;
     const SILENCED = [
-        "THREE.Clock",                         // drei utilise THREE.Clock en interne
-        "THREE.WebGLShadowMap: PCFSoftShadowMap", // faux positif selon la version
+        "THREE.Clock",
+        "THREE.WebGLShadowMap: PCFSoftShadowMap",
     ];
     console.warn = function (...args) {
         const msg = args[0];
@@ -34,9 +26,12 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
 // Passe à true pour voir les UV reçus + résultats hit-test en console.
 const DEBUG_DRAG = false;
 
-// GF13 : l'index du mesh actif est désormais lu depuis la config produit
-// (model3d.activeMeshIndex dans productCustomizerConfigs). Le GLB Studio-Lab
-// a besoin de 2 (high-poly), les GLB mono-mesh auront 0.
+// GF12 V2 : le GLB Studio-Lab contient 3 t-shirts (3 styles) dans le même fichier.
+// 0 = A01 (1671 verts, low-poly)
+// 1 = A02 (6310 verts, medium)
+// 2 = A03 (24106 verts, high-poly / détaillé)
+// Change la valeur pour switcher, puis on fige quand on a trouvé le bon.
+const ACTIVE_MESH_INDEX = 2;
 
 // GF12 V2 : zone UV "safe" où on autorise les textes/images à vivre.
 // Si le user drag en dehors (bras, dos, col du t-shirt), on clamp pour
@@ -45,8 +40,10 @@ const DEBUG_DRAG = false;
 // safe (aucune "zone fantôme"). On garde juste une petite marge pour
 // éviter de coller au bord extrême.
 const SAFE_UV = {
-    xMin: 0.02, xMax: 0.98,
-    yMin: 0.02, yMax: 0.98,
+    xMin: 0.02,
+    xMax: 0.98,
+    yMin: 0.02,
+    yMax: 0.98,
 };
 
 function clampUV(u, v) {
@@ -60,8 +57,10 @@ function clampUV(u, v) {
 // ça veut dire que le curseur est sur une autre UV island (manche, dos).
 function isWayOutsideSafeZone(u, v) {
     return (
-        u < SAFE_UV.xMin - 0.15 || u > SAFE_UV.xMax + 0.15 ||
-        v < SAFE_UV.yMin - 0.15 || v > SAFE_UV.yMax + 0.15
+        u < SAFE_UV.xMin - 0.15 ||
+        u > SAFE_UV.xMax + 0.15 ||
+        v < SAFE_UV.yMin - 0.15 ||
+        v > SAFE_UV.yMax + 0.15
     );
 }
 
@@ -80,69 +79,86 @@ function TShirtMesh({
                         onDragStart,
                         onDragMove,
                         onDragEnd,
-                        glbPath,
-                        activeMeshIndex,
-                        meshMode,
                     }) {
     const { scene } = useGLTF(glbPath);
-    const groupRef  = useRef();
+    const groupRef = useRef();
     const dragState = useRef(null); // { id, type, pointerId }
+
+    // Remplace scene.userData._pruned / scene.userData._centered
+    // pour éviter l'erreur ESLint react-hooks/immutability.
+    const prunedRef = useRef(false);
+    const centeredRef = useRef(false);
 
     useEffect(() => {
         if (!scene) return;
 
-        // GF12 V2 / GF13 : diagnostic structure du GLB
+        // GF12 V2 : diagnostic structure du GLB (temporaire, à retirer une fois calé)
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
         });
+
         console.log("[3D] Structure modèle :", meshes.length, "mesh(es), mode =", meshMode);
         console.table(meshes.map((m, i) => ({
-            index:    i,
-            name:     m.name || "(sans nom)",
+            index: i,
+            name: m.name || "(sans nom)",
             material: m.material?.name || "(sans nom)",
             vertices: m.geometry?.attributes?.position?.count || 0,
-            hasUV:    !!m.geometry?.attributes?.uv,
-            active:   meshMode === "pick" ? i === activeMeshIndex : true,
+            hasUV: !!m.geometry?.attributes?.uv,
+            active: meshMode === "pick" ? i === activeMeshIndex : true,
         })));
 
         // ── Mode "pick" : GLB pack (Studio-Lab). On choisit UN mesh, on vire les autres.
         if (meshMode === "pick") {
-            if (!scene.userData._pruned) {
+            if (!prunedRef.current) {
                 const toRemove = meshes.filter((_, i) => i !== activeMeshIndex);
                 toRemove.forEach((m) => m.parent?.remove(m));
-                scene.userData._pruned = true;
+                prunedRef.current = true;
             }
 
-            const activeMesh = meshes[activeMeshIndex];
-            if (!activeMesh) return;
+        const activeMesh = meshes[ACTIVE_MESH_INDEX];
+        if (!activeMesh) return;
 
-            if (!scene.userData._centered) {
+            if (!centeredRef.current) {
                 activeMesh.geometry.computeBoundingBox();
-                const box    = activeMesh.geometry.boundingBox;
+                const box = activeMesh.geometry.boundingBox;
                 const center = box.getCenter(new THREE.Vector3());
+
                 activeMesh.geometry.translate(-center.x, -center.y, -center.z);
                 activeMesh.position.set(0, 0, 0);
-                scene.userData._centered = true;
+
+                centeredRef.current = true;
 
                 activeMesh.geometry.computeBoundingBox();
-                const newBox  = activeMesh.geometry.boundingBox;
+                const newBox = activeMesh.geometry.boundingBox;
                 const newSize = newBox.getSize(new THREE.Vector3());
-                const newCtr  = newBox.getCenter(new THREE.Vector3());
-                console.log("[3D] Mesh actif :", activeMesh.name,
-                    "| taille :", newSize.x.toFixed(3), newSize.y.toFixed(3), newSize.z.toFixed(3),
-                    "| centre :", newCtr.x.toFixed(3), newCtr.y.toFixed(3), newCtr.z.toFixed(3));
+                const newCtr = newBox.getCenter(new THREE.Vector3());
+
+                console.log(
+                    "[3D] Mesh actif :",
+                    activeMesh.name,
+                    "| taille :",
+                    newSize.x.toFixed(3),
+                    newSize.y.toFixed(3),
+                    newSize.z.toFixed(3),
+                    "| centre :",
+                    newCtr.x.toFixed(3),
+                    newCtr.y.toFixed(3),
+                    newCtr.z.toFixed(3)
+                );
             }
 
             if (!activeMesh.userData._cloned) {
                 activeMesh.material = activeMesh.material.clone();
                 activeMesh.userData._cloned = true;
             }
+
             if (texture) {
-                activeMesh.material.map         = texture;
+                activeMesh.material.map = texture;
                 activeMesh.material.needsUpdate = true;
             }
-            activeMesh.castShadow    = true;
+
+            activeMesh.castShadow = true;
             activeMesh.receiveShadow = true;
             return;
         }
@@ -151,28 +167,40 @@ function TShirtMesh({
         // On applique la texture à chacun, et on centre l'ensemble sur le barycentre global.
         if (meshes.length === 0) return;
 
-        if (!scene.userData._centered) {
+        if (!centeredRef.current) {
             // Bounding box globale (union de toutes les bbox locales exprimées en world)
             const globalBox = new THREE.Box3();
+
             meshes.forEach((m) => {
                 m.geometry.computeBoundingBox();
                 const b = m.geometry.boundingBox.clone();
+
                 // On veut la bbox en local-space commun (scene), donc on applique la matrix monde
                 m.updateWorldMatrix(true, false);
                 b.applyMatrix4(m.matrixWorld);
                 globalBox.union(b);
             });
+
             const center = globalBox.getCenter(new THREE.Vector3());
 
             // On translate le scene root pour centrer tout le modèle sur l'origine.
             // (On ne touche pas aux géométries individuelles pour garder les UV/normales intactes.)
             scene.position.sub(center);
-            scene.userData._centered = true;
+            centeredRef.current = true;
 
             const size = globalBox.getSize(new THREE.Vector3());
-            console.log("[3D] Modèle (mode all) centré |",
-                "taille :", size.x.toFixed(3), size.y.toFixed(3), size.z.toFixed(3),
-                "| offset appliqué :", center.x.toFixed(3), center.y.toFixed(3), center.z.toFixed(3));
+
+            console.log(
+                "[3D] Modèle (mode all) centré |",
+                "taille :",
+                size.x.toFixed(3),
+                size.y.toFixed(3),
+                size.z.toFixed(3),
+                "| offset appliqué :",
+                center.x.toFixed(3),
+                center.y.toFixed(3),
+                center.z.toFixed(3)
+            );
         }
 
         meshes.forEach((m) => {
@@ -180,30 +208,37 @@ function TShirtMesh({
                 m.material = m.material.clone();
                 m.userData._cloned = true;
             }
+
             if (texture && m.material && m.geometry?.attributes?.uv) {
-                m.material.map         = texture;
+                m.material.map = texture;
                 m.material.needsUpdate = true;
             }
-            m.castShadow    = true;
+
+            m.castShadow = true;
             m.receiveShadow = true;
         });
     }, [scene, texture, meshMode, activeMeshIndex]);
 
     function hitTestUV(u, v) {
         const list = bboxesRef?.current || [];
+
         for (const bb of list) {
             if (
-                u >= bb.uv.x0 && u <= bb.uv.x1 &&
-                v >= bb.uv.y0 && v <= bb.uv.y1
+                u >= bb.uv.x0 &&
+                u <= bb.uv.x1 &&
+                v >= bb.uv.y0 &&
+                v <= bb.uv.y1
             ) {
                 return bb;
             }
         }
+
         return null;
     }
 
     function handlePointerDown(e) {
         const uv = e.uv;
+
         if (!uv) {
             if (DEBUG_DRAG) console.log("[DRAG] pointerDown sans UV");
             return;
@@ -211,12 +246,18 @@ function TShirtMesh({
 
         if (DEBUG_DRAG) {
             console.log(
-                "[DRAG] pointerDown UV =", uv.x.toFixed(3), uv.y.toFixed(3),
-                "| bboxes:", (bboxesRef?.current || []).length
+                "[DRAG] pointerDown UV =",
+                uv.x.toFixed(3),
+                uv.y.toFixed(3),
+                "| bboxes:",
+                (bboxesRef?.current || []).length
             );
+
             (bboxesRef?.current || []).forEach((bb) => {
                 console.log(
-                    "  bbox", bb.id, bb.type,
+                    "  bbox",
+                    bb.id,
+                    bb.type,
                     `x:[${bb.uv.x0.toFixed(3)}-${bb.uv.x1.toFixed(3)}]`,
                     `y:[${bb.uv.y0.toFixed(3)}-${bb.uv.y1.toFixed(3)}]`
                 );
@@ -226,12 +267,15 @@ function TShirtMesh({
         // Hit-test avec UV direct ET UV inversé sur y (au cas où flipY joue)
         let hit = hitTestUV(uv.x, uv.y);
         let flipped = false;
+
         if (!hit) {
             hit = hitTestUV(uv.x, 1 - uv.y);
             if (hit) flipped = true;
         }
 
-        if (DEBUG_DRAG) console.log("[DRAG] hit =", hit?.id || "null", flipped ? "(flipped Y)" : "");
+        if (DEBUG_DRAG) {
+            console.log("[DRAG] hit =", hit?.id || "null", flipped ? "(flipped Y)" : "");
+        }
 
         if (!hit) return;
 
@@ -240,20 +284,25 @@ function TShirtMesh({
         e.nativeEvent?.stopPropagation?.();
 
         dragState.current = {
-            id:        hit.id,
-            type:      hit.type,
+            id: hit.id,
+            type: hit.type,
             pointerId: e.pointerId,
-            flipY:     flipped,
+            flipY: flipped,
         };
+
         onDragStart?.();
     }
 
     function handlePointerMove(e) {
         const state = dragState.current;
+
         if (!state) return;
         if (e.pointerId !== state.pointerId) return;
+
         const uv = e.uv;
+
         if (!uv) return;
+
         e.stopPropagation();
         e.nativeEvent?.stopPropagation?.();
 
@@ -264,7 +313,13 @@ function TShirtMesh({
         // (manche / dos / col), on ignore le mouvement pour éviter que le
         // layer "saute" dans une zone invisible depuis la vue de face.
         if (isWayOutsideSafeZone(rawX, rawY)) {
-            if (DEBUG_DRAG) console.log("[DRAG] move ignoré (hors safe zone)", rawX.toFixed(3), rawY.toFixed(3));
+            if (DEBUG_DRAG) {
+                console.log(
+                    "[DRAG] move ignoré (hors safe zone)",
+                    rawX.toFixed(3),
+                    rawY.toFixed(3)
+                );
+            }
             return;
         }
 
@@ -275,10 +330,13 @@ function TShirtMesh({
 
     function handlePointerUp(e) {
         const state = dragState.current;
+
         if (!state) return;
         if (e.pointerId !== state.pointerId) return;
+
         e.stopPropagation?.();
         e.nativeEvent?.stopPropagation?.();
+
         dragState.current = null;
         onDragEnd?.();
     }
@@ -306,29 +364,29 @@ function Loader() {
 }
 
 export default function CustomizationCanvas3D({
-                                                   configuration,
-                                                   model3d,
-                                                   onUpdateTextLayer,
-                                                   onUpdateImageLayer,
-                                                   onUpdateLogoUV,
-                                                   onUpdatePlayerNameUV,
-                                                   onUpdatePlayerNumberUV,
-                                                   onDragEnd,
-                                               }) {
+                                                  configuration,
+                                                  model3d,
+                                                  onUpdateTextLayer,
+                                                  onUpdateImageLayer,
+                                                  onUpdateLogoUV,
+                                                  onUpdatePlayerNameUV,
+                                                  onUpdatePlayerNumberUV,
+                                                  onDragEnd,
+                                              }) {
     // Debug UV : uniquement si ?debuguv est présent dans l'URL.
     // Invisible par défaut en dev ET en prod — ajouter ?debuguv pour l'activer.
     const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
-    const [debugUV, setDebugUV]       = useState(false);
+    const [debugUV, setDebugUV] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
 
     // GF13 : la config 3D (GLB, UV zones, chest center du template) est lue
     // depuis productCustomizerConfigs.model3d via la prop model3d. Fallback
     // défensif si un produit 3D n'a pas de config (ne devrait pas arriver).
-    const glbPath         = model3d?.glb             || "/models/tshirt.glb";
-    const meshMode        = model3d?.meshMode        || "pick";
+    const glbPath = model3d?.glb || "/models/tshirt.glb";
+    const meshMode = model3d?.meshMode || "pick";
     const activeMeshIndex = model3d?.activeMeshIndex ?? 0;
-    const uvZones           = model3d?.uvZones;
-    const templateChest     = model3d?.templateChest;
+    const uvZones = model3d?.uvZones;
+    const templateChest = model3d?.templateChest;
     const transformFallback = model3d?.transformFallback;
 
     const { texture, bboxesRef } = useTextureComposer(
