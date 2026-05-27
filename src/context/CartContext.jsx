@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+
 import React, {
     createContext,
     useCallback,
@@ -85,11 +87,17 @@ export function CartProvider({ children }) {
 
     const [isOpen, setIsOpen] = useState(false);
 
-    const openCart = useCallback(() => setIsOpen(true), []);
-    const closeCart = useCallback(() => setIsOpen(false), []);
+    const openCart = useCallback(() => {
+        setIsOpen(true);
+    }, []);
+
+    const closeCart = useCallback(() => {
+        setIsOpen(false);
+    }, []);
 
     const refetchCart = useCallback(async () => {
         const token = localStorage.getItem("token");
+
         if (!token) {
             dispatch({ type: "CLEAR" });
             return;
@@ -97,6 +105,7 @@ export function CartProvider({ children }) {
 
         try {
             const { data } = await api.get("/cart");
+
             dispatch({
                 type: "SET_CART",
                 payload: normalizeCart(data),
@@ -114,8 +123,7 @@ export function CartProvider({ children }) {
     // boot: hydrate depuis DB
     useEffect(() => {
         void refetchCart();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [refetchCart]);
 
     const addItem = useCallback(
         async ({
@@ -164,8 +172,8 @@ export function CartProvider({ children }) {
             currency: state.currency,
             isOpen,
 
-            openCart: () => setIsOpen(true),
-            closeCart: () => setIsOpen(false),
+            openCart,
+            closeCart,
 
             refetchCart,
             addItem,
@@ -176,7 +184,10 @@ export function CartProvider({ children }) {
             clear,
         }),
         [
-            state,
+            state.items,
+            state.count,
+            state.subtotal,
+            state.currency,
             isOpen,
             openCart,
             closeCart,
@@ -193,6 +204,10 @@ export function CartProvider({ children }) {
 
 export function useCart() {
     const ctx = useContext(CartContext);
-    if (!ctx) throw new Error("useCart must be used within CartProvider");
+
+    if (!ctx) {
+        throw new Error("useCart must be used within CartProvider");
+    }
+
     return ctx;
 }

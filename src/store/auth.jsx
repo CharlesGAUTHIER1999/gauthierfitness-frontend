@@ -1,10 +1,33 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext(null);
 
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
+
+function persistToken(t) {
+    if (t) {
+        localStorage.setItem(TOKEN_KEY, t);
+    } else {
+        localStorage.removeItem(TOKEN_KEY);
+    }
+}
+
+function persistUser(u) {
+    if (u) {
+        localStorage.setItem(USER_KEY, JSON.stringify(u));
+    } else {
+        localStorage.removeItem(USER_KEY);
+    }
+}
 
 export function AuthProvider({ children }) {
     const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
@@ -18,23 +41,15 @@ export function AuthProvider({ children }) {
     });
     const [loading, setLoading] = useState(true);
 
-    const persistToken = (t) => {
-        if (t) localStorage.setItem(TOKEN_KEY, t);
-        else localStorage.removeItem(TOKEN_KEY);
-    };
-
-    const persistUser = (u) => {
-        if (u) localStorage.setItem(USER_KEY, JSON.stringify(u));
-        else localStorage.removeItem(USER_KEY);
-    };
-
     useEffect(() => {
         let mounted = true;
 
         const bootstrap = async () => {
             const storedToken = localStorage.getItem(TOKEN_KEY);
+
             if (!storedToken) {
                 if (!mounted) return;
+
                 setToken(null);
                 setUser(null);
                 setLoading(false);
@@ -42,11 +57,14 @@ export function AuthProvider({ children }) {
             }
 
             // sync state depuis storage
-            if (mounted && storedToken !== token) setToken(storedToken);
+            if (mounted) {
+                setToken(storedToken);
+            }
 
             try {
                 // /me doit valider le token et renvoyer user
                 const res = await api.get("/me");
+
                 if (!mounted) return;
 
                 setUser(res.data);
@@ -65,23 +83,28 @@ export function AuthProvider({ children }) {
                 } else {
                     // ✅ Si 500/CORS/Network => backend KO => on GARDE le token + user cache
                     // Donc tu restes "connecté" visuellement même si /me tombe.
-                    console.warn("BOOTSTRAP /me failed (kept token & cached user):", status, e?.message);
+                    console.warn(
+                        "BOOTSTRAP /me failed (kept token & cached user):",
+                        status,
+                        e?.message
+                    );
                 }
             } finally {
-                if (mounted) setLoading(false);
+                if (mounted) {
+                    setLoading(false);
+                }
             }
         };
 
-        bootstrap();
+        void bootstrap();
 
         // ✅ FIX TS : cleanup doit retourner void (pas boolean)
         return () => {
             mounted = false;
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // intentionnel : une seule exécution au mount
 
-    const login = async (email, password) => {
+    const login = useCallback(async (email, password) => {
         const res = await api.post("/login", {
             email: email.trim().toLowerCase(),
             password,
@@ -94,9 +117,9 @@ export function AuthProvider({ children }) {
         persistUser(res.data.user);
 
         return res.data;
-    };
+    }, []);
 
-    const register = async (form) => {
+    const register = useCallback(async (form) => {
         const res = await api.post("/register", {
             ...form,
             email: form.email.trim().toLowerCase(),
@@ -109,9 +132,9 @@ export function AuthProvider({ children }) {
         persistUser(res.data.user);
 
         return res.data;
-    };
+    }, []);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             await api.post("/logout");
         } catch (e) {
@@ -123,9 +146,8 @@ export function AuthProvider({ children }) {
             setToken(null);
             setUser(null);
         }
-    };
+    }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const value = useMemo(
         () => ({
             user,
@@ -136,7 +158,7 @@ export function AuthProvider({ children }) {
             register,
             logout,
         }),
-        [user, token, loading] // login/logout/register sont stables (closures sur setters)
+        [user, token, loading, login, register, logout]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
