@@ -79,6 +79,9 @@ function TShirtMesh({
                         onDragStart,
                         onDragMove,
                         onDragEnd,
+                        glbPath,
+                        meshMode,
+                        activeMeshIndex,
                     }) {
     const { scene } = useGLTF(glbPath);
     const groupRef = useRef();
