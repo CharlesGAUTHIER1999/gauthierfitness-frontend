@@ -92,7 +92,7 @@ jobs:
           context: .
           push: true
           build-args: |
-            VITE_API_URL=${{ secrets.VITE_API_URL_STAGING }}
+            VITE_API_URL=/api
             VITE_STRIPE_PUBLIC_KEY=${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha

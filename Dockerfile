@@ -11,7 +11,7 @@ RUN npm ci --frozen-lockfile
 COPY . .
 
 # Variables injectées au build via --build-arg (CI/CD)
-ARG VITE_API_URL=http://localhost/api
+ARG VITE_API_URL=/api
 ARG VITE_STRIPE_PUBLIC_KEY=""
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
