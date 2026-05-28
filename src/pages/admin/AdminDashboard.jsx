@@ -36,11 +36,11 @@ const Icon = {
 };
 
 const STATUS_CONFIG = {
-    new: { label: "Nouvelles", color: "#3b82f6", bg: "#dbeafe" },
-    processing: { label: "En cours", color: "#f59e0b", bg: "#fef3c7" },
-    shipped: { label: "Expédiées", color: "#8b5cf6", bg: "#ede9fe" },
-    delivered: { label: "Livrées", color: "#10b981", bg: "#d1fae5" },
-    canceled: { label: "Annulées", color: "#ef4444", bg: "#fee2e2" },
+    new:        { label: "Nouvelles",   color: "#3b82f6", bg: "#dbeafe" },
+    processing: { label: "En cours",   color: "#f59e0b", bg: "#fef3c7" },
+    shipped:    { label: "Expédiées",  color: "#8b5cf6", bg: "#ede9fe" },
+    delivered:  { label: "Livrées",    color: "#10b981", bg: "#d1fae5" },
+    canceled:   { label: "Annulées",   color: "#ef4444", bg: "#fee2e2" },
 };
 
 /* ── Composants ─────────────────────────────────────────────────────────── */

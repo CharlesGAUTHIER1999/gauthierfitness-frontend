@@ -4,15 +4,7 @@ import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import * as THREE from "three";
 import { useTextureComposer } from "../hooks/useTextureComposer";
 
-// GF13 : on préload les GLB connus du projet pour que le premier rendu
-// soit instantané. Les nouveaux GLB ajoutés via productCustomizerConfigs
-// seront simplement chargés au mount du canvas (léger lag la 1ère fois).
 useGLTF.preload("/models/tshirt.glb");
-useGLTF.preload("/models/tsoversized.glb");
-useGLTF.preload("/models/sweatclassic.glb");
-useGLTF.preload("/models/sweatzippe.glb");
-useGLTF.preload("/models/vesteclassic.glb");
-useGLTF.preload("/models/vestecoupevent.glb");
 
 // GF12 V2 : silence les warnings Three.js dépréciés qu'on ne peut pas
 // corriger côté app (ils viennent de drei / r3f en interne, pas de notre code).
@@ -34,9 +26,12 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
 // Passe à true pour voir les UV reçus + résultats hit-test en console.
 const DEBUG_DRAG = false;
 
-// GF13 : l'index du mesh actif est désormais lu depuis la config produit
-// (model3d.activeMeshIndex dans productCustomizerConfigs). Le GLB Studio-Lab
-// a besoin de 2 (high-poly), les GLB mono-mesh auront 0.
+// GF12 V2 : le GLB Studio-Lab contient 3 t-shirts (3 styles) dans le même fichier.
+// 0 = A01 (1671 verts, low-poly)
+// 1 = A02 (6310 verts, medium)
+// 2 = A03 (24106 verts, high-poly / détaillé)
+// Change la valeur pour switcher, puis on fige quand on a trouvé le bon.
+const ACTIVE_MESH_INDEX = 2;
 
 // GF12 V2 : zone UV "safe" où on autorise les textes/images à vivre.
 // Si le user drag en dehors (bras, dos, col du t-shirt), on clamp pour
@@ -85,8 +80,8 @@ function TShirtMesh({
                         onDragMove,
                         onDragEnd,
                         glbPath,
-                        activeMeshIndex,
                         meshMode,
+                        activeMeshIndex,
                     }) {
     const { scene } = useGLTF(glbPath);
     const groupRef = useRef();
@@ -100,7 +95,7 @@ function TShirtMesh({
     useEffect(() => {
         if (!scene) return;
 
-        // GF12 V2 / GF13 : diagnostic structure du GLB
+        // GF12 V2 : diagnostic structure du GLB (temporaire, à retirer une fois calé)
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
@@ -124,8 +119,8 @@ function TShirtMesh({
                 prunedRef.current = true;
             }
 
-            const activeMesh = meshes[activeMeshIndex];
-            if (!activeMesh) return;
+        const activeMesh = meshes[ACTIVE_MESH_INDEX];
+        if (!activeMesh) return;
 
             if (!centeredRef.current) {
                 activeMesh.geometry.computeBoundingBox();
