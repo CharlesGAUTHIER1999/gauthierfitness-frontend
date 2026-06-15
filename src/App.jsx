@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -11,7 +11,7 @@ import CartPage from "./pages/CartPage.jsx";
 import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 import PaymentCancel from "./pages/PaymentCancel.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
-import { AuthProvider, useAuth } from "./store/auth";
+import {AuthProvider, useAuth} from "./store/auth";
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import AdminRoute from "./routes/AdminRoutes.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
@@ -20,7 +20,29 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
+/*<Route path="/about" element={<About/>}/>
+    <Route path="/help" element={<Help />} />
+    <Route path="/returns" element={<ReturnsPortal />}
+    <Route path="/contact" element={<Contact />}
+    <Route path="/cgv" element={<Cgv/>}/>
+    <Route path="/privacy" element={<Privacy/>}/>
+    <Route path="/legal" element={<LegalMentions/>}/>
+    <Route path="/shipping" element={<Shipping />} />
+    <Route path="/refunds" element={<Refunds />} />
+*/
+
+// Pages de contenu statiques
+//import Help from "./pages/static/Help.jsx";
+//import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
+//import Contact from "./pages/static/Contact.jsx";
+import Cgv from "./pages/static/Cgv.jsx";
+import Privacy from "./pages/static/Privacy.jsx";
+import LegalMentions from "./pages/static/LegalMentions.jsx";
+//import Shipping from "./pages/static/Shipping.jsx";
+//import Refunds from "./pages/static/Refunds.jsx";
+
 import "./admin.css";
+import "./staticpages.css";
 
 // Admin pages
 import AdminLayout from "./layouts/AdminLayout.jsx";
@@ -31,11 +53,12 @@ import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
 import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailsPage.jsx";
 import AdminStockListPage from "./pages/admin/AdminStockListPage.jsx";
 import AdminStockPage from "./pages/admin/AdminStockPage.jsx";
+import About from "./pages/static/About.jsx";
 
-function GuestOnly({ children }) {
-    const { token, loading } = useAuth();
+function GuestOnly({children}) {
+    const {token, loading} = useAuth();
     if (loading) return null;
-    if (token) return <Navigate to="/account" replace />;
+    if (token) return <Navigate to="/account" replace/>;
     return children;
 }
 
@@ -49,18 +72,18 @@ export default function App() {
                         path="/admin"
                         element={
                             <AdminRoute>
-                                <AdminLayout />
+                                <AdminLayout/>
                             </AdminRoute>
                         }
                     >
-                        <Route index element={<AdminDashboard />} />
-                        <Route path="products" element={<AdminProductsPage />} />
-                        <Route path="products/new" element={<AdminProductFormPage />} />
-                        <Route path="products/:id/edit" element={<AdminProductFormPage />} />
-                        <Route path="orders" element={<AdminOrdersPage />} />
-                        <Route path="orders/:id" element={<AdminOrderDetailPage />} />
-                        <Route path="stock" element={<AdminStockListPage />} />
-                        <Route path="products/:id/stock" element={<AdminStockPage />} />
+                        <Route index element={<AdminDashboard/>}/>
+                        <Route path="products" element={<AdminProductsPage/>}/>
+                        <Route path="products/new" element={<AdminProductFormPage/>}/>
+                        <Route path="products/:id/edit" element={<AdminProductFormPage/>}/>
+                        <Route path="orders" element={<AdminOrdersPage/>}/>
+                        <Route path="orders/:id" element={<AdminOrderDetailPage/>}/>
+                        <Route path="stock" element={<AdminStockListPage/>}/>
+                        <Route path="products/:id/stock" element={<AdminStockPage/>}/>
                     </Route>
 
                     {/* ── Boutique publique : AppLayout + CartDrawer ── */}
@@ -70,26 +93,30 @@ export default function App() {
                             <>
                                 <AppLayout>
                                     <Routes>
-                                        <Route path="/" element={<Home />} />
-                                        <Route path="/products" element={<Products />} />
-                                        <Route path="/products/:slug" element={<ProductDetail />} />
+                                        <Route path="/" element={<Home/>}/>
+                                        <Route path="/products" element={<Products/>}/>
+                                        <Route path="/products/:slug" element={<ProductDetail/>}/>
                                         <Route
                                             path="/products/:slug/customize"
                                             element={
                                                 <ProtectedRoute>
-                                                    <ProductCustomizePage />
+                                                    <ProductCustomizePage/>
                                                 </ProtectedRoute>
                                             }
                                         />
-                                        <Route path="/cart" element={<CartPage />} />
-                                        <Route path="/payment-success" element={<PaymentSuccess />} />
-                                        <Route path="/payment-cancel" element={<PaymentCancel />} />
-                                        <Route path="/checkout" element={<CheckoutPage />} />
+                                        <Route path="/about" element={<About/>}/>
+                                        <Route path="/cgv" element={<Cgv/>}/>
+                                        <Route path="/privacy" element={<Privacy/>}/>
+                                        <Route path="/legal" element={<LegalMentions/>}/>
+                                        <Route path="/cart" element={<CartPage/>}/>
+                                        <Route path="/payment-success" element={<PaymentSuccess/>}/>
+                                        <Route path="/payment-cancel" element={<PaymentCancel/>}/>
+                                        <Route path="/checkout" element={<CheckoutPage/>}/>
                                         <Route
                                             path="/login"
                                             element={
                                                 <GuestOnly>
-                                                    <Login />
+                                                    <Login/>
                                                 </GuestOnly>
                                             }
                                         />
@@ -97,7 +124,7 @@ export default function App() {
                                             path="/register"
                                             element={
                                                 <GuestOnly>
-                                                    <Register />
+                                                    <Register/>
                                                 </GuestOnly>
                                             }
                                         />
@@ -105,7 +132,7 @@ export default function App() {
                                             path="/account"
                                             element={
                                                 <ProtectedRoute>
-                                                    <AccountPage />
+                                                    <AccountPage/>
                                                 </ProtectedRoute>
                                             }
                                         />
@@ -113,7 +140,7 @@ export default function App() {
                                             path="/account/orders"
                                             element={
                                                 <ProtectedRoute>
-                                                    <OrdersPage />
+                                                    <OrdersPage/>
                                                 </ProtectedRoute>
                                             }
                                         />
@@ -121,7 +148,7 @@ export default function App() {
                                             path="/account/orders/:id"
                                             element={
                                                 <ProtectedRoute>
-                                                    <OrderDetailsPage />
+                                                    <OrderDetailsPage/>
                                                 </ProtectedRoute>
                                             }
                                         />
@@ -129,7 +156,7 @@ export default function App() {
                                             path="/account/addresses"
                                             element={
                                                 <ProtectedRoute>
-                                                    <AddressesPage />
+                                                    <AddressesPage/>
                                                 </ProtectedRoute>
                                             }
                                         />
@@ -137,13 +164,13 @@ export default function App() {
                                             path="/dashboard"
                                             element={
                                                 <ProtectedRoute>
-                                                    <Dashboard />
+                                                    <Dashboard/>
                                                 </ProtectedRoute>
                                             }
                                         />
                                     </Routes>
                                 </AppLayout>
-                                <CartDrawer />
+                                <CartDrawer/>
                             </>
                         }
                     />

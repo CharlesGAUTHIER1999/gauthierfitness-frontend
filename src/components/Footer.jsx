@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 export default function Footer() {
     return (
@@ -94,6 +94,9 @@ export default function Footer() {
                     <div className="footer-column">
                         <h4>SERVICES</h4>
                         <ul>
+                            <li>
+                                <Link to="/about">À propos</Link>
+                            </li>
                             <li>
                                 <Link to="/contact">Contact</Link>
                             </li>
