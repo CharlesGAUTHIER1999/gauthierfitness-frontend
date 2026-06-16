@@ -20,27 +20,15 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
-/*
-    <Route path="/about" element={<About/>}/>
-    <Route path="/help" element={<Help />} />
-    <Route path="/returns" element={<ReturnsPortal />}
-    <Route path="/contact" element={<Contact />}
-    <Route path="/cgv" element={<Cgv/>}/>
-    <Route path="/privacy" element={<Privacy/>}/>
-    <Route path="/legal" element={<LegalMentions/>}/>
-    <Route path="/shipping" element={<Shipping />} />
-    <Route path="/refunds" element={<Refunds />} />
-*/
-
 // Pages de contenu statiques
 import Help from "./pages/static/Help.jsx";
 import Contact from "./pages/static/Contact.jsx";
 import Cgv from "./pages/static/Cgv.jsx";
 import Privacy from "./pages/static/Privacy.jsx";
 import LegalMentions from "./pages/static/LegalMentions.jsx";
-//import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
-//import Shipping from "./pages/static/Shipping.jsx";
-//import Refunds from "./pages/static/Refunds.jsx";
+import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
+import Shipping from "./pages/static/Shipping.jsx";
+import Refunds from "./pages/static/Refunds.jsx";
 
 import "./admin.css";
 import "./staticpages.css";
@@ -68,15 +56,8 @@ export default function App() {
         <BrowserRouter>
             <AuthProvider>
                 <Routes>
-                    {/* ── Admin : layout propre, sans header boutique ── */}
-                    <Route
-                        path="/admin"
-                        element={
-                            <AdminRoute>
-                                <AdminLayout/>
-                            </AdminRoute>
-                        }
-                    >
+                    {/* Admin */}
+                    <Route path="/admin" element={<AdminRoute><AdminLayout/></AdminRoute>}>
                         <Route index element={<AdminDashboard/>}/>
                         <Route path="products" element={<AdminProductsPage/>}/>
                         <Route path="products/new" element={<AdminProductFormPage/>}/>
@@ -87,7 +68,7 @@ export default function App() {
                         <Route path="products/:id/stock" element={<AdminStockPage/>}/>
                     </Route>
 
-                    {/* ── Boutique publique : AppLayout + CartDrawer ── */}
+                    {/* Public */}
                     <Route
                         path="/*"
                         element={
@@ -97,76 +78,29 @@ export default function App() {
                                         <Route path="/" element={<Home/>}/>
                                         <Route path="/products" element={<Products/>}/>
                                         <Route path="/products/:slug" element={<ProductDetail/>}/>
-                                        <Route
-                                            path="/products/:slug/customize"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <ProductCustomizePage/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
+                                        <Route path="/products/:slug/customize"
+                                               element={<ProtectedRoute><ProductCustomizePage/></ProtectedRoute>}/>
                                         <Route path="/about" element={<About/>}/>
                                         <Route path="/help" element={<Help/>}/>
+                                        <Route path="/returns" element={<ReturnsPortal/>}/>
                                         <Route path="/contact" element={<Contact/>}/>
                                         <Route path="/cgv" element={<Cgv/>}/>
                                         <Route path="/privacy" element={<Privacy/>}/>
                                         <Route path="/legal" element={<LegalMentions/>}/>
-                                        <Route
-                                            path="/login"
-                                            element={
-                                                <GuestOnly>
-                                                    <Login/>
-                                                </GuestOnly>
-                                            }
-                                        />
-                                        <Route
-                                            path="/register"
-                                            element={
-                                                <GuestOnly>
-                                                    <Register/>
-                                                </GuestOnly>
-                                            }
-                                        />
-                                        <Route
-                                            path="/account"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <AccountPage/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/account/orders"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <OrdersPage/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/account/orders/:id"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <OrderDetailsPage/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/account/addresses"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <AddressesPage/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
-                                        <Route
-                                            path="/dashboard"
-                                            element={
-                                                <ProtectedRoute>
-                                                    <Dashboard/>
-                                                </ProtectedRoute>
-                                            }
-                                        />
+                                        <Route path="/shipping" element={<Shipping/>}/>
+                                        <Route path="/refunds" element={<Refunds/>}/>
+                                        <Route path="/login" element={<GuestOnly><Login/></GuestOnly>}/>
+                                        <Route path="/register" element={<GuestOnly><Register/></GuestOnly>}/>
+                                        <Route path="/account"
+                                               element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>
+                                        <Route path="/account/orders"
+                                               element={<ProtectedRoute><OrdersPage/></ProtectedRoute>}/>
+                                        <Route path="/account/orders/:id"
+                                               element={<ProtectedRoute><OrderDetailsPage/></ProtectedRoute>}/>
+                                        <Route path="/account/addresses"
+                                               element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
+                                        <Route path="/dashboard"
+                                               element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
                                     </Routes>
                                 </AppLayout>
                                 <CartDrawer/>
