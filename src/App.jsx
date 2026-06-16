@@ -20,7 +20,8 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
-/*<Route path="/about" element={<About/>}/>
+/*
+    <Route path="/about" element={<About/>}/>
     <Route path="/help" element={<Help />} />
     <Route path="/returns" element={<ReturnsPortal />}
     <Route path="/contact" element={<Contact />}
@@ -32,12 +33,12 @@ import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 */
 
 // Pages de contenu statiques
-//import Help from "./pages/static/Help.jsx";
-//import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
-//import Contact from "./pages/static/Contact.jsx";
+import Help from "./pages/static/Help.jsx";
+import Contact from "./pages/static/Contact.jsx";
 import Cgv from "./pages/static/Cgv.jsx";
 import Privacy from "./pages/static/Privacy.jsx";
 import LegalMentions from "./pages/static/LegalMentions.jsx";
+//import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
 //import Shipping from "./pages/static/Shipping.jsx";
 //import Refunds from "./pages/static/Refunds.jsx";
 
@@ -105,13 +106,11 @@ export default function App() {
                                             }
                                         />
                                         <Route path="/about" element={<About/>}/>
+                                        <Route path="/help" element={<Help/>}/>
+                                        <Route path="/contact" element={<Contact/>}/>
                                         <Route path="/cgv" element={<Cgv/>}/>
                                         <Route path="/privacy" element={<Privacy/>}/>
                                         <Route path="/legal" element={<LegalMentions/>}/>
-                                        <Route path="/cart" element={<CartPage/>}/>
-                                        <Route path="/payment-success" element={<PaymentSuccess/>}/>
-                                        <Route path="/payment-cancel" element={<PaymentCancel/>}/>
-                                        <Route path="/checkout" element={<CheckoutPage/>}/>
                                         <Route
                                             path="/login"
                                             element={
