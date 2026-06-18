@@ -20,7 +20,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
-// Pages avec contenu statiques
+// Pages de contenu statiques
 import Help from "./pages/static/Help.jsx";
 import Contact from "./pages/static/Contact.jsx";
 import Cgv from "./pages/static/Cgv.jsx";
