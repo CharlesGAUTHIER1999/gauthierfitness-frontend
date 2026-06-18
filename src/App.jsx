@@ -20,7 +20,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
-// Pages de contenu statiques
+// Pages avec contenu statiques
 import Help from "./pages/static/Help.jsx";
 import Contact from "./pages/static/Contact.jsx";
 import Cgv from "./pages/static/Cgv.jsx";
@@ -99,6 +99,11 @@ export default function App() {
                                                element={<ProtectedRoute><OrderDetailsPage/></ProtectedRoute>}/>
                                         <Route path="/account/addresses"
                                                element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
+                                        <Route path="/cart" element={<CartPage/>}/>
+                                        <Route path="/checkout"
+                                               element={<ProtectedRoute><CheckoutPage/></ProtectedRoute>}/>
+                                        <Route path="/checkout/success" element={<PaymentSuccess/>}/>
+                                        <Route path="/checkout/cancel" element={<PaymentCancel/>}/>
                                         <Route path="/dashboard"
                                                element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
                                     </Routes>
