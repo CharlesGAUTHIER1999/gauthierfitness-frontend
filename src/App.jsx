@@ -99,6 +99,11 @@ export default function App() {
                                                element={<ProtectedRoute><OrderDetailsPage/></ProtectedRoute>}/>
                                         <Route path="/account/addresses"
                                                element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
+                                        <Route path="/cart" element={<CartPage/>}/>
+                                        <Route path="/checkout"
+                                               element={<ProtectedRoute><CheckoutPage/></ProtectedRoute>}/>
+                                        <Route path="/checkout/success" element={<PaymentSuccess/>}/>
+                                        <Route path="/checkout/cancel" element={<PaymentCancel/>}/>
                                         <Route path="/dashboard"
                                                element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
                                     </Routes>
