@@ -47,4 +47,31 @@ export default defineConfig([
       ],
     },
   },
+
+  // ─── Tests Jest ─────────────────────────────────────────────────
+  // Globals describe/it/expect/jest/beforeEach + autorise les catch (_) vides
+  {
+    files: [
+      "**/*.test.{js,jsx}",
+      "tests/**/*.{js,jsx}",
+      "__mocks__/**/*.{js,jsx}",
+    ],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.jest,
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-unused-vars": [
+        "error",
+        {
+          varsIgnorePattern: "^[A-Z_]",
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+    },
+  },
 ]);
