@@ -57,6 +57,37 @@ export async function uploadCustomizationLogo(file) {
     return result;
 }
 
+/**
+ * Génère un design via l'IA (OpenAI) et retourne l'objet Design persisté.
+ * Le backend modère le prompt puis l'image : un contenu rejeté renvoie un 422
+ * (avec `reason` = `prompt_flagged` | `image_flagged`) que l'appelant doit gérer.
+ */
+export async function generateAiDesign({
+                                           productId,
+                                           productOptionId = null,
+                                           prompt,
+                                           name = null,
+                                       }) {
+    const { data } = await api.post(
+        "/ai/designs/generate",
+        {
+            product_id: productId,
+            product_option_id: productOptionId,
+            prompt,
+            name,
+        },
+        // La génération (modération + gpt-image-1 + modération image) dépasse
+        // le timeout global de 15 s : on l'étend pour cette requête uniquement.
+        { timeout: 180000 }
+    );
+
+    const design = data?.data;
+    if (design?.preview_url) {
+        design.preview_url = toRelativeStorageUrl(design.preview_url);
+    }
+    return design;
+}
+
 export async function uploadCustomizationImage(file) {
     const formData = new FormData();
     formData.append("file", file);
