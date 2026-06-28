@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import {
     createCustomizationSession,
+    generateAiDesign,
     uploadCustomizationLogo,
     uploadCustomizationImage,
 } from "../services/customizationService";
@@ -65,6 +66,8 @@ export default function Product3DCustomizer({
     const [uploadLogoError, setUploadLogoError] = useState(null);
     const [uploadImageLoading, setUploadImageLoading] = useState(false);
     const [uploadImageError, setUploadImageError] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
 
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
@@ -261,6 +264,59 @@ export default function Product3DCustomizer({
         invalidateSavedSession();
     }
 
+    async function handleGenerateAiDesign(prompt) {
+        if (disabled) {
+            setAiError("Veuillez d'abord sélectionner l'option requise.");
+            return false;
+        }
+
+        try {
+            setAiLoading(true);
+            setAiError(null);
+
+            const design = await generateAiDesign({
+                productId: product.id,
+                productOptionId: selectedOptionId,
+                prompt,
+            });
+
+            const currentView = configuration?.view || "front";
+
+            setConfiguration((prev) => ({
+                ...prev,
+                image_layers: [
+                    ...(Array.isArray(prev.image_layers) ? prev.image_layers : []),
+                    {
+                        id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                        src: design?.preview_url || "",
+                        original_name: design?.name || "Design IA",
+                        design_id: design?.id ?? null,
+                        view: currentView,
+                        x: 325,
+                        y: 285,
+                        width: 90,
+                        height: 90,
+                        rotation: 0,
+                        // Comme l'upload : placement par défaut sur la poitrine, draggable ensuite.
+                        uv: { x: 0.45, y: 0.25 },
+                        size: { w: 0.05, h: 0.05 },
+                    },
+                ],
+            }));
+
+            invalidateSavedSession();
+            return true;
+        } catch (e) {
+            setAiError(
+                e?.response?.data?.message ||
+                "Impossible de générer le design."
+            );
+            return false;
+        } finally {
+            setAiLoading(false);
+        }
+    }
+
     // GF12 V2 : handlers pour drag & drop UV des layers sur le t-shirt 3D
     function handleUpdateTextLayer(layerId, patch) {
         setConfiguration((prev) => ({
@@ -402,6 +458,7 @@ export default function Product3DCustomizer({
         setSuccessMessage("");
         setUploadLogoError(null);
         setUploadImageError(null);
+        setAiError(null);
     }
 
     async function saveCustomization() {
@@ -531,6 +588,9 @@ export default function Product3DCustomizer({
                 uploadImageLoading={uploadImageLoading}
                 uploadImageError={uploadImageError}
                 onRemoveImageLayer={handleRemoveImageLayer}
+                onGenerateAiDesign={handleGenerateAiDesign}
+                aiLoading={aiLoading}
+                aiError={aiError}
                 onPatternToggle={handlePatternToggle}
                 onPatternSelect={handlePatternSelect}
                 onGradientToggle={handleGradientToggle}

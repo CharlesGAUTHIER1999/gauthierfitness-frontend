@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../../../context/CartContext";
 import {
     createCustomizationSession,
+    generateAiDesign,
     uploadCustomizationImage,
     uploadCustomizationLogo,
 } from "../services/customizationService";
@@ -57,6 +58,8 @@ export default function ProductCustomizer({
     const [uploadLogoError, setUploadLogoError] = useState(null);
     const [uploadImageLoading, setUploadImageLoading] = useState(false);
     const [uploadImageError, setUploadImageError] = useState(null);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiError, setAiError] = useState(null);
 
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
@@ -268,6 +271,66 @@ export default function ProductCustomizer({
         invalidateSavedSession();
     }
 
+    async function handleGenerateAiDesign(prompt) {
+        if (disabled) {
+            setAiError("Veuillez d'abord sélectionner l'option requise.");
+            return false;
+        }
+
+        const currentImageLayers = Array.isArray(configuration?.image_layers)
+            ? configuration.image_layers
+            : [];
+
+        if (currentImageLayers.length >= 3) {
+            setAiError("Maximum 3 images libres autorisées.");
+            return false;
+        }
+
+        try {
+            setAiLoading(true);
+            setAiError(null);
+
+            const design = await generateAiDesign({
+                productId: product.id,
+                productOptionId: selectedOptionId,
+                prompt,
+            });
+
+            const currentView = configuration?.view || "front";
+            const defaults = getDefaultImageLayerPosition(currentView);
+
+            setConfiguration((prev) => ({
+                ...prev,
+                image_layers: [
+                    ...(Array.isArray(prev.image_layers) ? prev.image_layers : []),
+                    {
+                        id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                        src: design?.preview_url || "",
+                        original_name: design?.name || "Design IA",
+                        design_id: design?.id ?? null,
+                        view: currentView,
+                        x: defaults.x,
+                        y: defaults.y,
+                        width: defaults.width,
+                        height: defaults.height,
+                        rotation: 0,
+                    },
+                ],
+            }));
+
+            invalidateSavedSession();
+            return true;
+        } catch (e) {
+            setAiError(
+                e?.response?.data?.message ||
+                "Impossible de générer le design."
+            );
+            return false;
+        } finally {
+            setAiLoading(false);
+        }
+    }
+
     function handleResetConfiguration() {
         setConfiguration(createDefaultCustomization(product));
         setSession(null);
@@ -275,6 +338,7 @@ export default function ProductCustomizer({
         setSuccessMessage("");
         setUploadLogoError(null);
         setUploadImageError(null);
+        setAiError(null);
     }
 
     function handlePlayerNamePositionChange(position) {
@@ -564,6 +628,9 @@ export default function ProductCustomizer({
                 uploadImageLoading={uploadImageLoading}
                 uploadImageError={uploadImageError}
                 onRemoveImageLayer={handleRemoveImageLayer}
+                onGenerateAiDesign={handleGenerateAiDesign}
+                aiLoading={aiLoading}
+                aiError={aiError}
                 onPatternToggle={handlePatternToggle}
                 onPatternSelect={handlePatternSelect}
                 onGradientToggle={handleGradientToggle}
