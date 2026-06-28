@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState } from "react";
+import AiDesignForm from "./AiDesignForm";
 import TemplateSelector from "./TemplateSelector";
 import TextLayerForm from "./TextLayerForm";
 
@@ -373,6 +374,10 @@ function MediasTab({
     uploadImageLoading,
     uploadImageError,
     onRemoveImageLayer,
+    onGenerateAiDesign,
+    aiLoading,
+    aiError,
+    aiEnabled,
 }) {
     const isUploadedLogo =
         Boolean(configuration?.logo?.src) &&
@@ -493,6 +498,15 @@ function MediasTab({
                     </div>
                 )}
             </div>
+
+            {/* Génération de design par IA */}
+            {aiEnabled && (
+                <AiDesignForm
+                    onGenerate={onGenerateAiDesign}
+                    loading={aiLoading}
+                    error={aiError}
+                />
+            )}
         </div>
     );
 }
@@ -521,6 +535,9 @@ export default function CustomizationPanel({
     uploadImageLoading = false,
     uploadImageError = null,
     onRemoveImageLayer,
+    onGenerateAiDesign,
+    aiLoading = false,
+    aiError = null,
     onPatternToggle,
     onPatternSelect,
     onGradientToggle,
@@ -620,6 +637,10 @@ export default function CustomizationPanel({
                         uploadImageLoading={uploadImageLoading}
                         uploadImageError={uploadImageError}
                         onRemoveImageLayer={onRemoveImageLayer}
+                        onGenerateAiDesign={onGenerateAiDesign}
+                        aiLoading={aiLoading}
+                        aiError={aiError}
+                        aiEnabled={Boolean(product?.customization?.ai)}
                     />
                 )}
             </div>
