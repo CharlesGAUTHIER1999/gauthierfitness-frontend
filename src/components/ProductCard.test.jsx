@@ -57,7 +57,7 @@ describe('ProductCard', () => {
   it('falls back to placeholder when no main_image', () => {
     renderCard({ main_image: null, hover_image: null });
     const img = screen.getByAltText('T-shirt Noir');
-    expect(img.getAttribute('src')).toBe('/placeholder.jpg');
+    expect(img.getAttribute('src')).toBe('/placeholder.png');
   });
 
   it('wraps card in a link to /products/{slug}', () => {
