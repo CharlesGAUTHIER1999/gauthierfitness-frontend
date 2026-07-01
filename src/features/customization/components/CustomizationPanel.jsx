@@ -240,7 +240,7 @@ function StyleTab({
                                     >
                                         <div className="pc-style-thumb">
                                             <img
-                                                src={variant.thumb_url || product?.main_image || "/placeholder.jpg"}
+                                                src={variant.thumb_url || product?.main_image || "/placeholder.png"}
                                                 alt={label}
                                                 className="pc-style-thumb-image"
                                             />

@@ -7,7 +7,7 @@ export default function ProductCard({ product }) {
     const imgSrc =
         hover && product.hover_image
             ? product.hover_image
-            : product.main_image || "/placeholder.jpg";
+            : product.main_image || "/placeholder.png";
 
     return (
         <article

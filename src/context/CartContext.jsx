@@ -54,8 +54,8 @@ function normalizeCart(payload) {
                     Boolean(it.custom_product_session_id),
 
                 name: it.name,
-                image: customizationPreviewPath || it.image || "/placeholder.jpg",
-                defaultImage: it.image || "/placeholder.jpg",
+                image: customizationPreviewPath || it.image || "/placeholder.png",
+                defaultImage: it.image || "/placeholder.png",
                 customizationPreviewPath,
 
                 quantity: Number(it.quantity || 0),

@@ -166,10 +166,17 @@ export default function OrderDetailsPage() {
                                     const optLabel = it?.option?.label
                                         ? ` • ${it.option.label}`
                                         : "";
-                                    const previewSrc =
+                                    const rawImg =
                                         it?.customization_preview_path ||
                                         it?.product?.main_image ||
-                                        "/placeholder.jpg";
+                                        null;
+                                    // main_image peut être un chemin brut (products/...) :
+                                    // on le préfixe en /storage/ pour qu'il soit servable.
+                                    const previewSrc = !rawImg
+                                        ? "/placeholder.png"
+                                        : /^https?:\/\//.test(rawImg) || rawImg.startsWith("/")
+                                            ? rawImg
+                                            : `/storage/${rawImg}`;
                                     const snapshot = it?.customization_snapshot || null;
                                     const isCustomized = Boolean(it?.custom_product_session_id);
 
@@ -191,7 +198,7 @@ export default function OrderDetailsPage() {
                                                         alt={name}
                                                         onError={(e) => {
                                                             e.currentTarget.onerror = null;
-                                                            e.currentTarget.src = "/placeholder.jpg";
+                                                            e.currentTarget.src = "/placeholder.png";
                                                         }}
                                                         style={{
                                                             width: 72,
