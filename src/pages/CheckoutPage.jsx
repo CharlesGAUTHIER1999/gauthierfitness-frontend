@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCart } from "../context/CartContext.jsx";
 import Footer from "../components/Footer.jsx";
 import { Link } from "react-router-dom";
@@ -11,26 +11,50 @@ import CheckoutPayment from "../components/CheckoutPayment.jsx";
 const COUNTRIES = [{ code: "FR", label: "France" }];
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
+// Mémorisation des infos de livraison/contact entre les visites (jamais la CB,
+// qui reste dans Stripe Elements). Évite à l'utilisateur de tout retaper.
+const CHECKOUT_FORM_KEY = "gf_checkout_form";
+
+const DEFAULT_FORM = {
+    email: "",
+    country: "FR",
+    firstname: "",
+    lastname: "",
+    company: "",
+    address: "",
+    address2: "",
+    zip: "",
+    city: "",
+    phone: "",
+    shippingMethod: "standard",
+};
+
+function loadStoredForm() {
+    try {
+        const raw = localStorage.getItem(CHECKOUT_FORM_KEY);
+        return raw ? { ...DEFAULT_FORM, ...JSON.parse(raw) } : DEFAULT_FORM;
+    } catch {
+        return DEFAULT_FORM;
+    }
+}
+
 export default function CheckoutPage() {
     const { items, subtotal } = useCart();
 
-    const [form, setForm] = useState({
-        email: "",
-        country: "FR",
-        firstname: "",
-        lastname: "",
-        company: "",
-        address: "",
-        address2: "",
-        zip: "",
-        city: "",
-        phone: "",
-        shippingMethod: "standard",
-    });
+    const [form, setForm] = useState(loadStoredForm);
 
     const [clientSecret, setClientSecret] = useState(null);
     const [loadingIntent, setLoadingIntent] = useState(false);
     const [intentError, setIntentError] = useState(null);
+
+    // Persiste le formulaire à chaque modification (hors données de carte).
+    useEffect(() => {
+        try {
+            localStorage.setItem(CHECKOUT_FORM_KEY, JSON.stringify(form));
+        } catch {
+            /* stockage indisponible (mode privé / quota) — on ignore */
+        }
+    }, [form]);
 
     const shippingCost = useMemo(() => (subtotal >= 50 ? 0 : 3.9), [subtotal]);
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);

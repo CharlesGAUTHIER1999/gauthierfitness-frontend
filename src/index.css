@@ -75,6 +75,13 @@ a:hover {
   color: #000000;
 }
 
+/* Le label de catégorie est cliquable (→ tous les produits de la catégorie)
+   tout en gardant le mega-menu au survol ; on neutralise le style lien par défaut. */
+.nav-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 /* =========================
    MEGA MENU
 ========================= */
@@ -332,7 +339,7 @@ p {
   display: block;
   width: 100%;
   aspect-ratio: 3 / 4;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .product-card-info {

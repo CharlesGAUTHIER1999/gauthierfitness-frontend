@@ -189,6 +189,10 @@ export default function OrderDetailsPage() {
                                                     <img
                                                         src={previewSrc}
                                                         alt={name}
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null;
+                                                            e.currentTarget.src = "/placeholder.jpg";
+                                                        }}
                                                         style={{
                                                             width: 72,
                                                             height: 72,
