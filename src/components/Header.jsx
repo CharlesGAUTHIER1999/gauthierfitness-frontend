@@ -43,7 +43,13 @@ export default function Header() {
                             onMouseEnter={() => setOpenMenu(key)}
                             onMouseLeave={() => setOpenMenu(null)}
                         >
-                            {label}
+                            <Link
+                                to={`/products?gender=${key}&per_page=20`}
+                                className="nav-link"
+                                onClick={closeMenu}
+                            >
+                                {label}
+                            </Link>
                             {openMenu === key && <MegaMenu type={key}/>}
                         </div>
                     ))}
@@ -55,8 +61,9 @@ export default function Header() {
 
                 <div className="actions">
                     <input
-                        type="text"
+                        type="search"
                         placeholder="Rechercher un produit"
+                        aria-label="Rechercher un produit"
                         className="search"
                     />
 
