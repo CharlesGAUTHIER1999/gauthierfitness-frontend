@@ -3,6 +3,8 @@ import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import ProductCustomizePage from "./pages/ProductCustomizePage";
@@ -91,6 +93,8 @@ export default function App() {
                                         <Route path="/refunds" element={<Refunds/>}/>
                                         <Route path="/login" element={<GuestOnly><Login/></GuestOnly>}/>
                                         <Route path="/register" element={<GuestOnly><Register/></GuestOnly>}/>
+                                        <Route path="/forgot-password" element={<GuestOnly><ForgotPassword/></GuestOnly>}/>
+                                        <Route path="/reset-password" element={<GuestOnly><ResetPassword/></GuestOnly>}/>
                                         <Route path="/account"
                                                element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>
                                         <Route path="/account/orders"
