@@ -1506,6 +1506,16 @@ p {
   font-size: 13px;
 }
 
+.ck-success {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid #b4e0b4;
+  background: #f2fbf2;
+  color: #1f6a2f;
+  border-radius: var(--ck-radius-sm);
+  font-size: 13px;
+}
+
 /* ---------- Buttons ---------- */
 
 .ck-submit {
