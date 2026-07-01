@@ -12,7 +12,7 @@ export default function CheckoutPayment({ email, clientSecret }) {
     const [isPaying, setIsPaying] = useState(false);
     const [error, setError] = useState(null);
 
-    const returnUrl = useMemo(() => `${window.location.origin}/payment-success`, []);
+    const returnUrl = useMemo(() => `${window.location.origin}/checkout/success`, []);
 
     async function afterSuccess(paymentIntentId) {
         // Le webhook vide le panier DB, mais on garde l’UI clean
@@ -28,7 +28,7 @@ export default function CheckoutPayment({ email, clientSecret }) {
         if (paymentIntentId) qs.set("payment_intent", paymentIntentId);
         qs.set("redirect_status", "succeeded");
 
-        navigate(`/payment-success?${qs.toString()}`, { replace: true });
+        navigate(`/checkout/success?${qs.toString()}`, { replace: true });
     }
 
     async function confirm() {

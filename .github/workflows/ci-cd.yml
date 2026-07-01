@@ -93,7 +93,7 @@ jobs:
           push: true
           build-args: |
             VITE_API_URL=/api
-            VITE_STRIPE_PUBLIC_KEY=${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+            VITE_STRIPE_PUBLIC_KEY=${{ github.ref == 'refs/heads/main' && secrets.VITE_STRIPE_PUBLIC_KEY_LIVE || secrets.VITE_STRIPE_PUBLIC_KEY_TEST }}
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
