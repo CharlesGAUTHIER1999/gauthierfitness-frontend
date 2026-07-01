@@ -134,6 +134,25 @@ export function AuthProvider({ children }) {
         return res.data;
     }, []);
 
+    const forgotPassword = useCallback(async (email) => {
+        const res = await api.post("/forgot-password", {
+            email: email.trim().toLowerCase(),
+        });
+
+        return res.data;
+    }, []);
+
+    const resetPassword = useCallback(async ({ email, token, password, password_confirmation }) => {
+        const res = await api.post("/reset-password", {
+            email: email.trim().toLowerCase(),
+            token,
+            password,
+            password_confirmation,
+        });
+
+        return res.data;
+    }, []);
+
     const logout = useCallback(async () => {
         try {
             await api.post("/logout");
@@ -157,8 +176,10 @@ export function AuthProvider({ children }) {
             login,
             register,
             logout,
+            forgotPassword,
+            resetPassword,
         }),
-        [user, token, loading, login, register, logout]
+        [user, token, loading, login, register, logout, forgotPassword, resetPassword]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
