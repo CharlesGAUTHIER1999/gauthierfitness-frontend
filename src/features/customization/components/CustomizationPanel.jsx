@@ -1,59 +1,59 @@
-import { useMemo, useRef, useState } from "react";
+import {useMemo, useRef, useState} from "react";
 import AiDesignForm from "./AiDesignForm";
 import TemplateSelector from "./TemplateSelector";
 import TextLayerForm from "./TextLayerForm";
 
-// ── Constantes ─────────────────────────────────────────────────────────────────
+// Constants
 
 const TEXT_COLORS = [
-    { label: "Noir",  value: "#111111" },
-    { label: "Blanc", value: "#ffffff" },
-    { label: "Rouge", value: "#c62828" },
-    { label: "Bleu",  value: "#1565c0" },
+    {label: "Noir", value: "#111111"},
+    {label: "Blanc", value: "#ffffff"},
+    {label: "Rouge", value: "#c62828"},
+    {label: "Bleu", value: "#1565c0"},
 ];
 
 const PRODUCT_COLOR_SWATCHES_3D = [
-    { label: "Bleu fitness",    value: "#1d4ed8" },
-    { label: "Noir",            value: "#111111" },
-    { label: "Blanc",           value: "#f9fafb" },
-    { label: "Rouge",           value: "#dc2626" },
-    { label: "Vert",            value: "#16a34a" },
-    { label: "Marine",          value: "#1e3a5f" },
-    { label: "Gris anthracite", value: "#374151" },
-    { label: "Bordeaux",        value: "#7f1d1d" },
+    {label: "Bleu fitness", value: "#1d4ed8"},
+    {label: "Noir", value: "#111111"},
+    {label: "Blanc", value: "#f9fafb"},
+    {label: "Rouge", value: "#dc2626"},
+    {label: "Vert", value: "#16a34a"},
+    {label: "Marine", value: "#1e3a5f"},
+    {label: "Gris anthracite", value: "#374151"},
+    {label: "Bordeaux", value: "#7f1d1d"},
 ];
 
 const PRESET_LOGOS = [
-    { label: "Aucun logo",   value: "" },
-    { label: "UBB",          value: "/logos/ubb.png" },
-    { label: "FFR",          value: "/logos/ffr.jpg" },
-    { label: "Stade Toul.",  value: "/logos/stadetoulousain.jpg" },
-    { label: "Stade Roch.",  value: "/logos/staderochelais.jpg" },
-    { label: "Badge noir",   value: "/logos/badge-black.jpg" },
-    { label: "Badge blanc",  value: "/logos/badge-white.jpg" },
+    {label: "Aucun logo", value: ""},
+    {label: "UBB", value: "/logos/ubb.png"},
+    {label: "FFR", value: "/logos/ffr.jpg"},
+    {label: "Stade Toul.", value: "/logos/stadetoulousain.jpg"},
+    {label: "Stade Roch.", value: "/logos/staderochelais.jpg"},
+    {label: "Badge noir", value: "/logos/badge-black.jpg"},
+    {label: "Badge blanc", value: "/logos/badge-white.jpg"},
 ];
 
 const PATTERN_OPTIONS = [
-    { id: "motif1", label: "Motif 1", thumb: "/motifs/motif1.png" },
-    { id: "motif2", label: "Motif 2", thumb: "/motifs/motif2.png" },
-    { id: "motif3", label: "Motif 3", thumb: "/motifs/motif3.png" },
+    {id: "motif1", label: "Motif 1", thumb: "/motifs/motif1.png"},
+    {id: "motif2", label: "Motif 2", thumb: "/motifs/motif2.png"},
+    {id: "motif3", label: "Motif 3", thumb: "/motifs/motif3.png"},
 ];
 
 const GRADIENT_OPTIONS = [
-    { id: "degrade1", label: "Dégradé 1", thumb: "/degrades/degrade1.jpg" },
-    { id: "degrade2", label: "Dégradé 2", thumb: "/degrades/degrade2.jpg" },
-    { id: "degrade3", label: "Dégradé 3", thumb: "/degrades/degrade3.jpg" },
+    {id: "degrade1", label: "Dégradé 1", thumb: "/degrades/degrade1.jpg"},
+    {id: "degrade2", label: "Dégradé 2", thumb: "/degrades/degrade2.jpg"},
+    {id: "degrade3", label: "Dégradé 3", thumb: "/degrades/degrade3.jpg"},
 ];
 
 const TABS = [
-    { id: "style",  label: "Style"  },
-    { id: "texte",  label: "Texte"  },
-    { id: "medias", label: "Médias" },
+    {id: "style", label: "Style"},
+    {id: "texte", label: "Texte"},
+    {id: "medias", label: "Médias"},
 ];
 
-// ── Sous-composants internes ────────────────────────────────────────────────────
-
-function VisualGallery({ title, enabled, selectedId, options, onToggle, onSelect }) {
+// Internal sub-components
+// Toggleable accordion showing a grid of visual options (patterns/gradients) to pick from.
+function VisualGallery({title, enabled, selectedId, options, onToggle, onSelect}) {
     const [open, setOpen] = useState(false);
 
     return (
@@ -121,13 +121,14 @@ const UploadIcon = () => (
         strokeLinejoin="round"
         aria-hidden="true"
     >
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="17 8 12 3 7 8" />
-        <line x1="12" y1="3" x2="12" y2="15" />
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
     </svg>
 );
 
-function UploadButton({ label, accept, disabled, loading, onChange, children }) {
+// File upload button backed by a hidden file input.
+function UploadButton({label, accept, disabled, loading, onChange, children}) {
     const ref = useRef(null);
 
     return (
@@ -138,7 +139,7 @@ function UploadButton({ label, accept, disabled, loading, onChange, children }) 
                 disabled={disabled || loading}
                 onClick={() => ref.current?.click()}
             >
-                <UploadIcon />
+                <UploadIcon/>
                 {loading ? "Import en cours…" : label}
             </button>
             <input
@@ -146,7 +147,7 @@ function UploadButton({ label, accept, disabled, loading, onChange, children }) 
                 type="file"
                 accept={accept}
                 disabled={disabled || loading}
-                style={{ display: "none" }}
+                style={{display: "none"}}
                 onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) onChange(file);
@@ -158,28 +159,28 @@ function UploadButton({ label, accept, disabled, loading, onChange, children }) 
     );
 }
 
-// ── Tabs content ───────────────────────────────────────────────────────────────
-
+// Tabs content
+// "Style" tab: view (front/back), product color/variant, template, and visual effects
 function StyleTab({
-    configuration,
-    mode,
-    variants,
-    currentVariantSlug,
-    product,
-    currentView,
-    currentStyle,
-    onViewChange,
-    onProductColorChange,
-    onVariantSelect,
-    onTemplateChange,
-    onPatternToggle,
-    onPatternSelect,
-    onGradientToggle,
-    onGradientSelect,
-}) {
+                      configuration,
+                      mode,
+                      variants,
+                      currentVariantSlug,
+                      product,
+                      currentView,
+                      currentStyle,
+                      onViewChange,
+                      onProductColorChange,
+                      onVariantSelect,
+                      onTemplateChange,
+                      onPatternToggle,
+                      onPatternSelect,
+                      onGradientToggle,
+                      onGradientSelect,
+                  }) {
     return (
         <div className="pc-tab-body">
-            {/* Zone d'application */}
+            {/* Application zone */}
             <div className="pc-field-group">
                 <p className="pc-field-label">Zone d'application</p>
                 <div className="pc-view-switch">
@@ -200,7 +201,7 @@ function StyleTab({
                 </div>
             </div>
 
-            {/* Couleur produit */}
+            {/* Product color */}
             {mode === "3d" ? (
                 <div className="pc-field-group">
                     <p className="pc-field-label">Couleur du vêtement</p>
@@ -212,7 +213,7 @@ function StyleTab({
                                 title={swatch.label}
                                 aria-label={swatch.label}
                                 className={`pc3d-swatch ${configuration?.product_color_hex === swatch.value ? "is-active" : ""}`}
-                                style={{ backgroundColor: swatch.value }}
+                                style={{backgroundColor: swatch.value}}
                                 onClick={() => onProductColorChange?.(swatch.value)}
                             />
                         ))}
@@ -262,7 +263,7 @@ function StyleTab({
                 />
             </div>
 
-            {/* Motifs & Dégradés */}
+            {/* Patterns & gradients */}
             <div className="pc-field-group">
                 <p className="pc-field-label">Effets visuels</p>
                 <VisualGallery
@@ -286,16 +287,17 @@ function StyleTab({
     );
 }
 
+// "Text" tab : text color, player name/number, and free text layers.
 function TexteTab({
-    configuration,
-    onTextColorChange,
-    onPlayerNameChange,
-    onPlayerNumberChange,
-    onAddTextLayer,
-}) {
+                      configuration,
+                      onTextColorChange,
+                      onPlayerNameChange,
+                      onPlayerNumberChange,
+                      onAddTextLayer,
+                  }) {
     return (
         <div className="pc-tab-body">
-            {/* Couleur du texte */}
+            {/* Text color */}
             <div className="pc-field-group">
                 <p className="pc-field-label">Couleur du texte</p>
                 <div className="pc-color-grid">
@@ -310,7 +312,7 @@ function TexteTab({
                         >
                             <span
                                 className="pc-color-dot"
-                                style={{ backgroundColor: color.value }}
+                                style={{backgroundColor: color.value}}
                             />
                             {color.label}
                         </button>
@@ -318,7 +320,7 @@ function TexteTab({
                 </div>
             </div>
 
-            {/* Nom du joueur */}
+            {/* Player name */}
             <div className="pc-field-group">
                 <label className="pc-field-label" htmlFor="pc-player-name">
                     Nom du joueur
@@ -334,7 +336,7 @@ function TexteTab({
                 />
             </div>
 
-            {/* Numéro */}
+            {/* Number */}
             <div className="pc-field-group">
                 <label className="pc-field-label" htmlFor="pc-player-number">
                     Numéro
@@ -350,7 +352,7 @@ function TexteTab({
                 />
             </div>
 
-            {/* Texte libre */}
+            {/* Free text */}
             <div className="pc-field-group">
                 <TextLayerForm
                     onAddText={onAddTextLayer}
@@ -361,32 +363,33 @@ function TexteTab({
     );
 }
 
+// "Media" tab : logo selection/upload, free images, and AI design generation.
 function MediasTab({
-    configuration,
-    currentView,
-    onToggleLogo,
-    onLogoSelect,
-    onUploadLogo,
-    uploadLogoLoading,
-    uploadLogoError,
-    onRemoveLogo,
-    onUploadImage,
-    uploadImageLoading,
-    uploadImageError,
-    onRemoveImageLayer,
-    onGenerateAiDesign,
-    aiLoading,
-    aiError,
-    aiEnabled,
-}) {
+                       configuration,
+                       currentView,
+                       onToggleLogo,
+                       onLogoSelect,
+                       onUploadLogo,
+                       uploadLogoLoading,
+                       uploadLogoError,
+                       onRemoveLogo,
+                       onUploadImage,
+                       uploadImageLoading,
+                       uploadImageError,
+                       onRemoveImageLayer,
+                       onGenerateAiDesign,
+                       aiLoading,
+                       aiError,
+                       aiEnabled,
+                   }) {
     const isUploadedLogo =
         Boolean(configuration?.logo?.src) &&
         !PRESET_LOGOS.some((l) => l.value === configuration?.logo?.src);
 
     const currentViewImageLayers = Array.isArray(configuration?.image_layers)
         ? configuration.image_layers.filter(
-              (layer) => (layer?.view || "front") === currentView
-          )
+            (layer) => (layer?.view || "front") === currentView
+        )
         : [];
 
     return (
@@ -394,7 +397,7 @@ function MediasTab({
             {/* Logo */}
             <div className="pc-field-group">
                 <div className="pc-field-row">
-                    <p className="pc-field-label" style={{ margin: 0 }}>
+                    <p className="pc-field-label" style={{margin: 0}}>
                         Logo poitrine
                     </p>
                     <button
@@ -454,7 +457,7 @@ function MediasTab({
                 )}
             </div>
 
-            {/* Image libre */}
+            {/* Free image */}
             <div className="pc-field-group">
                 <p className="pc-field-label">
                     Image libre
@@ -499,7 +502,7 @@ function MediasTab({
                 )}
             </div>
 
-            {/* Génération de design par IA */}
+            {/* AI design generation */}
             {aiEnabled && (
                 <AiDesignForm
                     onGenerate={onGenerateAiDesign}
@@ -511,63 +514,62 @@ function MediasTab({
     );
 }
 
-// ── Composant principal ────────────────────────────────────────────────────────
-
+// Main component
+// Sidebar panel with tabbed sections (style/text/media) for configuring the product.
 export default function CustomizationPanel({
-    product,
-    configuration,
-    variants = [],
-    currentVariantSlug = null,
-    onVariantSelect,
-    onTemplateChange,
-    onViewChange,
-    onAddTextLayer,
-    onPlayerNameChange,
-    onPlayerNumberChange,
-    onToggleLogo,
-    onTextColorChange,
-    onLogoSelect,
-    onUploadLogo,
-    uploadLogoLoading = false,
-    uploadLogoError = null,
-    onRemoveLogo,
-    onUploadImage,
-    uploadImageLoading = false,
-    uploadImageError = null,
-    onRemoveImageLayer,
-    onGenerateAiDesign,
-    aiLoading = false,
-    aiError = null,
-    onPatternToggle,
-    onPatternSelect,
-    onGradientToggle,
-    onGradientSelect,
-    onProductColorChange,
-    onResetConfiguration,
-    onSave,
-    onFinish,
-    saving,
-    finishing,
-    disabled = false,
-    hasSavedSession = false,
-    mode = "2d",
-}) {
+                                               product,
+                                               configuration,
+                                               variants = [],
+                                               currentVariantSlug = null,
+                                               onVariantSelect,
+                                               onTemplateChange,
+                                               onViewChange,
+                                               onAddTextLayer,
+                                               onPlayerNameChange,
+                                               onPlayerNumberChange,
+                                               onToggleLogo,
+                                               onTextColorChange,
+                                               onLogoSelect,
+                                               onUploadLogo,
+                                               uploadLogoLoading = false,
+                                               uploadLogoError = null,
+                                               onRemoveLogo,
+                                               onUploadImage,
+                                               uploadImageLoading = false,
+                                               uploadImageError = null,
+                                               onRemoveImageLayer,
+                                               onGenerateAiDesign,
+                                               aiLoading = false,
+                                               aiError = null,
+                                               onPatternToggle,
+                                               onPatternSelect,
+                                               onGradientToggle,
+                                               onGradientSelect,
+                                               onProductColorChange,
+                                               onResetConfiguration,
+                                               onSave,
+                                               onFinish,
+                                               saving,
+                                               finishing,
+                                               disabled = false,
+                                               hasSavedSession = false,
+                                               mode = "2d",
+                                           }) {
     const [activeTab, setActiveTab] = useState("style");
-
     const currentView = configuration?.view || "front";
 
     const currentStyle = useMemo(
         () =>
             configuration?.style?.[currentView] || {
-                pattern:  { enabled: false, id: null },
-                gradient: { enabled: false, id: null },
+                pattern: {enabled: false, id: null},
+                gradient: {enabled: false, id: null},
             },
         [configuration?.style, currentView]
     );
 
     return (
         <aside className="pc-sidebar">
-            {/* En-tête */}
+            {/* Header */}
             <div className="pc-panel-header">
                 <h3 className="pc-panel-title">Configuration</h3>
                 {product?.name && (
@@ -575,7 +577,7 @@ export default function CustomizationPanel({
                 )}
             </div>
 
-            {/* Navigation par onglets */}
+            {/* Tab navigation */}
             <div className="pc-tabs" role="tablist">
                 {TABS.map((tab) => (
                     <button
@@ -591,7 +593,7 @@ export default function CustomizationPanel({
                 ))}
             </div>
 
-            {/* Contenu de l'onglet actif */}
+            {/* Active tab content */}
             <div className="pc-tab-content" role="tabpanel">
                 {activeTab === "style" && (
                     <StyleTab
@@ -645,7 +647,7 @@ export default function CustomizationPanel({
                 )}
             </div>
 
-            {/* Footer CTA — toujours visible */}
+            {/* Footer CTA - always visible */}
             <div className="pc-panel-footer">
                 <div className="pc-footer-secondary">
                     <button

@@ -1,22 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 
-export default function SizeGuideDrawer({ open, onClose }) {
+// Slide-in drawer showing the size guide table, with a CM/IN unit toggle.
+export default function SizeGuideDrawer({open, onClose}) {
     const closeBtnRef = useRef(null);
     const panelRef = useRef(null);
-
-    // Par défaut on affiche CM (comme ton screenshot)
     const [unit, setUnit] = useState("CM"); // "CM" | "IN"
 
-    // Base en CM (XXS -> XXL)
+    // Base measurements in CM (XXS -> XXL)
     const rowsCm = useMemo(
         () => [
-            { size: "XXS", waist: 70, inseam: 82 },
-            { size: "XS", waist: 75, inseam: 82 },
-            { size: "S", waist: 80, inseam: 82 },
-            { size: "M", waist: 85, inseam: 82 },
-            { size: "L", waist: 90, inseam: 82 },
-            { size: "XL", waist: 95, inseam: 82 },
-            { size: "XXL", waist: 100, inseam: 82 },
+            {size: "XXS", waist: 70, inseam: 82},
+            {size: "XS", waist: 75, inseam: 82},
+            {size: "S", waist: 80, inseam: 82},
+            {size: "M", waist: 85, inseam: 82},
+            {size: "L", waist: 90, inseam: 82},
+            {size: "XL", waist: 95, inseam: 82},
+            {size: "XXL", waist: 100, inseam: 82},
         ],
         []
     );
@@ -32,7 +31,6 @@ export default function SizeGuideDrawer({ open, onClose }) {
         }));
     }, [unit, rowsCm]);
 
-    // Focus + ESC + lock scroll
     useEffect(() => {
         if (!open) return;
 
@@ -44,13 +42,9 @@ export default function SizeGuideDrawer({ open, onClose }) {
         const onKeyDown = (e) => {
             if (e.key === "Escape") onClose?.();
 
-            // mini focus-trap (simple)
             if (e.key === "Tab") {
-                const focusables = panelRef.current?.querySelectorAll(
-                    'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
-                );
+                const focusables = panelRef.current?.querySelectorAll('button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])');
                 if (!focusables || focusables.length === 0) return;
-
                 const first = focusables[0];
                 const last = focusables[focusables.length - 1];
 
@@ -83,26 +77,26 @@ export default function SizeGuideDrawer({ open, onClose }) {
                 ref={panelRef}
                 onMouseDown={(e) => e.stopPropagation()}
                 style={{
-                    width: "min(680px, 92vw)", // ✅ drawer plus large
+                    width: "min(680px, 92vw)",
                     maxWidth: "92vw",
                     height: "100vh",
                     overflowY: "auto",
                 }}
             >
-                {/* ✅ Conteneur interne pour centrer et ajouter des marges comme Gymshark */}
+                {/* Inner container */}
                 <div
                     className="sg-inner"
                     style={{
                         height: "100%",
-                        padding: "40px 48px", // ✅ espace aux bords
+                        padding: "40px 48px",
                         boxSizing: "border-box",
                         display: "flex",
                         flexDirection: "column",
-                        alignItems: "center", // ✅ tout centré
+                        alignItems: "center",
                         gap: "22px",
                     }}
                 >
-                    {/* Header centré avec bouton close à droite */}
+                    {/* Centered header */}
                     <div
                         className="sg-head"
                         style={{
@@ -220,7 +214,7 @@ export default function SizeGuideDrawer({ open, onClose }) {
                         className="sg-table-wrap"
                         style={{
                             width: "100%",
-                            maxWidth: 560, // ✅ la table ne colle pas aux bords
+                            maxWidth: 560,
                             marginTop: 8,
                         }}
                     >
@@ -233,32 +227,47 @@ export default function SizeGuideDrawer({ open, onClose }) {
                             }}
                         >
                             <thead>
-                            <tr style={{ borderBottom: "1px solid #e9e9e9" }}>
-                                <th style={{ textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12 }}>
+                            <tr style={{borderBottom: "1px solid #e9e9e9"}}>
+                                <th style={{
+                                    textAlign: "left",
+                                    padding: "14px 0",
+                                    letterSpacing: "0.06em",
+                                    fontSize: 12
+                                }}>
                                     TAILLE
                                 </th>
-                                <th style={{ textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12 }}>
+                                <th style={{
+                                    textAlign: "left",
+                                    padding: "14px 0",
+                                    letterSpacing: "0.06em",
+                                    fontSize: 12
+                                }}>
                                     TOUR DE TAILLE
                                 </th>
-                                <th style={{ textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12 }}>
+                                <th style={{
+                                    textAlign: "left",
+                                    padding: "14px 0",
+                                    letterSpacing: "0.06em",
+                                    fontSize: 12
+                                }}>
                                     ENTREJAMBE
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             {rows.map((r) => (
-                                <tr key={r.size} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                                    <td style={{ padding: "16px 0", fontWeight: 800 }}>{r.size}</td>
-                                    <td style={{ padding: "16px 0" }}>{r.waist}</td>
-                                    <td style={{ padding: "16px 0" }}>{r.inseam}</td>
+                                <tr key={r.size} style={{borderBottom: "1px solid #f0f0f0"}}>
+                                    <td style={{padding: "16px 0", fontWeight: 800}}>{r.size}</td>
+                                    <td style={{padding: "16px 0"}}>{r.waist}</td>
+                                    <td style={{padding: "16px 0"}}>{r.inseam}</td>
                                 </tr>
                             ))}
                             </tbody>
                         </table>
                     </div>
 
-                    {/* petit spacer bas pour respirer */}
-                    <div style={{ height: 10 }} />
+                    {/* small bottom spacer */}
+                    <div style={{height: 10}}/>
                 </div>
             </aside>
         </div>

@@ -1,30 +1,36 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {deleteAdminProduct, getAdminProducts, toggleAdminProductActive } from "../../api/adminApi";
+import {useCallback, useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {deleteAdminProduct, getAdminProducts, toggleAdminProductActive} from "../../api/adminApi";
 
+// Admin products list page
 export default function AdminProductsPage() {
-    const [data, setData]       = useState(null);
-    const [search, setSearch]   = useState("");
-    const [page, setPage]       = useState(1);
+    const [data, setData] = useState(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
+    // Fetches products matching the current search/page filters
     const load = useCallback(() => {
         setLoading(true);
         setError(null);
-        getAdminProducts({ search: search || undefined, page })
+        getAdminProducts({search: search || undefined, page})
             .then(setData)
             .catch(() => setError("Impossible de charger les produits."))
             .finally(() => setLoading(false));
     }, [search, page]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        load();
+    }, [load]);
 
+    // Toggles a product's active/inactive state, then refreshes the list
     async function handleToggle(id) {
         await toggleAdminProductActive(id);
         load();
     }
 
+    // Confirms then deletes a product, then refreshes the list
     async function handleDelete(product) {
         if (!window.confirm(`Supprimer « ${product.name} » ? Cette action est irréversible.`)) return;
         await deleteAdminProduct(product.id);
@@ -48,7 +54,10 @@ export default function AdminProductsPage() {
                     type="search"
                     placeholder="Rechercher par nom ou SKU…"
                     value={search}
-                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
                 />
             </div>
 

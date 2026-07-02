@@ -1,5 +1,6 @@
 import {useEffect} from "react";
 
+// Generic static page layout
 export default function StaticPage({title, subtitle, children}) {
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -20,6 +21,7 @@ export default function StaticPage({title, subtitle, children}) {
     );
 }
 
+// Placeholder page for features not yet built
 export function ComingSoon({title, message}) {
     return (
         <StaticPage title={title}>

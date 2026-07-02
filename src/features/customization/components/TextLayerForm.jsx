@@ -1,8 +1,10 @@
-import { useState } from "react";
+import {useState} from "react";
 
-export default function TextLayerForm({ onAddText, textColor = "#111111" }) {
+// Form to add a free text layer to the product with default position/style
+export default function TextLayerForm({onAddText, textColor = "#111111"}) {
     const [text, setText] = useState("");
 
+    // Builds a new text layer object
     function handleSubmit(e) {
         e.preventDefault();
 
@@ -18,9 +20,7 @@ export default function TextLayerForm({ onAddText, textColor = "#111111" }) {
             x: 290,
             y: 315,
             rotation: 0,
-            // GF12 V2 : par défaut au même endroit que le nom du joueur
-            // (haut du dos). L'utilisateur peut ensuite drag où il veut.
-            uv: { x: 0.55, y: 0.55 },
+            uv: {x: 0.55, y: 0.55},
         });
 
         setText("");

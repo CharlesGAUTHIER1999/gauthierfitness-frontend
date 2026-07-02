@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import StaticPage from "../../components/StaticPage.jsx";
 import Footer from "../../components/Footer.jsx";
 
-const PH = ({ children }) => (
+const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
 );
 
+// Static privacy policy (GDPR) page
 export default function Privacy() {
     return (
         <div>

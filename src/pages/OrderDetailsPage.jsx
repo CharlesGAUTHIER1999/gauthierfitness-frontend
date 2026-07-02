@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import {useEffect, useMemo, useState} from "react";
+import {Link, useParams} from "react-router-dom";
 import api from "../api/axios";
-import { formatPriceEUR, formatDateTimeFR, statusLabel } from "../utils/orderUtils";
+import {formatPriceEUR, formatDateTimeFR, statusLabel} from "../utils/orderUtils";
 
+// Displays full details of a single order
 export default function OrderDetailsPage() {
-    const { id } = useParams();
+    const {id} = useParams();
 
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -64,7 +65,7 @@ export default function OrderDetailsPage() {
                     <p className="ck-muted">Commande introuvable.</p>
                 ) : (
                     <>
-                        <div className="ck-muted" style={{ marginBottom: 14 }}>
+                        <div className="ck-muted" style={{marginBottom: 14}}>
                             Référence <strong>#{order.id}</strong> — placée le{" "}
                             <strong>{formatDateTimeFR(order.created_at)}</strong> — statut{" "}
                             <strong>{statusLabel(order.order_status)}</strong>
@@ -85,10 +86,10 @@ export default function OrderDetailsPage() {
                                     padding: 12,
                                 }}
                             >
-                                <div style={{ fontWeight: 650, marginBottom: 8 }}>
+                                <div style={{fontWeight: 650, marginBottom: 8}}>
                                     Adresse de livraison
                                 </div>
-                                <div className="ck-muted" style={{ lineHeight: 1.5 }}>
+                                <div className="ck-muted" style={{lineHeight: 1.5}}>
                                     <div>
                                         {shipment?.firstname} {shipment?.lastname}
                                     </div>
@@ -107,10 +108,10 @@ export default function OrderDetailsPage() {
                                     padding: 12,
                                 }}
                             >
-                                <div style={{ fontWeight: 650, marginBottom: 8 }}>
+                                <div style={{fontWeight: 650, marginBottom: 8}}>
                                     Adresse de facturation
                                 </div>
-                                <div className="ck-muted" style={{ lineHeight: 1.5 }}>
+                                <div className="ck-muted" style={{lineHeight: 1.5}}>
                                     <div>
                                         {shipment?.firstname} {shipment?.lastname}
                                     </div>
@@ -144,14 +145,14 @@ export default function OrderDetailsPage() {
                                         borderBottom: "1px solid #eee",
                                     }}
                                 >
-                                    <th style={{ padding: "10px 12px" }}>Produit</th>
-                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>
+                                    <th style={{padding: "10px 12px"}}>Produit</th>
+                                    <th style={{padding: "10px 12px", textAlign: "right"}}>
                                         Prix
                                     </th>
-                                    <th style={{ padding: "10px 12px", textAlign: "center" }}>
+                                    <th style={{padding: "10px 12px", textAlign: "center"}}>
                                         Quantité
                                     </th>
-                                    <th style={{ padding: "10px 12px", textAlign: "right" }}>
+                                    <th style={{padding: "10px 12px", textAlign: "right"}}>
                                         Total
                                     </th>
                                 </tr>
@@ -170,8 +171,6 @@ export default function OrderDetailsPage() {
                                         it?.customization_preview_path ||
                                         it?.product?.main_image ||
                                         null;
-                                    // main_image peut être un chemin brut (products/...) :
-                                    // on le préfixe en /storage/ pour qu'il soit servable.
                                     const previewSrc = !rawImg
                                         ? "/placeholder.png"
                                         : /^https?:\/\//.test(rawImg) || rawImg.startsWith("/")
@@ -183,9 +182,9 @@ export default function OrderDetailsPage() {
                                     return (
                                         <tr
                                             key={it.id}
-                                            style={{ borderBottom: "1px solid #f2f2f2" }}
+                                            style={{borderBottom: "1px solid #f2f2f2"}}
                                         >
-                                            <td style={{ padding: "12px" }}>
+                                            <td style={{padding: "12px"}}>
                                                 <div
                                                     style={{
                                                         display: "flex",
@@ -211,7 +210,7 @@ export default function OrderDetailsPage() {
                                                     />
 
                                                     <div>
-                                                        <div style={{ fontWeight: 650 }}>
+                                                        <div style={{fontWeight: 650}}>
                                                             {name}
                                                             {optLabel}
                                                         </div>
@@ -219,7 +218,7 @@ export default function OrderDetailsPage() {
                                                         {isCustomized && (
                                                             <div
                                                                 className="ck-muted"
-                                                                style={{ marginTop: 4 }}
+                                                                style={{marginTop: 4}}
                                                             >
                                                                 Produit personnalisé
                                                             </div>
@@ -228,7 +227,7 @@ export default function OrderDetailsPage() {
                                                         {snapshot?.player_name?.value && (
                                                             <div
                                                                 className="ck-muted"
-                                                                style={{ marginTop: 4 }}
+                                                                style={{marginTop: 4}}
                                                             >
                                                                 Nom : {snapshot.player_name.value}
                                                             </div>
@@ -237,7 +236,7 @@ export default function OrderDetailsPage() {
                                                         {snapshot?.player_number?.value && (
                                                             <div
                                                                 className="ck-muted"
-                                                                style={{ marginTop: 2 }}
+                                                                style={{marginTop: 2}}
                                                             >
                                                                 Numéro : {snapshot.player_number.value}
                                                             </div>
@@ -246,7 +245,7 @@ export default function OrderDetailsPage() {
                                                         {snapshot?.template_id && (
                                                             <div
                                                                 className="ck-muted"
-                                                                style={{ marginTop: 2 }}
+                                                                style={{marginTop: 2}}
                                                             >
                                                                 Template : {snapshot.template_id}
                                                             </div>
@@ -255,7 +254,7 @@ export default function OrderDetailsPage() {
                                                         {it?.product?.slug && (
                                                             <div
                                                                 className="ck-muted"
-                                                                style={{ marginTop: 6 }}
+                                                                style={{marginTop: 6}}
                                                             >
                                                                 <Link
                                                                     className="ck-link"
@@ -279,7 +278,7 @@ export default function OrderDetailsPage() {
                                                 {formatPriceEUR(unit)}
                                             </td>
 
-                                            <td style={{ padding: "12px", textAlign: "center" }}>
+                                            <td style={{padding: "12px", textAlign: "center"}}>
                                                 {qty}
                                             </td>
 
@@ -314,10 +313,10 @@ export default function OrderDetailsPage() {
                                     padding: 12,
                                 }}
                             >
-                                <div style={{ fontWeight: 650, marginBottom: 10 }}>
+                                <div style={{fontWeight: 650, marginBottom: 10}}>
                                     Détails de la commande
                                 </div>
-                                <div style={{ display: "grid", gap: 8 }}>
+                                <div style={{display: "grid", gap: 8}}>
                                     <div
                                         style={{
                                             display: "flex",
@@ -326,7 +325,7 @@ export default function OrderDetailsPage() {
                                         }}
                                     >
                                         <span className="ck-muted">Transporteur</span>
-                                        <span style={{ fontWeight: 650 }}>
+                                        <span style={{fontWeight: 650}}>
                                             {shipment?.carrier || "—"}
                                         </span>
                                     </div>
@@ -339,7 +338,7 @@ export default function OrderDetailsPage() {
                                         }}
                                     >
                                         <span className="ck-muted">Paiement</span>
-                                        <span style={{ fontWeight: 650 }}>
+                                        <span style={{fontWeight: 650}}>
                                             {payment?.provider || "stripe"}
                                         </span>
                                     </div>
@@ -352,7 +351,7 @@ export default function OrderDetailsPage() {
                                         }}
                                     >
                                         <span className="ck-muted">Statut paiement</span>
-                                        <span style={{ fontWeight: 650 }}>
+                                        <span style={{fontWeight: 650}}>
                                             {payment?.status || order.payment_status}
                                         </span>
                                     </div>
@@ -366,7 +365,7 @@ export default function OrderDetailsPage() {
                                     padding: 12,
                                 }}
                             >
-                                <div style={{ fontWeight: 650, marginBottom: 10 }}>Total</div>
+                                <div style={{fontWeight: 650, marginBottom: 10}}>Total</div>
                                 <div
                                     style={{
                                         display: "flex",
@@ -375,11 +374,11 @@ export default function OrderDetailsPage() {
                                     }}
                                 >
                                     <span className="ck-muted">Total TTC</span>
-                                    <span style={{ fontWeight: 750, fontSize: 18 }}>
+                                    <span style={{fontWeight: 750, fontSize: 18}}>
                                         {formatPriceEUR(order.total_ttc)}
                                     </span>
                                 </div>
-                                <div className="ck-muted" style={{ marginTop: 8 }}>
+                                <div className="ck-muted" style={{marginTop: 8}}>
                                     Taxes incluses.
                                 </div>
                             </div>

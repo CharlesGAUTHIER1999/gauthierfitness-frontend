@@ -1,36 +1,37 @@
-import { useMemo, useState } from "react";
-import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../context/CartContext.jsx";
+import {useMemo, useState} from "react";
+import {PaymentElement, useElements, useStripe} from "@stripe/react-stripe-js";
+import {useNavigate} from "react-router-dom";
+import {useCart} from "../context/CartContext.jsx";
 
-export default function CheckoutPayment({ email, clientSecret }) {
+// Renders Stripe's PaymentElement and confirms the payment on submit.
+export default function CheckoutPayment({email, clientSecret}) {
     const stripe = useStripe();
     const elements = useElements();
     const navigate = useNavigate();
-    const { refetchCart, clear, closeCart } = useCart();
-
+    const {refetchCart, clear, closeCart} = useCart();
     const [isPaying, setIsPaying] = useState(false);
     const [error, setError] = useState(null);
-
     const returnUrl = useMemo(() => `${window.location.origin}/checkout/success`, []);
 
+    // Runs after a successful payment
     async function afterSuccess(paymentIntentId) {
-        // Le webhook vide le panier DB, mais on garde l’UI clean
         try {
             await refetchCart();
             await clear();
             closeCart?.();
         } catch {
-            await clear().catch(() => {});
+            await clear().catch(() => {
+            });
         }
 
         const qs = new URLSearchParams();
         if (paymentIntentId) qs.set("payment_intent", paymentIntentId);
         qs.set("redirect_status", "succeeded");
 
-        navigate(`/checkout/success?${qs.toString()}`, { replace: true });
+        navigate(`/checkout/success?${qs.toString()}`, {replace: true});
     }
 
+    // Submits the payment form and confirms the Stripe PaymentIntent (handles 3DS/no-redirect cases)
     async function confirm() {
         if (!stripe || !elements) return;
 
@@ -38,14 +39,14 @@ export default function CheckoutPayment({ email, clientSecret }) {
         setError(null);
 
         try {
-            const { error: submitError } = await elements.submit();
+            const {error: submitError} = await elements.submit();
             if (submitError) {
                 setError(submitError.message || "Vérifie les informations de paiement.");
                 setIsPaying(false);
                 return;
             }
 
-            const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
+            const {error: confirmError, paymentIntent} = await stripe.confirmPayment({
                 elements,
                 confirmParams: {
                     receipt_email: email || undefined,
@@ -60,16 +61,16 @@ export default function CheckoutPayment({ email, clientSecret }) {
                 return;
             }
 
-            // Pas de redirect requis => on est ici
+            // No redirect required
             if (paymentIntent?.status === "succeeded") {
                 setIsPaying(false);
                 await afterSuccess(paymentIntent.id);
                 return;
             }
 
-            // Parfois paymentIntent est null -> retrieve via clientSecret
+            // Sometimes paymentIntent is null -> retrieve it via clientSecret
             if (clientSecret) {
-                const { paymentIntent: pi } = await stripe.retrievePaymentIntent(clientSecret);
+                const {paymentIntent: pi} = await stripe.retrievePaymentIntent(clientSecret);
                 if (pi?.status === "succeeded") {
                     setIsPaying(false);
                     await afterSuccess(pi.id);
@@ -94,11 +95,11 @@ export default function CheckoutPayment({ email, clientSecret }) {
             </div>
 
             <div className="ck-payment-element">
-                <PaymentElement options={{ layout: "tabs" }} />
+                <PaymentElement options={{layout: "tabs"}}/>
             </div>
 
             {error && (
-                <div className="ck-error" role="alert" style={{ marginTop: 10 }}>
+                <div className="ck-error" role="alert" style={{marginTop: 10}}>
                     {error}
                 </div>
             )}
@@ -108,12 +109,12 @@ export default function CheckoutPayment({ email, clientSecret }) {
                 className="ck-submit"
                 onClick={confirm}
                 disabled={!stripe || !elements || isPaying}
-                style={{ marginTop: 12 }}
+                style={{marginTop: 12}}
             >
                 {isPaying ? "Paiement en cours..." : "Payer maintenant"}
             </button>
 
-            <div className="ck-muted" style={{ marginTop: 10 }}>
+            <div className="ck-muted" style={{marginTop: 10}}>
                 Apple Pay / Google Pay s’affichent seulement si l’appareil et la config Stripe le permettent.
             </div>
         </div>

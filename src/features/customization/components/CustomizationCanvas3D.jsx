@@ -6,9 +6,9 @@ import { useTextureComposer } from "../hooks/useTextureComposer";
 
 useGLTF.preload("/models/tshirt.glb");
 
-// GF12 V2 : silence les warnings Three.js dépréciés qu'on ne peut pas
-// corriger côté app (ils viennent de drei / r3f en interne, pas de notre code).
-// On ne le fait qu'une fois, en dev, pour ne pas polluer la console.
+// GF12 V2: silences deprecated Three.js warnings we can't fix on the app
+// side (they come from drei / r3f internals, not our code).
+// Only done once, in dev, to avoid polluting the console.
 if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     const origWarn = console.warn;
     const SILENCED = [
@@ -23,22 +23,22 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     window.__gf_three_warnings_silenced = true;
 }
 
-// Passe à true pour voir les UV reçus + résultats hit-test en console.
+// Set to true to see received UVs + hit-test results in the console.
 const DEBUG_DRAG = false;
 
-// GF12 V2 : le GLB Studio-Lab contient 3 t-shirts (3 styles) dans le même fichier.
+// GF12 V2: the Studio-Lab GLB contains 3 t-shirts (3 styles) in the same file.
 // 0 = A01 (1671 verts, low-poly)
 // 1 = A02 (6310 verts, medium)
-// 2 = A03 (24106 verts, high-poly / détaillé)
-// Change la valeur pour switcher, puis on fige quand on a trouvé le bon.
+// 2 = A03 (24106 verts, high-poly / detailed)
+// Change the value to switch, then freeze it once the right one is found.
 const ACTIVE_MESH_INDEX = 2;
 
-// GF12 V2 : zone UV "safe" où on autorise les textes/images à vivre.
-// Si le user drag en dehors (bras, dos, col du t-shirt), on clamp pour
-// éviter que le layer parte sur une UV island différente et devienne inatteignable.
-// Le GLB Studio-Lab a des UVs non-overlapping, donc tout UV [0,1] est
-// safe (aucune "zone fantôme"). On garde juste une petite marge pour
-// éviter de coller au bord extrême.
+// GF12 V2: "safe" UV zone where texts/images are allowed to live.
+// If the user drags outside it (sleeve, back, collar of the t-shirt), we clamp
+// to avoid the layer landing on a different UV island and becoming unreachable.
+// The Studio-Lab GLB has non-overlapping UVs, so any UV in [0,1] is
+// safe (no "ghost zone"). We just keep a small margin to avoid
+// sticking to the extreme edge.
 const SAFE_UV = {
     xMin: 0.02,
     xMax: 0.98,
@@ -53,8 +53,8 @@ function clampUV(u, v) {
     };
 }
 
-// Si l'UV reçu est franchement hors zone (> 0.15 de marge), on ignore :
-// ça veut dire que le curseur est sur une autre UV island (manche, dos).
+// If the received UV is clearly outside the zone (> 0.15 margin), ignore it:
+// it means the cursor is on a different UV island (sleeve, back).
 function isWayOutsideSafeZone(u, v) {
     return (
         u < SAFE_UV.xMin - 0.15 ||
@@ -65,13 +65,13 @@ function isWayOutsideSafeZone(u, v) {
 }
 
 /**
- * Mesh du t-shirt + gestion pointer events (hit-test UV) pour le drag & drop.
+ * T-shirt mesh + pointer event handling (UV hit-test) for drag & drop.
  *
- * Pour empêcher OrbitControls (qui écoute les events DOM natifs) de hijacker
- * le drag, on :
- *   1. appelle e.stopPropagation() côté r3f
- *   2. appelle e.nativeEvent.stopPropagation() côté DOM
- *   3. bascule l'état isDragging → OrbitControls.enabled = false au prochain render
+ * To prevent OrbitControls (which listens to native DOM events) from
+ * hijacking the drag, we:
+ *   1. call e.stopPropagation() on the r3f side
+ *   2. call e.nativeEvent.stopPropagation() on the DOM side
+ *   3. toggle isDragging → OrbitControls.enabled = false on the next render
  */
 function TShirtMesh({
                         texture,
@@ -87,15 +87,15 @@ function TShirtMesh({
     const groupRef = useRef();
     const dragState = useRef(null); // { id, type, pointerId }
 
-    // Remplace scene.userData._pruned / scene.userData._centered
-    // pour éviter l'erreur ESLint react-hooks/immutability.
+    // Replaces scene.userData._pruned / scene.userData._centered
+    // to avoid the ESLint react-hooks/immutability error.
     const prunedRef = useRef(false);
     const centeredRef = useRef(false);
 
     useEffect(() => {
         if (!scene) return;
 
-        // GF12 V2 : diagnostic structure du GLB (temporaire, à retirer une fois calé)
+        // GF12 V2: GLB structure diagnostic (temporary, to remove once finalized)
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
@@ -111,7 +111,7 @@ function TShirtMesh({
             active: meshMode === "pick" ? i === activeMeshIndex : true,
         })));
 
-        // ── Mode "pick" : GLB pack (Studio-Lab). On choisit UN mesh, on vire les autres.
+        // ── "pick" mode: GLB pack (Studio-Lab). We pick ONE mesh, remove the others.
         if (meshMode === "pick") {
             if (!prunedRef.current) {
                 const toRemove = meshes.filter((_, i) => i !== activeMeshIndex);
@@ -166,19 +166,19 @@ function TShirtMesh({
             return;
         }
 
-        // ── Mode "all" : GLB classique. Tous les meshes constituent le garment.
-        // On applique la texture à chacun, et on centre l'ensemble sur le barycentre global.
+        // ── "all" mode: classic GLB. All meshes make up the garment.
+        // We apply the texture to each one, and center the whole thing on the global centroid.
         if (meshes.length === 0) return;
 
         if (!centeredRef.current) {
-            // Bounding box globale (union de toutes les bbox locales exprimées en world)
+            // Global bounding box (union of all local bboxes expressed in world space)
             const globalBox = new THREE.Box3();
 
             meshes.forEach((m) => {
                 m.geometry.computeBoundingBox();
                 const b = m.geometry.boundingBox.clone();
 
-                // On veut la bbox en local-space commun (scene), donc on applique la matrix monde
+                // We want the bbox in the shared local space (scene), so we apply the world matrix
                 m.updateWorldMatrix(true, false);
                 b.applyMatrix4(m.matrixWorld);
                 globalBox.union(b);
@@ -186,8 +186,8 @@ function TShirtMesh({
 
             const center = globalBox.getCenter(new THREE.Vector3());
 
-            // On translate le scene root pour centrer tout le modèle sur l'origine.
-            // (On ne touche pas aux géométries individuelles pour garder les UV/normales intactes.)
+            // Translate the scene root to center the whole model on the origin.
+            // (We don't touch individual geometries so UVs/normals stay intact.)
             scene.position.sub(center);
             centeredRef.current = true;
 
@@ -267,7 +267,7 @@ function TShirtMesh({
             });
         }
 
-        // Hit-test avec UV direct ET UV inversé sur y (au cas où flipY joue)
+        // Hit-test with direct UV AND UV flipped on y (in case flipY applies)
         let hit = hitTestUV(uv.x, uv.y);
         let flipped = false;
 
@@ -282,7 +282,7 @@ function TShirtMesh({
 
         if (!hit) return;
 
-        // Stop propagation côté r3f ET côté DOM (pour bloquer OrbitControls)
+        // Stop propagation on the r3f side AND the DOM side (to block OrbitControls)
         e.stopPropagation();
         e.nativeEvent?.stopPropagation?.();
 
@@ -312,9 +312,9 @@ function TShirtMesh({
         const rawY = state.flipY ? 1 - uv.y : uv.y;
         const rawX = uv.x;
 
-        // GF12 V2 : si le curseur est clairement sur une autre UV island
-        // (manche / dos / col), on ignore le mouvement pour éviter que le
-        // layer "saute" dans une zone invisible depuis la vue de face.
+        // GF12 V2: if the cursor is clearly on a different UV island
+        // (sleeve / back / collar), ignore the movement to prevent the
+        // layer from "jumping" to a zone invisible from the front view.
         if (isWayOutsideSafeZone(rawX, rawY)) {
             if (DEBUG_DRAG) {
                 console.log(
@@ -326,7 +326,7 @@ function TShirtMesh({
             return;
         }
 
-        // Clamp à la zone safe pour garantir que le layer reste atteignable.
+        // Clamp to the safe zone to guarantee the layer stays reachable.
         const clamped = clampUV(rawX, rawY);
         onDragMove?.(state.id, state.type, clamped);
     }
@@ -376,15 +376,15 @@ export default function CustomizationCanvas3D({
                                                   onUpdatePlayerNumberUV,
                                                   onDragEnd,
                                               }) {
-    // Debug UV : uniquement si ?debuguv est présent dans l'URL.
-    // Invisible par défaut en dev ET en prod — ajouter ?debuguv pour l'activer.
+    // UV debug: only if ?debuguv is present in the URL.
+    // Hidden by default in dev AND prod — add ?debuguv to enable it.
     const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
     const [debugUV, setDebugUV] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
 
-    // GF13 : la config 3D (GLB, UV zones, chest center du template) est lue
-    // depuis productCustomizerConfigs.model3d via la prop model3d. Fallback
-    // défensif si un produit 3D n'a pas de config (ne devrait pas arriver).
+    // GF13: the 3D config (GLB, UV zones, template chest center) is read
+    // from productCustomizerConfigs.model3d via the model3d prop. Defensive
+    // fallback in case a 3D product has no config (shouldn't happen).
     const glbPath = model3d?.glb || "/models/tshirt.glb";
     const meshMode = model3d?.meshMode || "pick";
     const activeMeshIndex = model3d?.activeMeshIndex ?? 0;
@@ -460,9 +460,9 @@ export default function CustomizationCanvas3D({
                     </Suspense>
                 </Stage>
 
-                {/* OrbitControls désactivé pendant le drag d'un layer.
-                    enableDamping=false pour éviter l'inertie qui fait
-                    continuer la rotation après le relâchement. */}
+                {/* OrbitControls disabled while dragging a layer.
+                    enableDamping=false to avoid the inertia that keeps
+                    the rotation going after release. */}
                 <OrbitControls
                     enablePan={false}
                     enableZoom={true}

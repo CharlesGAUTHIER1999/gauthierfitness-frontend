@@ -13,6 +13,7 @@ const AuthContext = createContext(null);
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
+// Stores or clears the auth token in localStorage.
 function persistToken(t) {
     if (t) {
         localStorage.setItem(TOKEN_KEY, t);
@@ -21,6 +22,7 @@ function persistToken(t) {
     }
 }
 
+// Stores or clears the cached user object in localStorage.
 function persistUser(u) {
     if (u) {
         localStorage.setItem(USER_KEY, JSON.stringify(u));
@@ -29,7 +31,8 @@ function persistUser(u) {
     }
 }
 
-export function AuthProvider({ children }) {
+// Provides auth state (token/user) and actions (login, register, logout, password reset) to the app.
+export function AuthProvider({children}) {
     const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
     const [user, setUser] = useState(() => {
         try {
@@ -49,24 +52,19 @@ export function AuthProvider({ children }) {
 
             if (!storedToken) {
                 if (!mounted) return;
-
                 setToken(null);
                 setUser(null);
                 setLoading(false);
                 return;
             }
 
-            // sync state depuis storage
-            if (mounted) {
-                setToken(storedToken);
-            }
+            // Sync state from storage.
+            if (mounted) setToken(storedToken);
 
             try {
-                // /me doit valider le token et renvoyer user
+                // /me must validate the token and return the user.
                 const res = await api.get("/me");
-
                 if (!mounted) return;
-
                 setUser(res.data);
                 persistUser(res.data);
             } catch (e) {
@@ -74,15 +72,14 @@ export function AuthProvider({ children }) {
 
                 const status = e?.response?.status;
 
-                // ✅ Si 401 => token invalide => on nettoie tout
+                // If 401 => token invalid => clear everything.
                 if (status === 401) {
                     persistToken(null);
                     persistUser(null);
                     setToken(null);
                     setUser(null);
                 } else {
-                    // ✅ Si 500/CORS/Network => backend KO => on GARDE le token + user cache
-                    // Donc tu restes "connecté" visuellement même si /me tombe.
+                    // If 500/CORS/Network => backend is down => KEEP the token + cached user.
                     console.warn(
                         "BOOTSTRAP /me failed (kept token & cached user):",
                         status,
@@ -90,20 +87,18 @@ export function AuthProvider({ children }) {
                     );
                 }
             } finally {
-                if (mounted) {
-                    setLoading(false);
-                }
+                if (mounted) setLoading(false);
             }
         };
 
         void bootstrap();
 
-        // ✅ FIX TS : cleanup doit retourner void (pas boolean)
         return () => {
             mounted = false;
         };
-    }, []); // intentionnel : une seule exécution au mount
+    }, []);
 
+    // Logs in with email/password and persists the returned token + user
     const login = useCallback(async (email, password) => {
         const res = await api.post("/login", {
             email: email.trim().toLowerCase(),
@@ -112,13 +107,12 @@ export function AuthProvider({ children }) {
 
         persistToken(res.data.token);
         setToken(res.data.token);
-
         setUser(res.data.user);
         persistUser(res.data.user);
-
         return res.data;
     }, []);
 
+    // Registers a new account and persists the returned token + user
     const register = useCallback(async (form) => {
         const res = await api.post("/register", {
             ...form,
@@ -134,6 +128,7 @@ export function AuthProvider({ children }) {
         return res.data;
     }, []);
 
+    // Requests a password reset email for the given address
     const forgotPassword = useCallback(async (email) => {
         const res = await api.post("/forgot-password", {
             email: email.trim().toLowerCase(),
@@ -142,7 +137,8 @@ export function AuthProvider({ children }) {
         return res.data;
     }, []);
 
-    const resetPassword = useCallback(async ({ email, token, password, password_confirmation }) => {
+    // Submits a new password using the reset token received by email
+    const resetPassword = useCallback(async ({email, token, password, password_confirmation}) => {
         const res = await api.post("/reset-password", {
             email: email.trim().toLowerCase(),
             token,
@@ -153,11 +149,11 @@ export function AuthProvider({ children }) {
         return res.data;
     }, []);
 
+    // Logs out : calls the API (best effort) then always clears local token/user state.
     const logout = useCallback(async () => {
         try {
             await api.post("/logout");
         } catch (e) {
-            // backend peut planter / CORS, mais on force la déconnexion front
             console.warn("Logout API failed (ignored):", e?.response?.status, e?.message);
         } finally {
             persistToken(null);
@@ -185,7 +181,7 @@ export function AuthProvider({ children }) {
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
+// Hook to access the auth context
 export function useAuth() {
     return useContext(AuthContext);
 }

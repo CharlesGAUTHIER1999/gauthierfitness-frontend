@@ -1,9 +1,10 @@
 import Header from "../components/Header";
 
-export default function AppLayout({ children }) {
+// Public site shell: header on top, page content passed as children below.
+export default function AppLayout({children}) {
     return (
         <>
-            <Header />
+            <Header/>
             <main>{children}</main>
         </>
     );

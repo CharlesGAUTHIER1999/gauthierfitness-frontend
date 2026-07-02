@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
-import { useAuth } from "../store/auth";
-import { useEffect, useState } from "react";
+import {Link} from "react-router-dom";
+import {useAuth} from "../store/auth";
+import {useEffect, useState} from "react";
 import api from "../api/axios";
-import { formatPriceEUR, formatDateFR, statusLabel } from "../utils/orderUtils";
+import {formatPriceEUR, formatDateFR, statusLabel} from "../utils/orderUtils";
 
+// Account overview
 export default function AccountPage() {
-    const { user, logout } = useAuth();
+    const {user, logout} = useAuth();
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
 
@@ -34,30 +35,30 @@ export default function AccountPage() {
 
     return (
         <div className="pay-result">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "baseline"}}>
                 <h1>Compte</h1>
                 <button className="ck-link" type="button" onClick={logout}>
                     Déconnexion
                 </button>
             </div>
 
-            <div className="pay-result-box" style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 24 }}>
+            <div className="pay-result-box" style={{display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 24}}>
                 <div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
-                        <h2 style={{ fontSize: 18, margin: 0 }}>Historique des commandes</h2>
+                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12}}>
+                        <h2 style={{fontSize: 18, margin: 0}}>Historique des commandes</h2>
                         <Link className="ck-link" to="/account/orders">
                             Voir tout
                         </Link>
                     </div>
 
                     {loadingOrders ? (
-                        <p className="ck-muted" style={{ marginTop: 6 }}>Chargement…</p>
+                        <p className="ck-muted" style={{marginTop: 6}}>Chargement…</p>
                     ) : orders.length === 0 ? (
-                        <p className="ck-muted" style={{ marginTop: 6 }}>
+                        <p className="ck-muted" style={{marginTop: 6}}>
                             Vous n’avez encore passé aucune commande.
                         </p>
                     ) : (
-                        <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
+                        <div style={{marginTop: 10, display: "grid", gap: 10}}>
                             {latest.map((o) => (
                                 <Link
                                     key={o.id}
@@ -72,11 +73,12 @@ export default function AccountPage() {
                                         gap: 6,
                                     }}
                                 >
-                                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                                        <div style={{ fontWeight: 650 }}>Commande #{o.id}</div>
-                                        <div style={{ fontWeight: 650 }}>{formatPriceEUR(o.total_ttc)}</div>
+                                    <div style={{display: "flex", justifyContent: "space-between", gap: 10}}>
+                                        <div style={{fontWeight: 650}}>Commande #{o.id}</div>
+                                        <div style={{fontWeight: 650}}>{formatPriceEUR(o.total_ttc)}</div>
                                     </div>
-                                    <div className="ck-muted" style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                                    <div className="ck-muted"
+                                         style={{display: "flex", justifyContent: "space-between", gap: 10}}>
                                         <span>{formatDateFR(o.created_at)}</span>
                                         <span>{statusLabel(o.order_status)}</span>
                                     </div>
@@ -87,12 +89,12 @@ export default function AccountPage() {
                 </div>
 
                 <div>
-                    <h2 style={{ fontSize: 18, margin: 0 }}>Détails du compte</h2>
-                    <div className="ck-muted" style={{ marginTop: 6 }}>
+                    <h2 style={{fontSize: 18, margin: 0}}>Détails du compte</h2>
+                    <div className="ck-muted" style={{marginTop: 6}}>
                         {user?.country || "France"}
                     </div>
 
-                    <div style={{ marginTop: 10 }}>
+                    <div style={{marginTop: 10}}>
                         <Link className="ck-link" to="/account/addresses">
                             Voir les adresses (1)
                         </Link>

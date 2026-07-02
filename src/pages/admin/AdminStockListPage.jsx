@@ -1,29 +1,39 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getAdminStock } from "../../api/adminApi";
+import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {getAdminStock} from "../../api/adminApi";
 
-function StockBadge({ qty }) {
-    if (qty === 0)  return <span className="adm-stock-qty is-empty">Rupture</span>;
-    if (qty < 5)    return <span className="adm-stock-qty is-low">{qty} unités</span>;
+// Renders a colored badge reflecting stock level (out of stock / low / ok)
+function StockBadge({qty}) {
+    if (qty === 0) return <span className="adm-stock-qty is-empty">Rupture</span>;
+    if (qty < 5) return <span className="adm-stock-qty is-low">{qty} unités</span>;
     return <span className="adm-stock-qty is-ok">{qty} unités</span>;
 }
 
+// Admin stock overview page
 export default function AdminStockListPage() {
-    const [data, setData]       = useState(null);
-    const [search, setSearch]   = useState("");
-    const [page, setPage]       = useState(1);
+    const [data, setData] = useState(null);
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(true);
-    const [error, setError]     = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         let cancelled = false;
         setLoading(true);
         setError(null);
-        getAdminStock({ search: search || undefined, page })
-            .then(d  => { if (!cancelled) setData(d); })
-            .catch(() => { if (!cancelled) setError("Impossible de charger les stocks."); })
-            .finally(() => { if (!cancelled) setLoading(false); });
-        return () => { cancelled = true; };
+        getAdminStock({search: search || undefined, page})
+            .then(d => {
+                if (!cancelled) setData(d);
+            })
+            .catch(() => {
+                if (!cancelled) setError("Impossible de charger les stocks.");
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
     }, [search, page]);
 
     const products = data?.data || [];
@@ -40,7 +50,10 @@ export default function AdminStockListPage() {
                     type="search"
                     placeholder="Rechercher par nom ou SKU…"
                     value={search}
-                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
                 />
             </div>
 
@@ -75,7 +88,7 @@ export default function AdminStockListPage() {
                                     </td>
                                     <td className="adm-date">{p.sku || "—"}</td>
                                     <td>
-                                        <StockBadge qty={p.stock_qty ?? 0} />
+                                        <StockBadge qty={p.stock_qty ?? 0}/>
                                     </td>
                                     <td>
                                         <Link

@@ -6,6 +6,7 @@ const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
 );
 
+// Static returns & refunds policy page
 export default function Refunds() {
     return (
         <div>
