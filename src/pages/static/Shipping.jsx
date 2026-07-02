@@ -6,6 +6,7 @@ const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
 );
 
+// Static shipping & delivery fees page
 export default function Shipping() {
     return (
         <div>

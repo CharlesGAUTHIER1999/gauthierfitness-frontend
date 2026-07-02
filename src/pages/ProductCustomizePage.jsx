@@ -1,18 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { getProduct } from "../services/productService";
+import {useEffect, useMemo, useState} from "react";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {getProduct} from "../services/productService";
 import ProductCustomizer from "../features/customization/components/ProductCustomizer";
 import Product3DCustomizer from "../features/customization/components/Product3DCustomizer";
 import "../productcustomization.css";
 
-/**
- * Quand une option est déjà sélectionnée : affichage compact "Taille · L · Modifier".
- * Quand aucune option n'est sélectionnée : tous les boutons sont affichés.
- */
-function OptionPickerGroup({ label, options, activeOptionId, onSelect }) {
+// Option picker
+function OptionPickerGroup({label, options, activeOptionId, onSelect}) {
     const [expanded, setExpanded] = useState(false);
     const activeOption = options.find((o) => o.id === activeOptionId);
-    const isSelected   = Boolean(activeOption);
+    const isSelected = Boolean(activeOption);
 
     if (isSelected && !expanded) {
         return (
@@ -42,7 +39,10 @@ function OptionPickerGroup({ label, options, activeOptionId, onSelect }) {
                         type="button"
                         className={`pc-option-btn ${activeOptionId === opt.id ? "is-active" : ""}`}
                         disabled={!opt.in_stock}
-                        onClick={() => { onSelect(opt); setExpanded(false); }}
+                        onClick={() => {
+                            onSelect(opt);
+                            setExpanded(false);
+                        }}
                         title={!opt.in_stock ? "Rupture de stock" : undefined}
                     >
                         {opt.code || opt.label}
@@ -53,6 +53,7 @@ function OptionPickerGroup({ label, options, activeOptionId, onSelect }) {
     );
 }
 
+// Finds the product option matching the selection passed via router state (by id first, then by type+code, then by type+label)
 function findEquivalentOption(product, rawState) {
     if (!product || !rawState) return null;
 
@@ -96,8 +97,9 @@ function findEquivalentOption(product, rawState) {
     return null;
 }
 
+// Product customizer page : loads the product and renders the 2D/3D customizer
 export default function ProductCustomizePage() {
-    const { slug } = useParams();
+    const {slug} = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -110,6 +112,7 @@ export default function ProductCustomizePage() {
     useEffect(() => {
         let mounted = true;
 
+        // Loads the product + redirection away if it isn't customizable
         async function load() {
             try {
                 const p = await getProduct(slug);
@@ -117,7 +120,7 @@ export default function ProductCustomizePage() {
                 if (!mounted) return;
 
                 if (!p?.is_customizable) {
-                    navigate(`/products/${slug}`, { replace: true });
+                    navigate(`/products/${slug}`, {replace: true});
                     return;
                 }
 
@@ -125,7 +128,7 @@ export default function ProductCustomizePage() {
                 setLocalSelectedOption(null);
             } catch (e) {
                 console.error(e);
-                navigate("/products", { replace: true });
+                navigate("/products", {replace: true});
             } finally {
                 if (mounted) setLoading(false);
             }
@@ -157,7 +160,7 @@ export default function ProductCustomizePage() {
         );
     }, [allOptions]);
 
-    // La sélection locale prime sur celle transmise par la route
+    // Local selection takes priority over the one passed via route
     const activeSelectedOption = localSelectedOption ?? selectedOption;
     const effectiveSelectedOptionId = activeSelectedOption?.id ?? null;
     const isMissingRequiredOption = hasRequiredOptions && !effectiveSelectedOptionId;

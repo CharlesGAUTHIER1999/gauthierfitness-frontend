@@ -1,56 +1,58 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getAdminStats } from "../../api/adminApi";
+import {useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {getAdminStats} from "../../api/adminApi";
 
-/* ── Icônes SVG inline ───────────────────────────────────────────────────── */
+// Inline SVG icons
 const Icon = {
     revenue: () => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
         </svg>
     ),
     orders: () => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 0 1-8 0" />
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
         </svg>
     ),
     products: () => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="3" width="20" height="14" rx="2" />
-            <path d="M8 21h8M12 17v4" />
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
         </svg>
     ),
     stock: () => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
         </svg>
     ),
     arrow: () => (
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="5" y1="12" x2="19" y2="12" />
-            <polyline points="12 5 19 12 12 19" />
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
         </svg>
     ),
 };
 
 const STATUS_CONFIG = {
-    new:        { label: "Nouvelles",   color: "#3b82f6", bg: "#dbeafe" },
-    processing: { label: "En cours",   color: "#f59e0b", bg: "#fef3c7" },
-    shipped:    { label: "Expédiées",  color: "#8b5cf6", bg: "#ede9fe" },
-    delivered:  { label: "Livrées",    color: "#10b981", bg: "#d1fae5" },
-    canceled:   { label: "Annulées",   color: "#ef4444", bg: "#fee2e2" },
+    new: {label: "Nouvelles", color: "#3b82f6", bg: "#dbeafe"},
+    processing: {label: "En cours", color: "#f59e0b", bg: "#fef3c7"},
+    shipped: {label: "Expédiées", color: "#8b5cf6", bg: "#ede9fe"},
+    delivered: {label: "Livrées", color: "#10b981", bg: "#d1fae5"},
+    canceled: {label: "Annulées", color: "#ef4444", bg: "#fee2e2"},
 };
 
-/* ── Composants ─────────────────────────────────────────────────────────── */
-
-function MetricCard({ icon, label, value, sub, accent, alert }) {
+// Components
+// Displays a single KPI metric with icon, value and optional subtext
+function MetricCard({icon, label, value, sub, accent, alert}) {
     const MetricIcon = icon;
     return (
-        <div className={`adm-metric-card ${accent ? "adm-metric-card--accent" : ""} ${alert ? "adm-metric-card--alert" : ""}`}>
+        <div
+            className={`adm-metric-card ${accent ? "adm-metric-card--accent" : ""} ${alert ? "adm-metric-card--alert" : ""}`}>
             <div className="adm-metric-icon">
-                <MetricIcon />
+                <MetricIcon/>
             </div>
             <div className="adm-metric-body">
                 <p className="adm-metric-label">{label}</p>
@@ -61,7 +63,8 @@ function MetricCard({ icon, label, value, sub, accent, alert }) {
     );
 }
 
-function StatusBar({ status, count, total }) {
+// Renders a labeled progress bar showing an order status's share of the total
+function StatusBar({status, count, total}) {
     const cfg = STATUS_CONFIG[status] ?? {
         label: status,
         color: "#94a3b8",
@@ -73,7 +76,7 @@ function StatusBar({ status, count, total }) {
     return (
         <div className="adm-status-row">
             <div className="adm-status-row-head">
-                <span className="adm-status-dot" style={{ background: cfg.color }} />
+                <span className="adm-status-dot" style={{background: cfg.color}}/>
                 <span className="adm-status-name">{cfg.label}</span>
                 <span className="adm-status-count">{count}</span>
                 <span className="adm-status-pct">{pct}%</span>
@@ -82,14 +85,15 @@ function StatusBar({ status, count, total }) {
             <div className="adm-status-bar-track">
                 <div
                     className="adm-status-bar-fill"
-                    style={{ width: `${pct}%`, background: cfg.color }}
+                    style={{width: `${pct}%`, background: cfg.color}}
                 />
             </div>
         </div>
     );
 }
 
-function QuickLink({ to, label, desc }) {
+// Navigation card linking to a common admin action
+function QuickLink({to, label, desc}) {
     return (
         <Link to={to} className="adm-quick-link">
             <div className="adm-quick-link-text">
@@ -98,14 +102,13 @@ function QuickLink({ to, label, desc }) {
             </div>
 
             <span className="adm-quick-link-arrow">
-                <Icon.arrow />
+                <Icon.arrow/>
             </span>
         </Link>
     );
 }
 
-/* ── Page principale ─────────────────────────────────────────────────────── */
-
+// Admin home page : fetches and displays key store stats (orders, products, stock)
 export default function AdminDashboard() {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -127,7 +130,7 @@ export default function AdminDashboard() {
 
     return (
         <div className="adm-page adm-dashboard">
-            {/* ── En-tête ── */}
+            {/* ── Header ── */}
             <div className="adm-dash-header">
                 <div>
                     <p className="adm-dash-kicker">Vue d'ensemble</p>
@@ -144,7 +147,7 @@ export default function AdminDashboard() {
                 </span>
             </div>
 
-            {/* ── 4 métriques clés ── */}
+            {/* ── 4 key metrics ── */}
             <div className="adm-metrics-grid">
                 <MetricCard
                     icon={Icon.revenue}
@@ -181,9 +184,9 @@ export default function AdminDashboard() {
                 />
             </div>
 
-            {/* ── Grille centrale ── */}
+            {/* ── Central grid ── */}
             <div className="adm-dash-grid">
-                {/* Colonne gauche : statuts commandes */}
+                {/* Left column */}
                 <div className="adm-dash-card">
                     <div className="adm-dash-card-head">
                         <h2 className="adm-dash-card-title">Commandes par statut</h2>
@@ -209,7 +212,7 @@ export default function AdminDashboard() {
                     )}
                 </div>
 
-                {/* Colonne droite : accès rapides */}
+                {/* Right column */}
                 <div className="adm-dash-card">
                     <div className="adm-dash-card-head">
                         <h2 className="adm-dash-card-title">Accès rapides</h2>
@@ -239,7 +242,7 @@ export default function AdminDashboard() {
                             label="Gérer les stocks"
                             desc={
                                 alerts > 0
-                                    ? `⚠️ ${alerts} produit${alerts !== 1 ? "s" : ""} nécessite${alerts === 1 ? "" : "nt"} attention`
+                                    ? `${alerts} produit${alerts !== 1 ? "s" : ""} nécessite${alerts === 1 ? "" : "nt"} attention`
                                     : "Tous les stocks sont OK"
                             }
                         />
@@ -247,7 +250,7 @@ export default function AdminDashboard() {
                 </div>
             </div>
 
-            {/* ── Bande inférieure : résumé produits ── */}
+            {/* ── Bottom strip ── */}
             <div className="adm-dash-footer-grid">
                 <div className="adm-dash-mini-card">
                     <p className="adm-dash-mini-value">{stats.products.total}</p>

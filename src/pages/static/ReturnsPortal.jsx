@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import StaticPage from "../../components/StaticPage.jsx";
 import Footer from "../../components/Footer.jsx";
 
+// Static "Returns portal" placeholder page (feature coming soon)
 export default function ReturnsPortal() {
     return (
         <div>
@@ -20,7 +21,7 @@ export default function ReturnsPortal() {
                     </Link>
                 </div>
             </StaticPage>
-            <Footer />
+            <Footer/>
         </div>
     );
 }

@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import StaticPage from "../../components/StaticPage.jsx";
 import Footer from "../../components/Footer.jsx";
 
-const PH = ({ children }) => (
+const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
 );
 
+// Static terms of sale (CGV) page.
 export default function Cgv() {
     return (
         <div>
@@ -103,7 +104,7 @@ export default function Cgv() {
                     .
                 </p>
 
-                <hr className="static-divider" />
+                <hr className="static-divider"/>
 
                 <h2>Conditions d'utilisation du configurateur 3D</h2>
                 <p>

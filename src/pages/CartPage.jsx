@@ -1,10 +1,11 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useMemo } from "react";
-import { useCart } from "../context/CartContext";
+import {Link, useNavigate} from "react-router-dom";
+import {useMemo} from "react";
+import {useCart} from "../context/CartContext";
 
+// Cart page : lists items, lets user adjust quantity/remove, and proceed to checkout
 export default function CartPage() {
     const navigate = useNavigate();
-    const { items, subtotal, inc, dec, remove } = useCart();
+    const {items, subtotal, inc, dec, remove} = useCart();
 
     const shippingCost = useMemo(() => (subtotal >= 50 ? 0 : 3.9), [subtotal]);
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
@@ -25,20 +26,15 @@ export default function CartPage() {
 
             {items.map((it) => (
                 <div key={it.key} className="cart-row">
-                    <img src={it.image} alt={it.name} />
+                    <img src={it.image} alt={it.name}/>
 
                     <div>
                         <strong>{it.name}</strong>
-
                         {it.isCustomized && <div>Produit personnalisé</div>}
-
                         {it.variantValue && <div>{it.variantValue}</div>}
                         {it.optionLabel && <div>{it.optionLabel}</div>}
-
                         {it.customization?.configuration?.text_layers?.length > 0 && (
-                            <div>
-                                Texte : {it.customization.configuration.text_layers[0]?.text}
-                            </div>
+                            <div>Texte : {it.customization.configuration.text_layers[0]?.text}</div>
                         )}
                     </div>
 
@@ -49,12 +45,10 @@ export default function CartPage() {
                     </div>
 
                     <div>{(it.price * it.quantity).toFixed(2)} €</div>
-
                     <button onClick={() => remove(it)}>Supprimer</button>
                 </div>
             ))}
-
-            <hr />
+            <hr/>
 
             <div>Sous-total : {subtotal.toFixed(2)} €</div>
             <div>Livraison : {shippingCost === 0 ? "Gratuite" : `${shippingCost} €`}</div>

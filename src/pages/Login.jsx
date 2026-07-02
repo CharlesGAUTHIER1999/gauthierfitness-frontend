@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useAuth } from "../store/auth";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import {useState} from "react";
+import {useAuth} from "../store/auth";
+import {useNavigate, Link, useSearchParams} from "react-router-dom";
 
+// Login form : authenticates via email/password and redirects on success
 export default function Login() {
-    const { login } = useAuth();
+    const {login} = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
-
     const redirect = searchParams.get("redirect") || "/";
 
+    // Submits credentials, logs the user in, and redirects to the target page
     async function submit(e) {
         e.preventDefault();
         setError(null);
@@ -20,7 +20,7 @@ export default function Login() {
         try {
             const safeEmail = email.trim().toLowerCase();
             await login(safeEmail, password);
-            navigate(redirect, { replace: true });
+            navigate(redirect, {replace: true});
         } catch (e) {
             const msg =
                 e?.response?.data?.message ||
@@ -31,9 +31,8 @@ export default function Login() {
     }
 
     return (
-        <form onSubmit={submit} style={{ maxWidth: 320, margin: "50px auto" }}>
+        <form onSubmit={submit} style={{maxWidth: 320, margin: "50px auto"}}>
             <h2>Connexion</h2>
-
             {error && <div className="ck-error">{error}</div>}
 
             <input
@@ -44,8 +43,8 @@ export default function Login() {
                 required
                 autoComplete="email"
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <input
                 type="password"
@@ -55,8 +54,8 @@ export default function Login() {
                 required
                 autoComplete="current-password"
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <button type="submit">Se connecter</button>
 

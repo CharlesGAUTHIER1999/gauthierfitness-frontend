@@ -22,7 +22,7 @@ import CheckoutPage from "./pages/CheckoutPage.jsx";
 import OrdersPage from "./pages/OrdersPage.jsx";
 import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
 
-// Pages de contenu statiques
+// Static content pages
 import Help from "./pages/static/Help.jsx";
 import Contact from "./pages/static/Contact.jsx";
 import Cgv from "./pages/static/Cgv.jsx";
@@ -46,6 +46,7 @@ import AdminStockListPage from "./pages/admin/AdminStockListPage.jsx";
 import AdminStockPage from "./pages/admin/AdminStockPage.jsx";
 import About from "./pages/static/About.jsx";
 
+// Only renders children for unauthenticated visitors; redirects logged-in users to /account.
 function GuestOnly({children}) {
     const {token, loading} = useAuth();
     if (loading) return null;
@@ -53,6 +54,7 @@ function GuestOnly({children}) {
     return children;
 }
 
+// Root app component: sets up routing for admin and public sections.
 export default function App() {
     return (
         <BrowserRouter>
@@ -93,8 +95,10 @@ export default function App() {
                                         <Route path="/refunds" element={<Refunds/>}/>
                                         <Route path="/login" element={<GuestOnly><Login/></GuestOnly>}/>
                                         <Route path="/register" element={<GuestOnly><Register/></GuestOnly>}/>
-                                        <Route path="/forgot-password" element={<GuestOnly><ForgotPassword/></GuestOnly>}/>
-                                        <Route path="/reset-password" element={<GuestOnly><ResetPassword/></GuestOnly>}/>
+                                        <Route path="/forgot-password"
+                                               element={<GuestOnly><ForgotPassword/></GuestOnly>}/>
+                                        <Route path="/reset-password"
+                                               element={<GuestOnly><ResetPassword/></GuestOnly>}/>
                                         <Route path="/account"
                                                element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>
                                         <Route path="/account/orders"

@@ -1,18 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { useCart } from "../context/CartContext.jsx";
+import {useEffect, useMemo, useState} from "react";
+import {useCart} from "../context/CartContext.jsx";
 import Footer from "../components/Footer.jsx";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import api from "../api/axios";
-
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from "@stripe/react-stripe-js";
+import {loadStripe} from "@stripe/stripe-js";
+import {Elements} from "@stripe/react-stripe-js";
 import CheckoutPayment from "../components/CheckoutPayment.jsx";
 
-const COUNTRIES = [{ code: "FR", label: "France" }];
+const COUNTRIES = [{code: "FR", label: "France"}];
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-
-// Mémorisation des infos de livraison/contact entre les visites (jamais la CB,
-// qui reste dans Stripe Elements). Évite à l'utilisateur de tout retaper.
 const CHECKOUT_FORM_KEY = "gf_checkout_form";
 
 const DEFAULT_FORM = {
@@ -29,17 +25,19 @@ const DEFAULT_FORM = {
     shippingMethod: "standard",
 };
 
+// Loads the previously saved checkout form from localStorage, if any
 function loadStoredForm() {
     try {
         const raw = localStorage.getItem(CHECKOUT_FORM_KEY);
-        return raw ? { ...DEFAULT_FORM, ...JSON.parse(raw) } : DEFAULT_FORM;
+        return raw ? {...DEFAULT_FORM, ...JSON.parse(raw)} : DEFAULT_FORM;
     } catch {
         return DEFAULT_FORM;
     }
 }
 
+// Checkout page
 export default function CheckoutPage() {
-    const { items, subtotal } = useCart();
+    const {items, subtotal} = useCart();
 
     const [form, setForm] = useState(loadStoredForm);
 
@@ -47,12 +45,11 @@ export default function CheckoutPage() {
     const [loadingIntent, setLoadingIntent] = useState(false);
     const [intentError, setIntentError] = useState(null);
 
-    // Persiste le formulaire à chaque modification (hors données de carte).
+    // Persists the form on every change (excluding card data)
     useEffect(() => {
         try {
             localStorage.setItem(CHECKOUT_FORM_KEY, JSON.stringify(form));
         } catch {
-            /* stockage indisponible (mode privé / quota) — on ignore */
         }
     }, [form]);
 
@@ -60,7 +57,7 @@ export default function CheckoutPage() {
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
 
     function update(key, value) {
-        setForm((prev) => ({ ...prev, [key]: value }));
+        setForm((prev) => ({...prev, [key]: value}));
 
         if (
             clientSecret &&
@@ -78,6 +75,7 @@ export default function CheckoutPage() {
         return true;
     }, [items.length, form]);
 
+    // Requests a Stripe payment intent from the backend using current shipping info
     async function createIntent() {
         setLoadingIntent(true);
         setIntentError(null);
@@ -114,7 +112,7 @@ export default function CheckoutPage() {
         if (!clientSecret) return null;
         return {
             clientSecret,
-            appearance: { theme: "stripe" },
+            appearance: {theme: "stripe"},
         };
     }, [clientSecret]);
 
@@ -351,13 +349,13 @@ export default function CheckoutPage() {
                                 ) : (
                                     elementsOptions && (
                                         <Elements stripe={stripePromise} options={elementsOptions}>
-                                            <CheckoutPayment email={form.email} clientSecret={clientSecret} />
+                                            <CheckoutPayment email={form.email} clientSecret={clientSecret}/>
                                         </Elements>
                                     )
                                 )}
 
                                 {items.length === 0 && (
-                                    <p className="ck-muted" style={{ marginTop: 10 }}>
+                                    <p className="ck-muted" style={{marginTop: 10}}>
                                         Ton panier est vide.
                                     </p>
                                 )}
@@ -382,7 +380,7 @@ export default function CheckoutPage() {
                                             <div className="ck-summary-name">{it.name}</div>
 
                                             {it.isCustomized && (
-                                                <div className="ck-summary-meta" style={{ marginTop: 4 }}>
+                                                <div className="ck-summary-meta" style={{marginTop: 4}}>
                                                     Produit personnalisé
                                                 </div>
                                             )}
@@ -398,7 +396,6 @@ export default function CheckoutPage() {
                                                     Numéro : {it.customization.player_number.value}
                                                 </div>
                                             )}
-
 
 
                                             <div className="ck-summary-meta">
@@ -428,7 +425,7 @@ export default function CheckoutPage() {
                                 <span>{total.toFixed(2)} €</span>
                             </div>
 
-                            <div className="ck-muted" style={{ marginTop: 8 }}>
+                            <div className="ck-muted" style={{marginTop: 8}}>
                                 Taxes incluses.
                             </div>
                         </div>
@@ -436,7 +433,7 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            <Footer />
+            <Footer/>
         </>
     );
 }

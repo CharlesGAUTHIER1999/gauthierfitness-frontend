@@ -1,25 +1,24 @@
-import { useEffect, useState } from "react";
-import { getProducts } from "../services/productService.js";
+import {useEffect, useState} from "react";
+import {getProducts} from "../services/productService.js";
 import ProductCard from "../components/ProductCard.jsx";
 import Footer from "../components/Footer.jsx";
 
+// Homepage
 export default function Home() {
     const [womenNew, setWomenNew] = useState([]);
     const [menNew, setMenNew] = useState([]);
     const [womenBest, setWomenBest] = useState([]);
     const [menBest, setMenBest] = useState([]);
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         setLoading(true);
-
         Promise.all([
-            getProducts({ gender: "femmes", tag: "new", per_page: 4 }),
-            getProducts({ gender: "hommes", tag: "new", per_page: 4 }),
-            getProducts({ gender: "femmes", tag: "bestseller", per_page: 4 }),
-            getProducts({ gender: "hommes", tag: "bestseller", per_page: 4 }),
+            getProducts({gender: "femmes", tag: "new", per_page: 4}),
+            getProducts({gender: "hommes", tag: "new", per_page: 4}),
+            getProducts({gender: "femmes", tag: "bestseller", per_page: 4}),
+            getProducts({gender: "hommes", tag: "bestseller", per_page: 4}),
         ])
             .then(([wNew, mNew, wBest, mBest]) => {
                 setWomenNew(wNew?.slice?.(0, 4) ?? []);
@@ -44,7 +43,7 @@ export default function Home() {
 
                     <div className="product-grid">
                         {womenNew.map((p) => (
-                            <ProductCard key={p.id} product={p} />
+                            <ProductCard key={p.id} product={p}/>
                         ))}
                     </div>
                 </section>
@@ -56,7 +55,7 @@ export default function Home() {
 
                     <div className="product-grid">
                         {menNew.map((p) => (
-                            <ProductCard key={p.id} product={p} />
+                            <ProductCard key={p.id} product={p}/>
                         ))}
                     </div>
                 </section>
@@ -67,7 +66,7 @@ export default function Home() {
 
                     <div className="product-grid">
                         {womenBest.map((p) => (
-                            <ProductCard key={p.id} product={p} />
+                            <ProductCard key={p.id} product={p}/>
                         ))}
                     </div>
                 </section>
@@ -78,7 +77,7 @@ export default function Home() {
 
                     <div className="product-grid">
                         {menBest.map((p) => (
-                            <ProductCard key={p.id} product={p} />
+                            <ProductCard key={p.id} product={p}/>
                         ))}
                     </div>
                 </section>
@@ -118,7 +117,7 @@ export default function Home() {
                 </div>
             </section>
 
-            <Footer />
+            <Footer/>
         </>
     );
 }

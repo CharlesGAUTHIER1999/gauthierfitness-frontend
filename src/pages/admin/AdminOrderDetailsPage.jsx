@@ -1,31 +1,32 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getAdminOrder, updateAdminOrderStatus } from "../../api/adminApi";
+import {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {getAdminOrder, updateAdminOrderStatus} from "../../api/adminApi";
 
 const STATUS_OPTIONS = [
-    { value: "new",        label: "Nouvelle" },
-    { value: "processing", label: "En cours" },
-    { value: "shipped",    label: "Expédiée" },
-    { value: "delivered",  label: "Livrée" },
-    { value: "canceled",   label: "Annulée" },
+    {value: "new", label: "Nouvelle"},
+    {value: "processing", label: "En cours"},
+    {value: "shipped", label: "Expédiée"},
+    {value: "delivered", label: "Livrée"},
+    {value: "canceled", label: "Annulée"},
 ];
 
 const STATUS_CSS = {
-    new:        "adm-badge-blue",
+    new: "adm-badge-blue",
     processing: "adm-badge-orange",
-    shipped:    "adm-badge-purple",
-    delivered:  "adm-badge-green",
-    canceled:   "adm-badge-red",
+    shipped: "adm-badge-purple",
+    delivered: "adm-badge-green",
+    canceled: "adm-badge-red",
 };
 
+// Admin order detail page
 export default function AdminOrderDetailPage() {
-    const { id }   = useParams();
+    const {id} = useParams();
     const navigate = useNavigate();
 
-    const [order, setOrder]     = useState(null);
+    const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [saving, setSaving]   = useState(false);
-    const [error, setError]     = useState(null);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState(null);
     const [success, setSuccess] = useState("");
     const [newStatus, setNewStatus] = useState("");
 
@@ -40,6 +41,7 @@ export default function AdminOrderDetailPage() {
             .finally(() => setLoading(false));
     }, [id]);
 
+    // Submits the selected status and refreshes the order with the API response
     async function handleStatusUpdate() {
         if (!newStatus || newStatus === order.order_status) return;
         setSaving(true);
@@ -57,7 +59,7 @@ export default function AdminOrderDetailPage() {
     }
 
     if (loading) return <p className="adm-loading">Chargement...</p>;
-    if (!order)  return <p className="adm-error">{error || "Commande introuvable."}</p>;
+    if (!order) return <p className="adm-error">{error || "Commande introuvable."}</p>;
 
     const statusCss = STATUS_CSS[order.order_status] || "adm-badge-grey";
     const statusLabel = STATUS_OPTIONS.find((s) => s.value === order.order_status)?.label || order.order_status;
@@ -71,11 +73,11 @@ export default function AdminOrderDetailPage() {
                 <h1 className="adm-page-title">Commande #{order.id}</h1>
             </div>
 
-            {error   && <p className="adm-error">{error}</p>}
+            {error && <p className="adm-error">{error}</p>}
             {success && <p className="adm-success">{success}</p>}
 
             <div className="adm-detail-grid">
-                {/* Infos client */}
+                {/* Customer info */}
                 <div className="adm-detail-card">
                     <h2 className="adm-detail-title">Client</h2>
                     <p><strong>{order.user?.firstname} {order.user?.lastname}</strong></p>
@@ -83,14 +85,15 @@ export default function AdminOrderDetailPage() {
                     {order.user?.phone && <p>{order.user.phone}</p>}
                 </div>
 
-                {/* Résumé financier */}
+                {/* Financial summary */}
                 <div className="adm-detail-card">
                     <h2 className="adm-detail-title">Résumé</h2>
                     <p>Total TTC : <strong>{Number(order.total_ttc).toFixed(2)} €</strong></p>
                     <p>Total HT : {Number(order.total_ht).toFixed(2)} €</p>
                     <p>
                         Paiement :{" "}
-                        <span className={`adm-badge ${order.payment_status === "paid" ? "adm-badge-green" : "adm-badge-grey"}`}>
+                        <span
+                            className={`adm-badge ${order.payment_status === "paid" ? "adm-badge-green" : "adm-badge-grey"}`}>
                             {order.payment_status === "paid" ? "Payée" : order.payment_status}
                         </span>
                     </p>
@@ -103,7 +106,7 @@ export default function AdminOrderDetailPage() {
                     </p>
                 </div>
 
-                {/* Changement de statut */}
+                {/* Status change */}
                 <div className="adm-detail-card">
                     <h2 className="adm-detail-title">Changer le statut</h2>
                     <select
@@ -118,7 +121,7 @@ export default function AdminOrderDetailPage() {
                     <button
                         type="button"
                         className="adm-primary-btn"
-                        style={{ marginTop: 12 }}
+                        style={{marginTop: 12}}
                         onClick={handleStatusUpdate}
                         disabled={saving || newStatus === order.order_status}
                     >
@@ -127,8 +130,8 @@ export default function AdminOrderDetailPage() {
                 </div>
             </div>
 
-            {/* Articles */}
-            <div className="adm-detail-card" style={{ marginTop: 24 }}>
+            {/* Ordered items */}
+            <div className="adm-detail-card" style={{marginTop: 24}}>
                 <h2 className="adm-detail-title">Articles commandés</h2>
                 <div className="adm-table-wrapper">
                     <table className="adm-table">
@@ -148,7 +151,7 @@ export default function AdminOrderDetailPage() {
                                             {item.product?.name ?? `Produit #${item.product_id}`}
                                         </span>
                                     {item.custom_product_session_id && (
-                                        <span className="adm-badge adm-badge-blue" style={{ marginLeft: 8 }}>
+                                        <span className="adm-badge adm-badge-blue" style={{marginLeft: 8}}>
                                                 Customisé
                                             </span>
                                     )}

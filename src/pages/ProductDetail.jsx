@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getProduct } from "../services/productService";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import {getProduct} from "../services/productService";
 import SizeGuideDrawer from "../components/SizeGuideDrawer.jsx";
-import { useCart } from "../context/CartContext.jsx";
+import {useCart} from "../context/CartContext.jsx";
 
+// Product page
 export default function ProductDetail() {
-    const { slug } = useParams();
+    const {slug} = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
-    const { addItem, openCart } = useCart();
+    const {addItem, openCart} = useCart();
 
     const [selectedSizeOpt, setSelectedSizeOpt] = useState(null);
     const [selectedFormatOpt, setSelectedFormatOpt] = useState(null);
@@ -37,10 +38,10 @@ export default function ProductDetail() {
         if (imgs.length === 0) {
             const fallback = [];
             if (product?.main_image) {
-                fallback.push({ id: "main", url: product.main_image, is_main: true });
+                fallback.push({id: "main", url: product.main_image, is_main: true});
             }
             if (product?.hover_image) {
-                fallback.push({ id: "hover", url: product.hover_image, is_main: false });
+                fallback.push({id: "hover", url: product.hover_image, is_main: false});
             }
             return fallback;
         }
@@ -100,6 +101,7 @@ export default function ProductDetail() {
 
     const isCustomizable = Boolean(product?.is_customizable);
 
+    // Login redirection
     function handleCustomize() {
         const redirectUrl = `/products/${product.slug}/customize`;
 
@@ -127,7 +129,8 @@ export default function ProductDetail() {
                             key={img.id ?? `${img.url}-${index}`}
                             className="pd-media"
                             type="button"
-                            onClick={() => {}}
+                            onClick={() => {
+                            }}
                             aria-label={`Voir image ${index + 1}`}
                         >
                             <img
@@ -301,7 +304,7 @@ export default function ProductDetail() {
                 </div>
 
                 {isCustomizable && (
-                    <div className="pd-cta" style={{ marginTop: 12 }}>
+                    <div className="pd-cta" style={{marginTop: 12}}>
                         <button
                             type="button"
                             className="pd-add"

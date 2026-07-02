@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "../store/auth";
-import { useNavigate, Link } from "react-router-dom";
+import {useEffect, useState} from "react";
+import {useAuth} from "../store/auth";
+import {useNavigate, Link} from "react-router-dom";
 
+// Registration form
 export default function Register() {
-    const { register, token } = useAuth();
+    const {register, token} = useAuth();
     const navigate = useNavigate();
 
     const [form, setForm] = useState({
@@ -20,11 +21,13 @@ export default function Register() {
         if (token) navigate("/account");
     }, [token, navigate]);
 
+    // Updates a single form field from its input's name/value
     function handleChange(e) {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        const {name, value} = e.target;
+        setForm((prev) => ({...prev, [name]: value}));
     }
 
+    // Submits the registration form and redirects home on success
     async function submit(e) {
         e.preventDefault();
         setError(null);
@@ -35,13 +38,12 @@ export default function Register() {
                 firstname: form.firstname.trim(),
                 lastname: form.lastname.trim(),
                 email: form.email.trim().toLowerCase(),
-                password: form.password, // ne pas trim
+                password: form.password, // do not trim
             };
 
             await register(payload);
             navigate("/");
         } catch (e) {
-            // Laravel validation: { message, errors: { field: [msg] } }
             const validation = e?.response?.data?.errors;
             if (validation && typeof validation === "object") {
                 const firstKey = Object.keys(validation)[0];
@@ -61,7 +63,7 @@ export default function Register() {
     }
 
     return (
-        <form onSubmit={submit} style={{ maxWidth: 320, margin: "50px auto" }}>
+        <form onSubmit={submit} style={{maxWidth: 320, margin: "50px auto"}}>
             <h2>Créer un compte</h2>
 
             {error && <div className="ck-error">{error}</div>}
@@ -74,8 +76,8 @@ export default function Register() {
                 required
                 autoComplete="given-name"
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <input
                 name="lastname"
@@ -85,8 +87,8 @@ export default function Register() {
                 required
                 autoComplete="family-name"
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <input
                 type="email"
@@ -97,8 +99,8 @@ export default function Register() {
                 required
                 autoComplete="email"
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <input
                 type="password"
@@ -110,8 +112,8 @@ export default function Register() {
                 autoComplete="new-password"
                 minLength={6}
             />
-            <br />
-            <br />
+            <br/>
+            <br/>
 
             <button type="submit" disabled={loading}>
                 {loading ? "Création..." : "S'enregistrer"}

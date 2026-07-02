@@ -1,21 +1,19 @@
-import { useMemo, useRef } from "react";
-import { useCart } from "../context/CartContext";
-import { useNavigate } from "react-router-dom";
+import {useMemo, useRef} from "react";
+import {useCart} from "../context/CartContext";
+import {useNavigate} from "react-router-dom";
 
+// Slide-in cart drawer : shows items, free-shipping progress, and checkout CTA.
 export default function CartDrawer() {
     const navigate = useNavigate();
-    const { isOpen, closeCart, items, subtotal, inc, dec, remove } = useCart();
-
+    const {isOpen, closeCart, items, subtotal, inc, dec, remove} = useCart();
     const drawerRef = useRef(null);
     const closeBtnRef = useRef(null);
-
     const FREE_SHIPPING_THRESHOLD = 70;
-
     const freeShip = useMemo(() => {
         const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
         const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
         const isFree = subtotal >= FREE_SHIPPING_THRESHOLD;
-        return { remaining, progress, isFree };
+        return {remaining, progress, isFree};
     }, [subtotal]);
 
     return (
@@ -62,7 +60,7 @@ export default function CartDrawer() {
                     <div className="cart-free-ship-bar" role="progressbar">
                         <div
                             className="cart-free-ship-bar-fill"
-                            style={{ width: `${freeShip.progress}%` }}
+                            style={{width: `${freeShip.progress}%`}}
                         />
                     </div>
                 </div>
@@ -74,7 +72,7 @@ export default function CartDrawer() {
                         <ul className="cart-list">
                             {items.map((it) => (
                                 <li key={it.key} className="cart-item">
-                                    <img className="cart-item-img" src={it.image} alt={it.name} />
+                                    <img className="cart-item-img" src={it.image} alt={it.name}/>
 
                                     <div className="cart-item-main">
                                         <div className="cart-item-top">

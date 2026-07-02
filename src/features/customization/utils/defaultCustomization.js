@@ -1,12 +1,14 @@
-import { getProductCustomizerConfig } from "./productCustomizerConfigs";
+import {getProductCustomizerConfig} from "./productCustomizerConfigs";
 
 export const DEFAULT_TEMPLATE_ID = "basic-front-template";
 
+// Picks a text color that contrasts with the product's base color
 function getDefaultTextColor(product, selectedColorCode) {
     const colorCode = selectedColorCode || product?.color_code || "";
     return colorCode === "white" ? "#111111" : "#ffffff";
 }
 
+// Default disabled pattern/gradient style
 function createDefaultStyleSide() {
     return {
         pattern: {
@@ -20,6 +22,7 @@ function createDefaultStyleSide() {
     };
 }
 
+// Builds the initial customization state for a product
 export function createDefaultCustomization(product) {
     const customizerConfig = getProductCustomizerConfig(product);
 

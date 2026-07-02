@@ -1,8 +1,10 @@
+// Format a number as a price in euros using the French locale
 export function formatPriceEUR(n) {
     const v = Number(n || 0);
-    return v.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+    return v.toLocaleString("fr-FR", {style: "currency", currency: "EUR"});
 }
 
+// Format an ISO date string into a French date format (dd/mm/yyyy)
 export function formatDateFR(iso) {
     if (!iso) return "";
     const d = new Date(iso);
@@ -13,6 +15,7 @@ export function formatDateFR(iso) {
     });
 }
 
+// Format an ISO date string into a French date and time format (dd/mm/yyyy, hh:mm)
 export function formatDateTimeFR(iso) {
     if (!iso) return "";
     const d = new Date(iso);
@@ -25,6 +28,7 @@ export function formatDateTimeFR(iso) {
     });
 }
 
+// Status code mapping (french display label)
 export function statusLabel(orderStatus) {
     const map = {
         new: "Nouvelle",

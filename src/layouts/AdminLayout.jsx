@@ -1,17 +1,19 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../store/auth";
+import {NavLink, Outlet, useNavigate} from "react-router-dom";
+import {useAuth} from "../store/auth";
 
 const NAV = [
-    { to: "/admin",          label: "Tableau de bord", end: true },
-    { to: "/admin/products", label: "Produits" },
-    { to: "/admin/orders",   label: "Commandes" },
-    { to: "/admin/stock",    label: "Stocks" },
+    {to: "/admin", label: "Tableau de bord", end: true},
+    {to: "/admin/products", label: "Produits"},
+    {to: "/admin/orders", label: "Commandes"},
+    {to: "/admin/stock", label: "Stocks"},
 ];
 
+// Admin panel shell
 export default function AdminLayout() {
-    const { user, logout } = useAuth();
+    const {user, logout} = useAuth();
     const navigate = useNavigate();
 
+    // Logs the admin out and redirects to the login page
     async function handleLogout() {
         await logout();
         navigate("/login");
@@ -23,12 +25,12 @@ export default function AdminLayout() {
                 <div className="adm-logo">GF Admin</div>
 
                 <nav className="adm-nav">
-                    {NAV.map(({ to, label, end }) => (
+                    {NAV.map(({to, label, end}) => (
                         <NavLink
                             key={to}
                             to={to}
                             end={end}
-                            className={({ isActive }) =>
+                            className={({isActive}) =>
                                 `adm-nav-link ${isActive ? "is-active" : ""}`
                             }
                         >
@@ -55,7 +57,7 @@ export default function AdminLayout() {
             </aside>
 
             <main className="adm-main">
-                <Outlet />
+                <Outlet/>
             </main>
         </div>
     );
