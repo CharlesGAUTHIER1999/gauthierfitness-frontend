@@ -1,11 +1,14 @@
-import {Suspense, useEffect, useRef, useState} from "react";
-import {Canvas} from "@react-three/fiber";
-import {OrbitControls, useGLTF, Stage} from "@react-three/drei";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import * as THREE from "three";
-import {useTextureComposer} from "../hooks/useTextureComposer";
+import { useTextureComposer } from "../hooks/useTextureComposer";
 
 useGLTF.preload("/models/tshirt.glb");
 
+// GF12 V2: silences deprecated Three.js warnings we can't fix on the app
+// side (they come from drei / r3f internals, not our code).
+// Only done once, in dev, to avoid polluting the console.
 if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     const origWarn = console.warn;
     const SILENCED = [
@@ -20,9 +23,22 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     window.__gf_three_warnings_silenced = true;
 }
 
-// Set to true to see received UVs + hit-test results in the console
+// Set to true to see received UVs + hit-test results in the console.
 const DEBUG_DRAG = false;
+
+// GF12 V2: the Studio-Lab GLB contains 3 t-shirts (3 styles) in the same file.
+// 0 = A01 (1671 verts, low-poly)
+// 1 = A02 (6310 verts, medium)
+// 2 = A03 (24106 verts, high-poly / detailed)
+// Change the value to switch, then freeze it once the right one is found.
 const ACTIVE_MESH_INDEX = 2;
+
+// GF12 V2: "safe" UV zone where texts/images are allowed to live.
+// If the user drags outside it (sleeve, back, collar of the t-shirt), we clamp
+// to avoid the layer landing on a different UV island and becoming unreachable.
+// The Studio-Lab GLB has non-overlapping UVs, so any UV in [0,1] is
+// safe (no "ghost zone"). We just keep a small margin to avoid
+// sticking to the extreme edge.
 const SAFE_UV = {
     xMin: 0.02,
     xMax: 0.98,
@@ -30,7 +46,6 @@ const SAFE_UV = {
     yMax: 0.98,
 };
 
-// Clamps a UV coordinate into the safe zone above.
 function clampUV(u, v) {
     return {
         x: Math.max(SAFE_UV.xMin, Math.min(SAFE_UV.xMax, u)),
@@ -38,6 +53,8 @@ function clampUV(u, v) {
     };
 }
 
+// If the received UV is clearly outside the zone (> 0.15 margin), ignore it:
+// it means the cursor is on a different UV island (sleeve, back).
 function isWayOutsideSafeZone(u, v) {
     return (
         u < SAFE_UV.xMin - 0.15 ||
@@ -47,7 +64,15 @@ function isWayOutsideSafeZone(u, v) {
     );
 }
 
-// T-shirt mesh + pointer event handling (UV hit-test) for drag & drop
+/**
+ * T-shirt mesh + pointer event handling (UV hit-test) for drag & drop.
+ *
+ * To prevent OrbitControls (which listens to native DOM events) from
+ * hijacking the drag, we:
+ *   1. call e.stopPropagation() on the r3f side
+ *   2. call e.nativeEvent.stopPropagation() on the DOM side
+ *   3. toggle isDragging → OrbitControls.enabled = false on the next render
+ */
 function TShirtMesh({
                         texture,
                         bboxesRef,
@@ -58,21 +83,35 @@ function TShirtMesh({
                         meshMode,
                         activeMeshIndex,
                     }) {
-    const {scene} = useGLTF(glbPath);
+    const { scene } = useGLTF(glbPath);
     const groupRef = useRef();
     const dragState = useRef(null); // { id, type, pointerId }
+
+    // Replaces scene.userData._pruned / scene.userData._centered
+    // to avoid the ESLint react-hooks/immutability error.
     const prunedRef = useRef(false);
     const centeredRef = useRef(false);
 
     useEffect(() => {
         if (!scene) return;
 
+        // GF12 V2: GLB structure diagnostic (temporary, to remove once finalized)
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
         });
 
-        // "pick" mode: GLB pack (Studio-Lab)
+        console.log("[3D] Structure modèle :", meshes.length, "mesh(es), mode =", meshMode);
+        console.table(meshes.map((m, i) => ({
+            index: i,
+            name: m.name || "(sans nom)",
+            material: m.material?.name || "(sans nom)",
+            vertices: m.geometry?.attributes?.position?.count || 0,
+            hasUV: !!m.geometry?.attributes?.uv,
+            active: meshMode === "pick" ? i === activeMeshIndex : true,
+        })));
+
+        // ── "pick" mode: GLB pack (Studio-Lab). We pick ONE mesh, remove the others.
         if (meshMode === "pick") {
             if (!prunedRef.current) {
                 const toRemove = meshes.filter((_, i) => i !== activeMeshIndex);
@@ -80,20 +119,36 @@ function TShirtMesh({
                 prunedRef.current = true;
             }
 
-            const activeMesh = meshes[ACTIVE_MESH_INDEX];
-            if (!activeMesh) return;
+        const activeMesh = meshes[ACTIVE_MESH_INDEX];
+        if (!activeMesh) return;
 
             if (!centeredRef.current) {
                 activeMesh.geometry.computeBoundingBox();
                 const box = activeMesh.geometry.boundingBox;
                 const center = box.getCenter(new THREE.Vector3());
+
                 activeMesh.geometry.translate(-center.x, -center.y, -center.z);
                 activeMesh.position.set(0, 0, 0);
+
                 centeredRef.current = true;
+
                 activeMesh.geometry.computeBoundingBox();
                 const newBox = activeMesh.geometry.boundingBox;
                 const newSize = newBox.getSize(new THREE.Vector3());
                 const newCtr = newBox.getCenter(new THREE.Vector3());
+
+                console.log(
+                    "[3D] Mesh actif :",
+                    activeMesh.name,
+                    "| taille :",
+                    newSize.x.toFixed(3),
+                    newSize.y.toFixed(3),
+                    newSize.z.toFixed(3),
+                    "| centre :",
+                    newCtr.x.toFixed(3),
+                    newCtr.y.toFixed(3),
+                    newCtr.z.toFixed(3)
+                );
             }
 
             if (!activeMesh.userData._cloned) {
@@ -111,24 +166,44 @@ function TShirtMesh({
             return;
         }
 
-        // "all" mode: classic GLB
+        // ── "all" mode: classic GLB. All meshes make up the garment.
+        // We apply the texture to each one, and center the whole thing on the global centroid.
         if (meshes.length === 0) return;
 
         if (!centeredRef.current) {
+            // Global bounding box (union of all local bboxes expressed in world space)
             const globalBox = new THREE.Box3();
 
             meshes.forEach((m) => {
                 m.geometry.computeBoundingBox();
                 const b = m.geometry.boundingBox.clone();
+
+                // We want the bbox in the shared local space (scene), so we apply the world matrix
                 m.updateWorldMatrix(true, false);
                 b.applyMatrix4(m.matrixWorld);
                 globalBox.union(b);
             });
 
             const center = globalBox.getCenter(new THREE.Vector3());
+
+            // Translate the scene root to center the whole model on the origin.
+            // (We don't touch individual geometries so UVs/normals stay intact.)
             scene.position.sub(center);
             centeredRef.current = true;
+
             const size = globalBox.getSize(new THREE.Vector3());
+
+            console.log(
+                "[3D] Modèle (mode all) centré |",
+                "taille :",
+                size.x.toFixed(3),
+                size.y.toFixed(3),
+                size.z.toFixed(3),
+                "| offset appliqué :",
+                center.x.toFixed(3),
+                center.y.toFixed(3),
+                center.z.toFixed(3)
+            );
         }
 
         meshes.forEach((m) => {
@@ -164,12 +239,11 @@ function TShirtMesh({
         return null;
     }
 
-    // Starts a drag if the pointer-down UV hits a known layer bbox
     function handlePointerDown(e) {
         const uv = e.uv;
 
         if (!uv) {
-            if (DEBUG_DRAG) console.log("[DRAG] pointerDown without UV");
+            if (DEBUG_DRAG) console.log("[DRAG] pointerDown sans UV");
             return;
         }
 
@@ -193,7 +267,7 @@ function TShirtMesh({
             });
         }
 
-        // Hit-test with direct UV AND UV flipped on y
+        // Hit-test with direct UV AND UV flipped on y (in case flipY applies)
         let hit = hitTestUV(uv.x, uv.y);
         let flipped = false;
 
@@ -208,7 +282,7 @@ function TShirtMesh({
 
         if (!hit) return;
 
-        // Stop propagation on the r3f side AND the DOM side
+        // Stop propagation on the r3f side AND the DOM side (to block OrbitControls)
         e.stopPropagation();
         e.nativeEvent?.stopPropagation?.();
 
@@ -222,22 +296,29 @@ function TShirtMesh({
         onDragStart?.();
     }
 
-    // Updates the dragged layer's UV position, clamped to the safe zone
     function handlePointerMove(e) {
         const state = dragState.current;
+
         if (!state) return;
         if (e.pointerId !== state.pointerId) return;
+
         const uv = e.uv;
+
         if (!uv) return;
+
         e.stopPropagation();
         e.nativeEvent?.stopPropagation?.();
+
         const rawY = state.flipY ? 1 - uv.y : uv.y;
         const rawX = uv.x;
 
+        // GF12 V2: if the cursor is clearly on a different UV island
+        // (sleeve / back / collar), ignore the movement to prevent the
+        // layer from "jumping" to a zone invisible from the front view.
         if (isWayOutsideSafeZone(rawX, rawY)) {
             if (DEBUG_DRAG) {
                 console.log(
-                    "[DRAG] move ignored (outside safe zone)",
+                    "[DRAG] move ignoré (hors safe zone)",
                     rawX.toFixed(3),
                     rawY.toFixed(3)
                 );
@@ -245,18 +326,20 @@ function TShirtMesh({
             return;
         }
 
-        // Clamp to the safe zone
+        // Clamp to the safe zone to guarantee the layer stays reachable.
         const clamped = clampUV(rawX, rawY);
         onDragMove?.(state.id, state.type, clamped);
     }
 
-    // Ends the current drag and clears drag state
     function handlePointerUp(e) {
         const state = dragState.current;
+
         if (!state) return;
         if (e.pointerId !== state.pointerId) return;
+
         e.stopPropagation?.();
         e.nativeEvent?.stopPropagation?.();
+
         dragState.current = null;
         onDragEnd?.();
     }
@@ -269,22 +352,20 @@ function TShirtMesh({
             onPointerUp={handlePointerUp}
             onPointerCancel={handlePointerUp}
         >
-            <primitive object={scene}/>
+            <primitive object={scene} />
         </group>
     );
 }
 
-// Placeholder mesh shown while the GLB model is loading
 function Loader() {
     return (
         <mesh>
-            <boxGeometry args={[1, 1.5, 0.1]}/>
-            <meshStandardMaterial color="#d1d5db" wireframe/>
+            <boxGeometry args={[1, 1.5, 0.1]} />
+            <meshStandardMaterial color="#d1d5db" wireframe />
         </mesh>
     );
 }
 
-// 3D customization canvas: renders the GLB garment with the composed texture, handles camera controls, and wires up layer drag & drop via UV hit-testing.
 export default function CustomizationCanvas3D({
                                                   configuration,
                                                   model3d,
@@ -295,9 +376,15 @@ export default function CustomizationCanvas3D({
                                                   onUpdatePlayerNumberUV,
                                                   onDragEnd,
                                               }) {
+    // UV debug: only if ?debuguv is present in the URL.
+    // Hidden by default in dev AND prod — add ?debuguv to enable it.
     const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
     const [debugUV, setDebugUV] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+
+    // GF13: the 3D config (GLB, UV zones, template chest center) is read
+    // from productCustomizerConfigs.model3d via the model3d prop. Defensive
+    // fallback in case a 3D product has no config (shouldn't happen).
     const glbPath = model3d?.glb || "/models/tshirt.glb";
     const meshMode = model3d?.meshMode || "pick";
     const activeMeshIndex = model3d?.activeMeshIndex ?? 0;
@@ -305,23 +392,21 @@ export default function CustomizationCanvas3D({
     const templateChest = model3d?.templateChest;
     const transformFallback = model3d?.transformFallback;
 
-    const {texture, bboxesRef} = useTextureComposer(
+    const { texture, bboxesRef } = useTextureComposer(
         configuration,
         debugUV,
-        {uvZones, templateChest, transformFallback}
+        { uvZones, templateChest, transformFallback }
     );
 
-    // Disables OrbitControls while a layer is being dragged.
     function handleDragStart() {
         setIsDragging(true);
     }
 
-    // Dispatches a UV move to the right update handler based on layer type.
     function handleDragMove(layerId, type, uv) {
         if (type === "text") {
-            onUpdateTextLayer?.(layerId, {uv});
+            onUpdateTextLayer?.(layerId, { uv });
         } else if (type === "image") {
-            onUpdateImageLayer?.(layerId, {uv});
+            onUpdateImageLayer?.(layerId, { uv });
         } else if (type === "logo") {
             onUpdateLogoUV?.(uv);
         } else if (type === "player_name") {
@@ -331,7 +416,6 @@ export default function CustomizationCanvas3D({
         }
     }
 
-    // Re-enables OrbitControls and notifies the parent that the drag ended.
     function handleDragEnd() {
         setIsDragging(false);
         onDragEnd?.();
@@ -346,13 +430,13 @@ export default function CustomizationCanvas3D({
                     onClick={() => setDebugUV((v) => !v)}
                     title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
                 >
-                    {debugUV ? "Mode normal" : "Debug UV"}
+                    {debugUV ? "🎨 Mode normal" : "🔧 Debug UV"}
                 </button>
             )}
 
             <Canvas
-                camera={{position: [0, 0, 5], fov: 45}}
-                gl={{preserveDrawingBuffer: true}}
+                camera={{ position: [0, 0, 5], fov: 45 }}
+                gl={{ preserveDrawingBuffer: true }}
             >
                 <Stage
                     intensity={0.5}
@@ -361,7 +445,7 @@ export default function CustomizationCanvas3D({
                     environment="studio"
                     adjustCamera={1.2}
                 >
-                    <Suspense fallback={<Loader/>}>
+                    <Suspense fallback={<Loader />}>
                         <TShirtMesh
                             key={glbPath}
                             texture={texture}
@@ -375,6 +459,10 @@ export default function CustomizationCanvas3D({
                         />
                     </Suspense>
                 </Stage>
+
+                {/* OrbitControls disabled while dragging a layer.
+                    enableDamping=false to avoid the inertia that keeps
+                    the rotation going after release. */}
                 <OrbitControls
                     enablePan={false}
                     enableZoom={true}
@@ -389,9 +477,9 @@ export default function CustomizationCanvas3D({
 
             <div className="pc3d-canvas-hint">
                 <span>
-                    Cliquer-glisser pour faire pivoter · Molette pour zoomer
+                    🖱 Cliquer-glisser pour faire pivoter · Molette pour zoomer
                     {" · "}
-                    Cliquer un texte ou une image pour le déplacer
+                    ✋ Cliquer un texte ou une image pour le déplacer
                 </span>
             </div>
         </div>

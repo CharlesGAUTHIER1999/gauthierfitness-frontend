@@ -64,7 +64,7 @@ describe('AuthProvider', () => {
             expect(screen.getByTestId('loading')).toHaveTextContent('false');
         });
 
-        act(async () => {
+        await act(async () => {
             screen.getByText('login').click();
         });
 
@@ -90,7 +90,7 @@ describe('AuthProvider', () => {
             expect(screen.getByTestId('loading')).toHaveTextContent('false');
         });
 
-        act(async () => {
+        await act(async () => {
             screen.getByText('logout').click();
         });
 

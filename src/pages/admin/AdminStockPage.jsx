@@ -299,6 +299,7 @@ export default function AdminStockPage() {
         try {
             setMovements(await getAdminStockMovements(id, {page: movPage}));
         } catch {
+            // Silent — only shown on tab switch
         }
     }, [id, movPage]);
 

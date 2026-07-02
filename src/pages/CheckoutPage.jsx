@@ -50,6 +50,7 @@ export default function CheckoutPage() {
         try {
             localStorage.setItem(CHECKOUT_FORM_KEY, JSON.stringify(form));
         } catch {
+            // Storage unavailable (private mode / quota) — ignore
         }
     }, [form]);
 

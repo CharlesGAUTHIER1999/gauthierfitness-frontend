@@ -8,6 +8,7 @@ function toRelativeStorageUrl(url) {
             return parsed.pathname;
         }
     } catch {
+        // Not an absolute URL → return it as-is
     }
     return url;
 }

@@ -8,7 +8,7 @@ const EMPTY = {name: "", email: "", subject: "", message: ""};
 // Contact page with a form that posts the message to the backend contact endpoint.
 export default function Contact() {
     const [form, setForm] = useState(EMPTY);
-    const [status, setStatus] = useState(null);
+    const [status, setStatus] = useState(null); // null | "sending" | "ok" | "error"
     const [error, setError] = useState("");
 
     // Updates a single form field from its input event
