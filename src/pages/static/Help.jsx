@@ -1,6 +1,7 @@
 import {Link} from "react-router-dom";
 import StaticPage from "../../components/StaticPage.jsx";
 
+// Static "Help center" placeholder page (feature coming soon)
 export default function Help() {
     return (
         <StaticPage title="Centre d'aide">

@@ -1,7 +1,8 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import {useEffect} from "react";
+import {Link} from "react-router-dom";
 import Footer from "../../components/Footer.jsx";
 
+// Static "About us" page
 export default function About() {
     useEffect(() => {
         window.scrollTo(0, 0);

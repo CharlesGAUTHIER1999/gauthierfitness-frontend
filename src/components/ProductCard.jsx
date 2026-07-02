@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import {Link} from "react-router-dom";
+import {useState} from "react";
 
-export default function ProductCard({ product }) {
+// Product grid card : main/hover images, names, size preview, and prices
+export default function ProductCard({product}) {
     const [hover, setHover] = useState(false);
 
     const imgSrc =
@@ -16,7 +17,7 @@ export default function ProductCard({ product }) {
             onMouseLeave={() => setHover(false)}
         >
             <Link to={`/products/${product.slug}`} className="product-card-media">
-                <img src={imgSrc} alt={product.name} loading="lazy" />
+                <img src={imgSrc} alt={product.name} loading="lazy"/>
             </Link>
 
             <div className="product-card-info">

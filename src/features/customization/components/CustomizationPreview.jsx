@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import {
     Stage,
     Layer,
@@ -8,8 +8,9 @@ import {
     Line,
     Group,
 } from "react-konva";
-import { getProductCustomizerViewConfig } from "../utils/productCustomizerConfigs";
+import {getProductCustomizerViewConfig} from "../utils/productCustomizerConfigs";
 
+// Loads an HTML Image element from a src URL, re-loading whenever src changes.
 function useHtmlImage(src) {
     const [image, setImage] = useState(null);
 
@@ -31,7 +32,7 @@ function useHtmlImage(src) {
 
         img.onload = () => setImage(img);
         img.onerror = (err) => {
-            console.error("Impossible de charger l'image :", src, err);
+            console.error("Unable to load image:", src, err);
             setImage(null);
         };
 
@@ -45,7 +46,8 @@ function useHtmlImage(src) {
     return image;
 }
 
-function UploadedImageLayer({ layer, index, onPositionChange }) {
+// Draggable Konva image for a single uploaded image layer.
+function UploadedImageLayer({layer, index, onPositionChange}) {
     const image = useHtmlImage(layer?.src || null);
 
     if (!image) return null;
@@ -69,12 +71,14 @@ function UploadedImageLayer({ layer, index, onPositionChange }) {
     );
 }
 
+// Resolves a product image entry (string or object) to a usable URL.
 function getProductImageUrl(image) {
     if (!image) return null;
     if (typeof image === "string") return image;
     return image.full_url || image.url || null;
 }
 
+// Maps a pattern id to its static asset path.
 function getPatternImageSrc(patternId) {
     if (!patternId) return null;
 
@@ -90,6 +94,7 @@ function getPatternImageSrc(patternId) {
     }
 }
 
+// Maps a gradient id to its static asset path.
 function getGradientImageSrc(gradientId) {
     if (!gradientId) return null;
 
@@ -105,6 +110,7 @@ function getGradientImageSrc(gradientId) {
     }
 }
 
+// Picks the product image to display for a given view (front / back)
 function getFallbackViewImage(product, view) {
     const images = Array.isArray(product?.images) ? product.images : [];
 
@@ -128,6 +134,7 @@ function getFallbackViewImage(product, view) {
     );
 }
 
+// Builds the decorative overlay (stripes/border or minimal column/lines) for a template id
 function getTemplateDecor(templateId, view, textColor) {
     if (view === "back") return null;
 
@@ -158,6 +165,7 @@ function getTemplateDecor(templateId, view, textColor) {
     };
 }
 
+// 2D Konva preview stage
 export default function CustomizationPreview({
                                                  product,
                                                  configuration,
@@ -169,7 +177,6 @@ export default function CustomizationPreview({
                                              }) {
     const width = 760;
     const height = 760;
-
     const currentView = configuration?.view || "front";
 
     const currentImageSrc = useMemo(
@@ -207,31 +214,29 @@ export default function CustomizationPreview({
             configuration?.template_id
         ) || {
             printZone: currentView === "back"
-                ? { x: 272, y: 205, width: 215, height: 238 }
-                : { x: 268, y: 224, width: 225, height: 162 },
+                ? {x: 272, y: 205, width: 215, height: 238}
+                : {x: 268, y: 224, width: 225, height: 162},
             designZone: currentView === "back"
-                ? { x: 272, y: 118, width: 205, height: 376 }
-                : { x: 274, y: 118, width: 208, height: 380 },
+                ? {x: 272, y: 118, width: 205, height: 376}
+                : {x: 274, y: 118, width: 208, height: 380},
             logoZone: configuration?.template_id === "clean-front-template" && currentView === "front"
-                ? { x: 286, y: 205, width: 42, height: 42 }
-                : { x: 245, y: 220, width: 64, height: 64 },
+                ? {x: 286, y: 205, width: 42, height: 42}
+                : {x: 245, y: 220, width: 64, height: 64},
         };
 
     const printZone = templateConfig.printZone;
     const designZone = templateConfig.designZone;
     const logoZone = templateConfig.logoZone;
-
     const logoX = configuration?.logo?.x ?? logoZone.x;
     const logoY = configuration?.logo?.y ?? logoZone.y;
     const logoWidth = configuration?.logo?.width ?? logoZone.width;
     const logoHeight = configuration?.logo?.height ?? logoZone.height;
-
     const textColor = configuration?.text_style?.color || "#111111";
     const decor = getTemplateDecor(configuration?.template_id, currentView, textColor);
 
     const currentStyle = configuration?.style?.[currentView] || {
-        pattern: { enabled: false, id: null },
-        gradient: { enabled: false, id: null },
+        pattern: {enabled: false, id: null},
+        gradient: {enabled: false, id: null},
     };
 
     const patternImageSrc = getPatternImageSrc(

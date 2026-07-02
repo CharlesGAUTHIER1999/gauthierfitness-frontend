@@ -5,15 +5,18 @@ import Footer from "../../components/Footer.jsx";
 
 const EMPTY = {name: "", email: "", subject: "", message: ""};
 
+// Contact page with a form that posts the message to the backend contact endpoint.
 export default function Contact() {
     const [form, setForm] = useState(EMPTY);
     const [status, setStatus] = useState(null); // null | "sending" | "ok" | "error"
     const [error, setError] = useState("");
 
+    // Updates a single form field from its input event
     function update(e) {
         setForm((f) => ({...f, [e.target.name]: e.target.value}));
     }
 
+    // Submits the contact form to the API and resets it on success
     async function onSubmit(e) {
         e.preventDefault();
         setStatus("sending");

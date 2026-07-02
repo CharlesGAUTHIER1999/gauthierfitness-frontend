@@ -1,20 +1,17 @@
-import { useState } from "react";
+import {useState} from "react";
 
 const MIN_PROMPT_LENGTH = 10;
 const MAX_PROMPT_LENGTH = 5000;
 
-/**
- * Saisie d'un prompt et génération d'un design par IA.
- * L'image générée est ajoutée comme calque sur le produit par le parent
- * (via `onGenerate`, qui résout `true` en cas de succès).
- */
-export default function AiDesignForm({ onGenerate, loading = false, error = null, disabled = false }) {
+// Prompt input and AI design generation.
+export default function AiDesignForm({onGenerate, loading = false, error = null, disabled = false}) {
     const [prompt, setPrompt] = useState("");
 
     const trimmed = prompt.trim();
     const tooShort = trimmed.length > 0 && trimmed.length < MIN_PROMPT_LENGTH;
     const canSubmit = !loading && !disabled && trimmed.length >= MIN_PROMPT_LENGTH;
 
+    // Submits the prompt to generate a design, clears the field on success
     async function handleSubmit() {
         if (!canSubmit) return;
         const ok = await onGenerate(trimmed);

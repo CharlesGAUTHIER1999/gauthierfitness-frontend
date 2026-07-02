@@ -1,35 +1,39 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { getAdminOrders } from "../../api/adminApi";
+import {useCallback, useEffect, useState} from "react";
+import {Link} from "react-router-dom";
+import {getAdminOrders} from "../../api/adminApi";
 
 const STATUS_LABELS = {
-    new:        { label: "Nouvelle",    css: "adm-badge-blue" },
-    processing: { label: "En cours",   css: "adm-badge-orange" },
-    shipped:    { label: "Expédiée",   css: "adm-badge-purple" },
-    delivered:  { label: "Livrée",     css: "adm-badge-green" },
-    canceled:   { label: "Annulée",    css: "adm-badge-red" },
+    new: {label: "Nouvelle", css: "adm-badge-blue"},
+    processing: {label: "En cours", css: "adm-badge-orange"},
+    shipped: {label: "Expédiée", css: "adm-badge-purple"},
+    delivered: {label: "Livrée", css: "adm-badge-green"},
+    canceled: {label: "Annulée", css: "adm-badge-red"},
 };
 
 const ALL_STATUSES = Object.keys(STATUS_LABELS);
 
+// Admin orders list page
 export default function AdminOrdersPage() {
-    const [data, setData]         = useState(null);
-    const [search, setSearch]     = useState("");
-    const [status, setStatus]     = useState("");
-    const [page, setPage]         = useState(1);
-    const [loading, setLoading]   = useState(true);
-    const [error, setError]       = useState(null);
+    const [data, setData] = useState(null);
+    const [search, setSearch] = useState("");
+    const [status, setStatus] = useState("");
+    const [page, setPage] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
+    // Fetches orders matching the current search/status/page filters
     const load = useCallback(() => {
         setLoading(true);
         setError(null);
-        getAdminOrders({ search: search || undefined, status: status || undefined, page })
+        getAdminOrders({search: search || undefined, status: status || undefined, page})
             .then(setData)
             .catch(() => setError("Impossible de charger les commandes."))
             .finally(() => setLoading(false));
     }, [search, status, page]);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => {
+        load();
+    }, [load]);
 
     const orders = data?.data || [];
 
@@ -45,13 +49,19 @@ export default function AdminOrdersPage() {
                     type="search"
                     placeholder="Email ou nom du client…"
                     value={search}
-                    onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
                 />
 
                 <select
                     className="adm-input adm-input-select"
                     value={status}
-                    onChange={(e) => { setStatus(e.target.value); setPage(1); }}
+                    onChange={(e) => {
+                        setStatus(e.target.value);
+                        setPage(1);
+                    }}
                 >
                     <option value="">Tous les statuts</option>
                     {ALL_STATUSES.map((s) => (
@@ -87,7 +97,10 @@ export default function AdminOrdersPage() {
                             </tr>
                         ) : (
                             orders.map((order) => {
-                                const st = STATUS_LABELS[order.order_status] || { label: order.order_status, css: "adm-badge-grey" };
+                                const st = STATUS_LABELS[order.order_status] || {
+                                    label: order.order_status,
+                                    css: "adm-badge-grey"
+                                };
                                 return (
                                     <tr key={order.id}>
                                         <td className="adm-order-id">#{order.id}</td>
@@ -99,7 +112,8 @@ export default function AdminOrdersPage() {
                                         </td>
                                         <td>{Number(order.total_ttc).toFixed(2)} €</td>
                                         <td>
-                                                <span className={`adm-badge ${order.payment_status === "paid" ? "adm-badge-green" : "adm-badge-grey"}`}>
+                                                <span
+                                                    className={`adm-badge ${order.payment_status === "paid" ? "adm-badge-green" : "adm-badge-grey"}`}>
                                                     {order.payment_status === "paid" ? "Payée" : order.payment_status}
                                                 </span>
                                         </td>

@@ -1,5 +1,6 @@
-import { useAuth } from "../store/auth";
+import {useAuth} from "../store/auth";
 
+// Logged-in user's personal space landing page
 export default function Dashboard() {
     const user = useAuth((s) => s.user);
 

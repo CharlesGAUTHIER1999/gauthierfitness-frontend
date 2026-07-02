@@ -1,25 +1,27 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCart } from "../../../context/CartContext";
+import {useEffect, useMemo, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useCart} from "../../../context/CartContext";
 import {
     createCustomizationSession,
     generateAiDesign,
     uploadCustomizationImage,
     uploadCustomizationLogo,
 } from "../services/customizationService";
-import { createDefaultCustomization } from "../utils/defaultCustomization";
+import {createDefaultCustomization} from "../utils/defaultCustomization";
 import CustomizationPanel from "./CustomizationPanel";
 import CustomizationPreview from "./CustomizationPreview";
 
+// Returns the style block for a given view, or a default disabled style if missing.
 function ensureViewStyle(style, view) {
     return (
         style?.[view] || {
-            pattern: { enabled: false, id: null },
-            gradient: { enabled: false, id: null },
+            pattern: {enabled: false, id: null},
+            gradient: {enabled: false, id: null},
         }
     );
 }
 
+// Default x,y, size for a newly added image layer, depending on the current view.
 function getDefaultImageLayerPosition(view) {
     if (view === "back") {
         return {
@@ -38,13 +40,14 @@ function getDefaultImageLayerPosition(view) {
     };
 }
 
+// Top-level 2D product customizer
 export default function ProductCustomizer({
                                               product,
                                               selectedOptionId = null,
                                               disabled = false,
                                           }) {
     const navigate = useNavigate();
-    const { addItem } = useCart();
+    const {addItem} = useCart();
 
     const [configuration, setConfiguration] = useState(() =>
         createDefaultCustomization(product)
@@ -77,6 +80,7 @@ export default function ProductCustomizer({
         setSuccessMessage("");
     }, [selectedOptionId]);
 
+    // Clears saved session
     function invalidateSavedSession() {
         setSession(null);
         setSuccessMessage("");
@@ -378,7 +382,7 @@ export default function ProductCustomizer({
         setConfiguration((prev) => ({
             ...prev,
             text_layers: (prev.text_layers || []).map((layer, i) =>
-                i === index ? { ...layer, ...position } : layer
+                i === index ? {...layer, ...position} : layer
             ),
         }));
         invalidateSavedSession();
@@ -400,7 +404,7 @@ export default function ProductCustomizer({
                     }
 
                     if (layerView === currentView && visibleIndex === index) {
-                        return { ...layer, ...position };
+                        return {...layer, ...position};
                     }
 
                     return layer;
@@ -507,6 +511,7 @@ export default function ProductCustomizer({
         invalidateSavedSession();
     }
 
+    // Persists the current configuration
     async function saveCustomization() {
         if (disabled) {
             setError("Veuillez d'abord sélectionner l'option requise.");
@@ -545,6 +550,7 @@ export default function ProductCustomizer({
         await saveCustomization();
     }
 
+    // Ensures the session is saved, adds the item to the cart, then goes to checkout.
     async function handleFinishConfiguration() {
         if (disabled) {
             setError("Veuillez d'abord sélectionner l'option requise.");

@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { getProducts } from "../services/productService";
+import {useEffect, useState} from "react";
+import {useSearchParams} from "react-router-dom";
+import {getProducts} from "../services/productService";
 import ProductCard from "../components/ProductCard";
 
+// Product listing page
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -10,19 +11,10 @@ export default function Products() {
 
     useEffect(() => {
         setLoading(true);
-
         const filters = Object.fromEntries(params);
-
-        // ✅ Page "Tous les produits" (souvent /products?gender=xxx)
-        // Si le front ne gère pas la pagination, on récupère plus d'items.
         const hasPerPage = Object.prototype.hasOwnProperty.call(filters, "per_page");
-        const isAllForGender =
-            !!filters.gender && !filters.category && !filters.tag;
-
-        if (!hasPerPage && isAllForGender) {
-            filters.per_page = 40;
-        }
-
+        const isAllForGender = !!filters.gender && !filters.category && !filters.tag;
+        if (!hasPerPage && isAllForGender) filters.per_page = 40;
         getProducts(filters)
             .then(setProducts)
             .finally(() => setLoading(false));
@@ -36,7 +28,7 @@ export default function Products() {
 
             <div className="product-grid">
                 {products.map((p) => (
-                    <ProductCard key={p.slug} product={p} />
+                    <ProductCard key={p.slug} product={p}/>
                 ))}
             </div>
         </div>

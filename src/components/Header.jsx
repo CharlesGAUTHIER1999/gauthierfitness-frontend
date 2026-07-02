@@ -11,6 +11,7 @@ const NAV_ITEMS = [
     {key: "equipments", label: "Équipements"},
 ];
 
+// Top site header
 export default function Header() {
     const [openMenu, setOpenMenu] = useState(null);
     const {count, openCart} = useCart();
@@ -23,6 +24,7 @@ export default function Header() {
         return f && l ? `${f}${l}`.toUpperCase() : null;
     }, [user]);
 
+    // Closes any open mega menu
     function closeMenu() {
         setOpenMenu(null);
     }

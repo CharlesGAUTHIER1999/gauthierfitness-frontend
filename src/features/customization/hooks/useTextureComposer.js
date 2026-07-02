@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 
 const CANVAS_SIZE = 1024;
 
-function drawTextTransformed(ctx, text, cx, cy, transform, { stroke = false } = {}) {
+// Draws text centered at (cx, cy)
+function drawTextTransformed(ctx, text, cx, cy, transform, {stroke = false} = {}) {
     ctx.save();
     ctx.translate(cx, cy);
 
@@ -20,6 +21,7 @@ function drawTextTransformed(ctx, text, cx, cy, transform, { stroke = false } = 
     ctx.restore();
 }
 
+// Draws an image within the (dx, dy, dw, dh) box
 function drawImageTransformed(ctx, img, dx, dy, dw, dh, transform) {
     const cx = dx + dw / 2;
     const cy = dy + dh / 2;
@@ -39,13 +41,15 @@ function drawImageTransformed(ctx, img, dx, dy, dw, dh, transform) {
     ctx.restore();
 }
 
+// Fallback UV zones
 const DEFAULT_UV_ZONES = {
-    logo: { x: 0.385, y: 0.18, w: 0.13, h: 0.13, transform: "mirror_y" },
-    front_center: { x: 0.35, y: 0.33, w: 0.20, h: 0.14, transform: "mirror_y" },
-    back_name: { x: 0.40, y: 0.50, w: 0.30, h: 0.10, transform: "mirror_y" },
-    back_number: { x: 0.22, y: 0.60, w: 0.26, h: 0.30, transform: "mirror_y" },
+    logo: {x: 0.385, y: 0.18, w: 0.13, h: 0.13, transform: "mirror_y"},
+    front_center: {x: 0.35, y: 0.33, w: 0.20, h: 0.14, transform: "mirror_y"},
+    back_name: {x: 0.40, y: 0.50, w: 0.30, h: 0.10, transform: "mirror_y"},
+    back_number: {x: 0.22, y: 0.60, w: 0.26, h: 0.30, transform: "mirror_y"},
 };
 
+// Fallback chest-center box
 const DEFAULT_TEMPLATE_CHEST = {
     cx: 0.50,
     cy: 0.60,
@@ -53,6 +57,7 @@ const DEFAULT_TEMPLATE_CHEST = {
     h: 0.24,
 };
 
+// Finds which UV zone a given UV point falls into and returns its transform
 function detectTransformForUV(uv, uvZones, fallback = "mirror_y") {
     for (const key of Object.keys(uvZones)) {
         const z = uvZones[key];
@@ -66,10 +71,10 @@ function detectTransformForUV(uv, uvZones, fallback = "mirror_y") {
             return z.transform;
         }
     }
-
     return fallback;
 }
 
+// Loads an image usable by CanvasRenderingContext2D
 async function loadImage(src) {
     if (!src) return null;
 
@@ -85,7 +90,7 @@ async function loadImage(src) {
     }
 
     try {
-        const res = await fetch(src, { mode: "cors", credentials: "omit" });
+        const res = await fetch(src, {mode: "cors", credentials: "omit"});
         if (!res.ok) return null;
 
         const blob = await res.blob();
@@ -125,32 +130,18 @@ function getGradientSrc(id) {
     return id ? `/degrades/${id}.jpg` : null;
 }
 
+// Draws the decorative front template
 function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
     if (!templateId) return;
-
     const isLight = textColor === "#ffffff";
-
-    const stripeColor = isLight
-        ? "rgba(255,255,255,0.55)"
-        : "rgba(17,17,17,0.32)";
-
-    const borderColor = isLight
-        ? "rgba(255,255,255,0.75)"
-        : "rgba(17,17,17,0.50)";
-
-    const accentColor = isLight
-        ? "rgba(255,255,255,0.55)"
-        : "rgba(17,17,17,0.32)";
-
-    const lineColor = isLight
-        ? "rgba(255,255,255,0.90)"
-        : "rgba(17,17,17,0.65)";
-
+    const stripeColor = isLight ? "rgba(255,255,255,0.55)" : "rgba(17,17,17,0.32)";
+    const borderColor = isLight ? "rgba(255,255,255,0.75)" : "rgba(17,17,17,0.50)";
+    const accentColor = isLight ? "rgba(255,255,255,0.55)" : "rgba(17,17,17,0.32)";
+    const lineColor = isLight ? "rgba(255,255,255,0.90)" : "rgba(17,17,17,0.65)";
     const CHEST_CX = chestCenter?.cx ?? DEFAULT_TEMPLATE_CHEST.cx;
     const CHEST_CY = chestCenter?.cy ?? DEFAULT_TEMPLATE_CHEST.cy;
     const CHEST_W = chestCenter?.w ?? DEFAULT_TEMPLATE_CHEST.w;
     const CHEST_H = chestCenter?.h ?? DEFAULT_TEMPLATE_CHEST.h;
-
     const CHEST_X = CHEST_CX - CHEST_W / 2;
     const CHEST_TOP_Y = CHEST_CY - CHEST_H / 2;
 
@@ -158,24 +149,19 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
 
     if (templateId === "basic-front-template") {
         const stripeH = CHEST_H * 0.20;
-
         const stripes = [
-            { y: CHEST_TOP_Y + CHEST_H * 0.04, h: stripeH },
-            { y: CHEST_TOP_Y + CHEST_H * 0.42, h: stripeH },
-            { y: CHEST_TOP_Y + CHEST_H * 0.81, h: stripeH },
+            {y: CHEST_TOP_Y + CHEST_H * 0.04, h: stripeH},
+            {y: CHEST_TOP_Y + CHEST_H * 0.42, h: stripeH},
+            {y: CHEST_TOP_Y + CHEST_H * 0.81, h: stripeH},
         ];
-
         ctx.fillStyle = stripeColor;
-
         stripes.forEach((stripe) => {
             ctx.beginPath();
-
             const x = CHEST_X * S;
             const y = stripe.y * S;
             const w = CHEST_W * S;
             const h = stripe.h * S;
             const r = h * 0.5;
-
             ctx.moveTo(x + r, y);
             ctx.lineTo(x + w - r, y);
             ctx.quadraticCurveTo(x + w, y, x + w, y + r);
@@ -188,7 +174,6 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
             ctx.closePath();
             ctx.fill();
         });
-
         ctx.strokeStyle = borderColor;
         ctx.lineWidth = 4;
         ctx.strokeRect(CHEST_X * S, CHEST_TOP_Y * S, CHEST_W * S, CHEST_H * S);
@@ -200,7 +185,6 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
         const colY = (CHEST_TOP_Y + CHEST_H * 0.04) * S;
         const colH = CHEST_H * 0.88 * S;
         const r = CHEST_W * 0.10 * S;
-
         ctx.fillStyle = accentColor;
         ctx.beginPath();
         ctx.moveTo(colX + r, colY);
@@ -214,24 +198,21 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
         ctx.quadraticCurveTo(colX, colY, colX + r, colY);
         ctx.closePath();
         ctx.fill();
-
         ctx.strokeStyle = lineColor;
         ctx.lineWidth = 4;
-
         ctx.beginPath();
         ctx.moveTo(CHEST_CX * S, (CHEST_TOP_Y + CHEST_H * 0.04) * S);
         ctx.lineTo(CHEST_CX * S, (CHEST_TOP_Y + CHEST_H * 0.92) * S);
         ctx.stroke();
-
         ctx.beginPath();
         ctx.moveTo((CHEST_CX - CHEST_W * 0.28) * S, (CHEST_TOP_Y + CHEST_H) * S);
         ctx.lineTo((CHEST_CX + CHEST_W * 0.28) * S, (CHEST_TOP_Y + CHEST_H) * S);
         ctx.stroke();
     }
-
     ctx.restore();
 }
 
+// Draws a numbered, colored 10x10 grid over the texture
 function drawDebugGrid(ctx, S) {
     const COLS = 10;
     const ROWS = 10;
@@ -250,14 +231,11 @@ function drawDebugGrid(ctx, S) {
         for (let col = 0; col < COLS; col++) {
             ctx.fillStyle = colors[(row + col) % colors.length];
             ctx.fillRect(col * cw, row * ch, cw, ch);
-
             ctx.strokeStyle = "#000";
             ctx.lineWidth = 1;
             ctx.strokeRect(col * cw, row * ch, cw, ch);
-
             const uvx = (col + 0.5) / COLS;
             const uvy = (row + 0.5) / ROWS;
-
             ctx.fillStyle = "#000";
             ctx.font = `bold ${Math.round(cw * 0.22)}px Arial`;
             ctx.textAlign = "center";
@@ -268,15 +246,14 @@ function drawDebugGrid(ctx, S) {
     }
 }
 
+// Composes the 3D garment's texture on an offscreen 2D canvas and exposes it as a THREE.CanvasTexture
 export function useTextureComposer(configuration, debugUV = false, options = {}) {
     const uvZones = options.uvZones || DEFAULT_UV_ZONES;
     const templateChest = options.templateChest || DEFAULT_TEMPLATE_CHEST;
     const transformFallback = options.transformFallback || "mirror_y";
-
     const canvasRef = useRef(null);
     const textureRef = useRef(null);
     const bboxesRef = useRef([]);
-
     const [texture, setTexture] = useState(null);
 
     useEffect(() => {
@@ -293,32 +270,26 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
     useEffect(() => {
         if (!canvasRef.current || !textureRef.current) return;
-
         let cancelled = false;
 
+        // Redraws the whole texture canvas from the current configuration
         async function compose() {
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
             const S = CANVAS_SIZE;
-
             const baseColor = configuration?.product_color_hex || "#3b82f6";
             const textColor = configuration?.text_style?.color || "#ffffff";
             const view = configuration?.view || "front";
-
             ctx.clearRect(0, 0, S, S);
             ctx.fillStyle = baseColor;
             ctx.fillRect(0, 0, S, S);
 
             if (debugUV) {
-                if (view === "front") {
-                    drawTemplate(ctx, configuration?.template_id, S, textColor, templateChest);
-                }
-
+                if (view === "front") drawTemplate(ctx, configuration?.template_id, S, textColor, templateChest);
                 ctx.save();
                 ctx.globalAlpha = 0.75;
                 drawDebugGrid(ctx, S);
                 ctx.restore();
-
                 textureRef.current.needsUpdate = true;
                 return;
             }
@@ -330,10 +301,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
                 if (!cancelled && img) {
                     ctx.save();
-                    ctx.globalAlpha =
-                        typeof frontStyle.pattern.opacity === "number"
-                            ? frontStyle.pattern.opacity
-                            : 0.60;
+                    ctx.globalAlpha = typeof frontStyle.pattern.opacity === "number" ? frontStyle.pattern.opacity : 0.60;
                     ctx.globalCompositeOperation = "multiply";
                     ctx.fillStyle = ctx.createPattern(img, "repeat");
                     ctx.fillRect(0, 0, S, S);
@@ -346,10 +314,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
                 if (!cancelled && img) {
                     ctx.save();
-                    ctx.globalAlpha =
-                        typeof frontStyle.gradient.opacity === "number"
-                            ? frontStyle.gradient.opacity
-                            : 0.70;
+                    ctx.globalAlpha = typeof frontStyle.gradient.opacity === "number" ? frontStyle.gradient.opacity : 0.70;
                     ctx.globalCompositeOperation = "overlay";
                     ctx.drawImage(img, 0, 0, S, S);
                     ctx.restore();
@@ -357,116 +322,67 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
             }
 
             if (cancelled) return;
-
-            if (view === "front") {
-                drawTemplate(ctx, configuration?.template_id, S, textColor, templateChest);
-            }
-
+            if (view === "front") drawTemplate(ctx, configuration?.template_id, S, textColor, templateChest);
             const newBboxes = [];
 
             if (configuration?.logo?.enabled && configuration?.logo?.src) {
                 const img = await loadImage(configuration.logo.src);
-
                 if (!cancelled && img) {
                     const dfltCx = uvZones.logo.x + uvZones.logo.w / 2;
                     const dfltCy = uvZones.logo.y + uvZones.logo.h / 2;
-
-                    const lUV =
-                        configuration.logo.uv && typeof configuration.logo.uv.x === "number"
-                            ? configuration.logo.uv
-                            : { x: dfltCx, y: dfltCy };
-
+                    const lUV = configuration.logo.uv && typeof configuration.logo.uv.x === "number" ? configuration.logo.uv : {
+                        x: dfltCx,
+                        y: dfltCy
+                    };
                     const lW = uvZones.logo.w;
                     const lH = uvZones.logo.h;
-
                     const dx = (lUV.x - lW / 2) * S;
                     const dy = (lUV.y - lH / 2) * S;
                     const dw = lW * S;
                     const dh = lH * S;
-
                     ctx.save();
                     ctx.globalAlpha = 1;
                     ctx.fillStyle = "rgba(255,255,255,0.15)";
                     ctx.fillRect(dx, dy, dw, dh);
                     ctx.restore();
-
-                    drawImageTransformed(
-                        ctx,
-                        img,
-                        dx,
-                        dy,
-                        dw,
-                        dh,
-                        detectTransformForUV(lUV, uvZones, transformFallback)
-                    );
-
+                    drawImageTransformed(ctx, img, dx, dy, dw, dh, detectTransformForUV(lUV, uvZones, transformFallback));
                     newBboxes.push({
                         id: "__logo__",
                         type: "logo",
-                        uv: {
-                            x0: lUV.x - lW / 2,
-                            y0: lUV.y - lH / 2,
-                            x1: lUV.x + lW / 2,
-                            y1: lUV.y + lH / 2,
-                        },
+                        uv: {x0: lUV.x - lW / 2, y0: lUV.y - lH / 2, x1: lUV.x + lW / 2, y1: lUV.y + lH / 2,},
                     });
                 }
             }
 
             if (cancelled) return;
-
             const playerNumber = configuration?.player_number?.value?.trim() || "";
 
             if (playerNumber) {
                 const dfltCx = uvZones.back_number.x + uvZones.back_number.w / 2;
                 const dfltCy = uvZones.back_number.y + uvZones.back_number.h / 2;
-
-                const nUV =
-                    configuration.player_number.uv &&
-                    typeof configuration.player_number.uv.x === "number"
-                        ? configuration.player_number.uv
-                        : { x: dfltCx, y: dfltCy };
-
+                const nUV = configuration.player_number.uv && typeof configuration.player_number.uv.x === "number" ? configuration.player_number.uv : {
+                    x: dfltCx,
+                    y: dfltCy
+                };
                 const size = Math.round(uvZones.back_number.h * S * 0.38);
-
                 ctx.save();
                 ctx.fillStyle = textColor;
-                ctx.strokeStyle =
-                    textColor === "#ffffff"
-                        ? "rgba(0,0,0,0.3)"
-                        : "rgba(255,255,255,0.3)";
+                ctx.strokeStyle = textColor === "#ffffff" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.3)";
                 ctx.lineWidth = Math.round(size * 0.04);
                 ctx.font = `900 ${size}px Arial`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-
                 const cx = nUV.x * S;
                 const cy = nUV.y * S;
-
-                drawTextTransformed(
-                    ctx,
-                    playerNumber,
-                    cx,
-                    cy,
-                    detectTransformForUV(nUV, uvZones, transformFallback),
-                    { stroke: true }
-                );
-
+                drawTextTransformed(ctx, playerNumber, cx, cy, detectTransformForUV(nUV, uvZones, transformFallback), {stroke: true});
                 const metrics = ctx.measureText(playerNumber);
                 const nw = metrics.width;
                 const nh = size * 1.2;
-
                 newBboxes.push({
                     id: "__player_number__",
                     type: "player_number",
-                    uv: {
-                        x0: (cx - nw / 2) / S,
-                        y0: (cy - nh / 2) / S,
-                        x1: (cx + nw / 2) / S,
-                        y1: (cy + nh / 2) / S,
-                    },
+                    uv: {x0: (cx - nw / 2) / S, y0: (cy - nh / 2) / S, x1: (cx + nw / 2) / S, y1: (cy + nh / 2) / S,},
                 });
-
                 ctx.restore();
             }
 
@@ -480,7 +396,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                     configuration.player_name.uv &&
                     typeof configuration.player_name.uv.x === "number"
                         ? configuration.player_name.uv
-                        : { x: dfltCx, y: dfltCy };
+                        : {x: dfltCx, y: dfltCy};
 
                 const size = Math.round(uvZones.back_name.h * S * 0.32);
 
@@ -595,7 +511,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                     const size =
                         layer.size && typeof layer.size.w === "number"
                             ? layer.size
-                            : { w: 0.05, h: 0.05 };
+                            : {w: 0.05, h: 0.05};
 
                     const drawX = (uv.x - size.w / 2) * S;
                     const drawY = (uv.y - size.h / 2) * S;
@@ -636,5 +552,5 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
         };
     }, [configuration, debugUV, uvZones, templateChest, transformFallback]);
 
-    return { texture, bboxesRef };
+    return {texture, bboxesRef};
 }

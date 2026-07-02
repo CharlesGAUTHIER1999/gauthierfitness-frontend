@@ -1,6 +1,7 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
-export default function MegaMenu({ type }) {
+// Dropdown mega menu with category links, rendered based on the nav item type (femmes/hommes/nutrition/equipments)
+export default function MegaMenu({type}) {
     if (type === "femmes") {
         return (
             <div className="mega-menu">

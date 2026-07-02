@@ -16,7 +16,8 @@ const TEMPLATES = [
     },
 ];
 
-export default function TemplateSelector({ value, onChange }) {
+// Grid picker for the decorative template applied to the front view
+export default function TemplateSelector({value, onChange}) {
     return (
         <div className="pc-section">
             <h4 className="pc-section-title">Templates</h4>

@@ -1,11 +1,12 @@
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import StaticPage from "../../components/StaticPage.jsx";
 import Footer from "../../components/Footer.jsx";
 
-const PH = ({ children }) => (
+const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
 );
 
+// Static legal notice page
 export default function LegalMentions() {
     return (
         <div>
@@ -20,13 +21,13 @@ export default function LegalMentions() {
 
                 <h2>1. Éditeur du site</h2>
                 <p>
-                    Le site <strong>gauthierfitness.fr</strong> est édité par :<br />
+                    Le site <strong>gauthierfitness.fr</strong> est édité par :<br/>
                     Auteur : <PH>Charles GAUTHIER</PH>
-                    <br />
+                    <br/>
                     Adresse : <PH>34 rue du Vélodrome, 33200, Bordeaux</PH>
-                    <br />
+                    <br/>
                     E-mail : charles.gauthier99@gmail.com
-                    <br />
+                    <br/>
                     Téléphone : <PH>06.52.13.72.74</PH>
                 </p>
 
@@ -39,9 +40,9 @@ export default function LegalMentions() {
                 <p>
                     Le site est hébergé par <strong>OVH SAS</strong>, société au
                     capital de 10 069 020 €, immatriculée au RCS de Lille Métropole
-                    sous le numéro 537 407 926.<br />
+                    sous le numéro 537 407 926.<br/>
                     Siège social : 2 rue Kellermann, BP 80157, 59100 Roubaix, France.
-                    <br />
+                    <br/>
                     Site : <a href="https://www.ovhcloud.com" target="_blank" rel="noreferrer">www.ovhcloud.com</a>
                 </p>
 
@@ -72,7 +73,7 @@ export default function LegalMentions() {
                     Dernière mise à jour : {new Date().toLocaleDateString("fr-FR")}.
                 </p>
             </StaticPage>
-            <Footer />
+            <Footer/>
         </div>
     );
 }

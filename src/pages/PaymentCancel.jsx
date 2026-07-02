@@ -1,11 +1,11 @@
-// src/pages/PaymentCancel.jsx
-import { useEffect, useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useCart } from "../context/CartContext.jsx";
+import {useEffect, useMemo} from "react";
+import {Link, useLocation} from "react-router-dom";
+import {useCart} from "../context/CartContext.jsx";
 
+// Shown when Stripe redirects back after a canceled/abandoned payment
 export default function PaymentCancel() {
     const location = useLocation();
-    const { refetchCart } = useCart();
+    const {refetchCart} = useCart();
 
     const params = useMemo(
         () => new URLSearchParams(location.search),
@@ -14,17 +14,16 @@ export default function PaymentCancel() {
 
     const redirectStatus = params.get("redirect_status");
     const paymentIntent = params.get("payment_intent");
-
     const isDev = import.meta.env.DEV;
 
     useEffect(() => {
-        // ✅ resync panier depuis DB (utile si Stripe a redirigé après un abandon)
+        // Resync cart from DB
         void refetchCart();
     }, [refetchCart]);
 
     return (
         <div className="pay-result">
-            <h1>Paiement annulé ❌</h1>
+            <h1>Paiement annulé</h1>
             <p>Aucun montant n’a été débité. Vous pouvez réessayer quand vous voulez.</p>
 
             {(redirectStatus || (isDev && paymentIntent)) && (
@@ -35,9 +34,9 @@ export default function PaymentCancel() {
                         </p>
                     )}
 
-                    {/* ✅ PaymentIntent seulement en DEV */}
+                    {/* PaymentIntent shown only in DEV */}
                     {isDev && paymentIntent && (
-                        <p style={{ wordBreak: "break-word" }}>
+                        <p style={{wordBreak: "break-word"}}>
                             PaymentIntent : <strong>{paymentIntent}</strong>
                         </p>
                     )}

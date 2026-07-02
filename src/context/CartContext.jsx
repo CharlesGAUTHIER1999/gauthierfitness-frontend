@@ -1,5 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
-
 import React, {
     createContext,
     useCallback,
@@ -13,6 +11,7 @@ import api from "../api/axios";
 
 const CartContext = createContext(null);
 
+// Reducer holding the cart state
 function cartReducer(state, action) {
     switch (action.type) {
         case "SET_CART":
@@ -31,6 +30,7 @@ function cartReducer(state, action) {
     }
 }
 
+// Maps the raw API cart payload
 function normalizeCart(payload) {
     const items = Array.isArray(payload?.items) ? payload.items : [];
 
@@ -57,17 +57,14 @@ function normalizeCart(payload) {
                 image: customizationPreviewPath || it.image || "/placeholder.png",
                 defaultImage: it.image || "/placeholder.png",
                 customizationPreviewPath,
-
                 quantity: Number(it.quantity || 0),
                 price: Number(it.unit_price || 0),
                 lineTotal: Number(it.line_total || 0),
-
                 variantTitle: it.variant_title ?? null,
                 variantValue: it.variant_value ?? null,
                 optionLabel: it.option?.label ?? null,
                 size: it.size ?? null,
                 deliveryText: it.delivery_text ?? null,
-
                 customization,
             };
         }),
@@ -77,7 +74,8 @@ function normalizeCart(payload) {
     };
 }
 
-export function CartProvider({ children }) {
+// Provides cart state and actions to the whole app.
+export function CartProvider({children}) {
     const [state, dispatch] = useReducer(cartReducer, {
         items: [],
         count: 0,
@@ -95,16 +93,17 @@ export function CartProvider({ children }) {
         setIsOpen(false);
     }, []);
 
+    // Reloads the cart from the API
     const refetchCart = useCallback(async () => {
         const token = localStorage.getItem("token");
 
         if (!token) {
-            dispatch({ type: "CLEAR" });
+            dispatch({type: "CLEAR"});
             return;
         }
 
         try {
-            const { data } = await api.get("/cart");
+            const {data} = await api.get("/cart");
 
             dispatch({
                 type: "SET_CART",
@@ -112,7 +111,7 @@ export function CartProvider({ children }) {
             });
         } catch (e) {
             if (e?.response?.status === 401) {
-                dispatch({ type: "CLEAR" });
+                dispatch({type: "CLEAR"});
                 return;
             }
 
@@ -120,11 +119,12 @@ export function CartProvider({ children }) {
         }
     }, []);
 
-    // boot: hydrate depuis DB
+    // Boot: hydrate the cart from the database on mount
     useEffect(() => {
         void refetchCart();
     }, [refetchCart]);
 
+    // Adds a product (optionally customized) to the cart, then refetches it
     const addItem = useCallback(
         async ({
                    productId,
@@ -144,14 +144,16 @@ export function CartProvider({ children }) {
         [refetchCart]
     );
 
+    // Updates the quantity of a cart item, then refetches the cart
     const setQty = useCallback(
         async (cartItemId, quantity) => {
-            await api.patch(`/cart/items/${cartItemId}`, { quantity });
+            await api.patch(`/cart/items/${cartItemId}`, {quantity});
             await refetchCart();
         },
         [refetchCart]
     );
 
+    // Removes an item from the cart, then refetches the cart
     const removeItem = useCallback(
         async (cartItemId) => {
             await api.delete(`/cart/items/${cartItemId}`);
@@ -161,7 +163,7 @@ export function CartProvider({ children }) {
     );
 
     const clear = useCallback(() => {
-        dispatch({ type: "CLEAR" });
+        dispatch({type: "CLEAR"});
     }, []);
 
     const value = useMemo(
@@ -202,6 +204,7 @@ export function CartProvider({ children }) {
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
+// Hook to access the cart context
 export function useCart() {
     const ctx = useContext(CartContext);
 

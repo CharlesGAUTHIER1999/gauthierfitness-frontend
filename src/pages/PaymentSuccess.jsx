@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useCart } from "../context/CartContext.jsx";
+import {useEffect, useMemo, useState} from "react";
+import {Link, useLocation} from "react-router-dom";
+import {useCart} from "../context/CartContext.jsx";
 
+// Shown after a successful Stripe payment : clears the cart and confirms the order
 export default function PaymentSuccess() {
     const location = useLocation();
-    const { refetchCart, clear, closeCart } = useCart();
+    const {refetchCart, clear, closeCart} = useCart();
     const [done, setDone] = useState(false);
 
     const params = useMemo(
@@ -53,13 +54,13 @@ export default function PaymentSuccess() {
                 )}
 
                 {isDev && paymentIntent && (
-                    <p style={{ wordBreak: "break-word" }}>
+                    <p style={{wordBreak: "break-word"}}>
                         PaymentIntent : <strong>{paymentIntent}</strong>
                     </p>
                 )}
 
                 {!done && (
-                    <p className="ck-muted" style={{ marginTop: 10 }}>
+                    <p className="ck-muted" style={{marginTop: 10}}>
                         Mise à jour du panier…
                     </p>
                 )}

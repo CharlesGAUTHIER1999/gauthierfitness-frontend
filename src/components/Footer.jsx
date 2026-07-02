@@ -1,5 +1,6 @@
 import {Link} from "react-router-dom";
 
+// Site-wide footer
 export default function Footer() {
     return (
         <footer className="footer">
@@ -40,7 +41,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Styles */}
+                    {/* Styles column */}
                     <div className="footer-column">
                         <h4>PARCOURS NOS STYLES</h4>
                         <ul>
@@ -70,7 +71,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Livraison */}
+                    {/* Shipping column */}
                     <div className="footer-column">
                         <h4>LIVRAISON &amp; RETOURS</h4>
                         <ul>
@@ -90,7 +91,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Services */}
+                    {/* Services column */}
                     <div className="footer-column">
                         <h4>SERVICES</h4>
                         <ul>
@@ -109,7 +110,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Juridique */}
+                    {/* Legal column */}
                     <div className="footer-column">
                         <h4>JURIDIQUE</h4>
                         <ul>
@@ -128,7 +129,7 @@ export default function Footer() {
                     </div>
                 </div>
 
-                {/* Bottom */}
+                {/* Bottom bar */}
                 <div className="footer-bottom">
                     <p>© {new Date().getFullYear()} Gauthier Fitness</p>
 
