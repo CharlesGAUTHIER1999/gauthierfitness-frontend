@@ -93,15 +93,8 @@ export function CartProvider({children}) {
         setIsOpen(false);
     }, []);
 
-    // Reloads the cart from the API
+    // Reloads the cart from the API — works for guests (via guest cart token) and authenticated users alike
     const refetchCart = useCallback(async () => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            dispatch({type: "CLEAR"});
-            return;
-        }
-
         try {
             const {data} = await api.get("/cart");
 

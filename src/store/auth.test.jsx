@@ -1,6 +1,7 @@
 import {render, screen, waitFor, act} from '@testing-library/react';
 import {AuthProvider, useAuth} from './auth';
-import api from '../api/axios';
+import {CartProvider} from '../context/CartContext';
+import api, {peekGuestCartToken, clearGuestCartToken} from '../api/axios';
 
 // Tests for AuthProvider
 
@@ -21,12 +22,15 @@ function ConsumerSpy() {
     );
 }
 
-// Renders ConsumerSpy wrapped in AuthProvider.
+// Renders ConsumerSpy wrapped in CartProvider + AuthProvider (matching real app nesting:
+// AuthProvider calls useCart() to refresh the cart after login/register).
 function renderWithProvider() {
     return render(
-        <AuthProvider>
-            <ConsumerSpy/>
-        </AuthProvider>
+        <CartProvider>
+            <AuthProvider>
+                <ConsumerSpy/>
+            </AuthProvider>
+        </CartProvider>
     );
 }
 
@@ -77,6 +81,36 @@ describe('AuthProvider', () => {
             email: 'alice@example.com',
         });
         expect(screen.getByTestId('is-auth')).toHaveTextContent('true');
+    });
+
+    it('login sends the guest cart token when one is present, then clears it', async () => {
+        peekGuestCartToken.mockReturnValue('guest-uuid-123');
+        api.get.mockResolvedValue({data: {email: 'alice@example.com'}});
+        api.post.mockResolvedValue({
+            data: {
+                token: 'tok_42',
+                user: {id: 1, email: 'alice@example.com', is_admin: false},
+            },
+        });
+
+        renderWithProvider();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('loading')).toHaveTextContent('false');
+        });
+
+        await act(async () => {
+            screen.getByText('login').click();
+        });
+
+        await waitFor(() => {
+            expect(screen.getByTestId('token')).toHaveTextContent('tok_42');
+        });
+
+        expect(api.post).toHaveBeenCalledWith('/login', expect.objectContaining({
+            guest_cart_token: 'guest-uuid-123',
+        }));
+        expect(clearGuestCartToken).toHaveBeenCalled();
     });
 
     it('logout clears token + user from localStorage', async () => {
