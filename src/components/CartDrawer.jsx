@@ -26,7 +26,7 @@ export default function CartDrawer() {
             <aside
                 ref={drawerRef}
                 className={`cart-drawer ${isOpen ? "is-open" : ""}`}
-                aria-hidden={!isOpen}
+                inert={!isOpen}
             >
                 <div className="cart-drawer-header">
                     <h3>Votre panier</h3>
