@@ -1,50 +1,54 @@
+import {lazy, Suspense} from "react";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import ProductCustomizePage from "./pages/ProductCustomizePage";
-import Dashboard from "./pages/Dashboard";
-import CartPage from "./pages/CartPage.jsx";
-import PaymentSuccess from "./pages/PaymentSuccess.jsx";
-import PaymentCancel from "./pages/PaymentCancel.jsx";
 import CartDrawer from "./components/CartDrawer.jsx";
 import {AuthProvider, useAuth} from "./store/auth";
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import AdminRoute from "./routes/AdminRoutes.jsx";
-import AccountPage from "./pages/AccountPage.jsx";
-import AddressesPage from "./pages/AddressesPage.jsx";
-import CheckoutPage from "./pages/CheckoutPage.jsx";
-import OrdersPage from "./pages/OrdersPage.jsx";
-import OrderDetailsPage from "./pages/OrderDetailsPage.jsx";
+
+// Lazy-loaded: kept out of the initial bundle so the Home page doesn't pay
+// for the 3D/2D customizer (Three.js, Konva) or the admin back-office.
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const ProductCustomizePage = lazy(() => import("./pages/ProductCustomizePage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CartPage = lazy(() => import("./pages/CartPage.jsx"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess.jsx"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel.jsx"));
+const AccountPage = lazy(() => import("./pages/AccountPage.jsx"));
+const AddressesPage = lazy(() => import("./pages/AddressesPage.jsx"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage.jsx"));
+const OrdersPage = lazy(() => import("./pages/OrdersPage.jsx"));
+const OrderDetailsPage = lazy(() => import("./pages/OrderDetailsPage.jsx"));
 
 // Static content pages
-import Help from "./pages/static/Help.jsx";
-import Contact from "./pages/static/Contact.jsx";
-import Cgv from "./pages/static/Cgv.jsx";
-import Privacy from "./pages/static/Privacy.jsx";
-import LegalMentions from "./pages/static/LegalMentions.jsx";
-import ReturnsPortal from "./pages/static/ReturnsPortal.jsx";
-import Shipping from "./pages/static/Shipping.jsx";
-import Refunds from "./pages/static/Refunds.jsx";
+const Help = lazy(() => import("./pages/static/Help.jsx"));
+const Contact = lazy(() => import("./pages/static/Contact.jsx"));
+const Cgv = lazy(() => import("./pages/static/Cgv.jsx"));
+const Privacy = lazy(() => import("./pages/static/Privacy.jsx"));
+const LegalMentions = lazy(() => import("./pages/static/LegalMentions.jsx"));
+const ReturnsPortal = lazy(() => import("./pages/static/ReturnsPortal.jsx"));
+const Shipping = lazy(() => import("./pages/static/Shipping.jsx"));
+const Refunds = lazy(() => import("./pages/static/Refunds.jsx"));
+const About = lazy(() => import("./pages/static/About.jsx"));
 
 import "./admin.css";
 import "./staticpages.css";
 
 // Admin pages
-import AdminLayout from "./layouts/AdminLayout.jsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
-import AdminProductsPage from "./pages/admin/AdminProductsPage.jsx";
-import AdminProductFormPage from "./pages/admin/AdminProductFormPage.jsx";
-import AdminOrdersPage from "./pages/admin/AdminOrdersPage.jsx";
-import AdminOrderDetailPage from "./pages/admin/AdminOrderDetailsPage.jsx";
-import AdminStockListPage from "./pages/admin/AdminStockListPage.jsx";
-import AdminStockPage from "./pages/admin/AdminStockPage.jsx";
-import About from "./pages/static/About.jsx";
+const AdminLayout = lazy(() => import("./layouts/AdminLayout.jsx"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.jsx"));
+const AdminProductsPage = lazy(() => import("./pages/admin/AdminProductsPage.jsx"));
+const AdminProductFormPage = lazy(() => import("./pages/admin/AdminProductFormPage.jsx"));
+const AdminOrdersPage = lazy(() => import("./pages/admin/AdminOrdersPage.jsx"));
+const AdminOrderDetailPage = lazy(() => import("./pages/admin/AdminOrderDetailsPage.jsx"));
+const AdminStockListPage = lazy(() => import("./pages/admin/AdminStockListPage.jsx"));
+const AdminStockPage = lazy(() => import("./pages/admin/AdminStockPage.jsx"));
 
 // Only renders children for unauthenticated visitors; redirects logged-in users to /account.
 function GuestOnly({children}) {
@@ -59,6 +63,7 @@ export default function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
+                <Suspense fallback={null}>
                 <Routes>
                     {/* Admin */}
                     <Route path="/admin" element={<AdminRoute><AdminLayout/></AdminRoute>}>
@@ -121,6 +126,7 @@ export default function App() {
                         }
                     />
                 </Routes>
+                </Suspense>
             </AuthProvider>
         </BrowserRouter>
     );
