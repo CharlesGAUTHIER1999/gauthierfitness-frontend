@@ -6,7 +6,8 @@ import {
     useMemo,
     useState,
 } from "react";
-import api from "../api/axios";
+import api, {clearGuestCartToken, peekGuestCartToken} from "../api/axios";
+import {useCart} from "../context/CartContext";
 
 const AuthContext = createContext(null);
 
@@ -33,6 +34,7 @@ function persistUser(u) {
 
 // Provides auth state (token/user) and actions (login, register, logout, password reset) to the app.
 export function AuthProvider({children}) {
+    const {refetchCart} = useCart();
     const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
     const [user, setUser] = useState(() => {
         try {
@@ -98,25 +100,29 @@ export function AuthProvider({children}) {
         };
     }, []);
 
-    // Logs in with email/password and persists the returned token + user
+    // Logs in with email/password, merges any guest cart, and persists the returned token + user
     const login = useCallback(async (email, password) => {
         const res = await api.post("/login", {
             email: email.trim().toLowerCase(),
             password,
+            guest_cart_token: peekGuestCartToken(),
         });
 
         persistToken(res.data.token);
         setToken(res.data.token);
         setUser(res.data.user);
         persistUser(res.data.user);
+        clearGuestCartToken();
+        void refetchCart();
         return res.data;
-    }, []);
+    }, [refetchCart]);
 
-    // Registers a new account and persists the returned token + user
+    // Registers a new account, merges any guest cart, and persists the returned token + user
     const register = useCallback(async (form) => {
         const res = await api.post("/register", {
             ...form,
             email: form.email.trim().toLowerCase(),
+            guest_cart_token: peekGuestCartToken(),
         });
 
         persistToken(res.data.token);
@@ -124,9 +130,11 @@ export function AuthProvider({children}) {
 
         setUser(res.data.user);
         persistUser(res.data.user);
+        clearGuestCartToken();
+        void refetchCart();
 
         return res.data;
-    }, []);
+    }, [refetchCart]);
 
     // Requests a password reset email for the given address
     const forgotPassword = useCallback(async (email) => {
@@ -160,8 +168,10 @@ export function AuthProvider({children}) {
             persistUser(null);
             setToken(null);
             setUser(null);
+            // Switch the displayed cart back to the (fresh) guest cart.
+            void refetchCart();
         }
-    }, []);
+    }, [refetchCart]);
 
     const value = useMemo(
         () => ({
