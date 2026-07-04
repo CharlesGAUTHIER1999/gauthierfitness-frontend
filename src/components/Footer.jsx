@@ -141,21 +141,29 @@ export default function Footer() {
                             src="/payments/google-pay.svg"
                             alt="Google Pay"
                             loading="lazy"
+                            width="24"
+                            height="24"
                         />
                         <img
                             src="/payments/cb.svg"
                             alt="Carte Bancaire"
                             loading="lazy"
+                            width="24"
+                            height="24"
                         />
                         <img
                             src="/payments/visa.svg"
                             alt="Visa"
                             loading="lazy"
+                            width="24"
+                            height="24"
                         />
                         <img
                             src="/payments/apple-pay.svg"
                             alt="Apple Pay"
                             loading="lazy"
+                            width="24"
+                            height="24"
                         />
                     </div>
                 </div>

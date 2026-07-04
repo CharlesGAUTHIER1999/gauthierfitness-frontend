@@ -203,7 +203,7 @@ p {
 .eyebrow {
   font-size: 11px;
   letter-spacing: 2px;
-  color: #999;
+  color: #595959;
   text-transform: uppercase;
   margin: 0 0 10px;
   text-align: center;
@@ -257,7 +257,7 @@ p {
 .promises-brand {
   font-size: 11px;
   letter-spacing: 2px;
-  color: #999;
+  color: #595959;
   margin-bottom: 12px;
   text-transform: uppercase;
 }
@@ -441,7 +441,7 @@ p {
   margin: 0 0 8px;
   font-size: 11px;
   letter-spacing: 2px;
-  color: #999;
+  color: #595959;
   text-transform: uppercase;
 }
 
