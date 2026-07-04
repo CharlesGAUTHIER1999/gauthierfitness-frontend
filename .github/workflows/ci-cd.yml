@@ -109,7 +109,7 @@ jobs:
 
     steps:
       - name: Dispatch vers gauthierfitness-infra
-        uses: peter-evans/repository-dispatch@v3
+        uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.INFRA_DISPATCH_TOKEN }}
           repository: CharlesGAUTHIER1999/gauthierfitness-infra
