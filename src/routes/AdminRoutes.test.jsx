@@ -41,14 +41,15 @@ describe('AdminRoute', () => {
         expect(screen.getByText('Login page')).toBeInTheDocument();
     });
 
-    it('redirects to / when authenticated but not admin', () => {
+    it('shows an access-denied message when authenticated but not admin', () => {
         renderAt({
             user: {id: 1, email: 'a@a.fr', is_admin: false},
             token: 'tok',
             loading: false,
         });
-        expect(screen.getByText('Home')).toBeInTheDocument();
+        expect(screen.getByText('Accès refusé')).toBeInTheDocument();
         expect(screen.queryByText('Admin panel')).not.toBeInTheDocument();
+        expect(screen.queryByText('Home')).not.toBeInTheDocument();
     });
 
     it('renders children when authenticated and admin', () => {

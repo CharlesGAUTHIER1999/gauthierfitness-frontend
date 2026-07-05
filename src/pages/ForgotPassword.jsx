@@ -44,7 +44,9 @@ export default function ForgotPassword() {
 
             {!message && (
                 <>
+                    <label className="sr-only" htmlFor="forgot-email">Email</label>
                     <input
+                        id="forgot-email"
                         type="email"
                         placeholder="Email"
                         value={email}
