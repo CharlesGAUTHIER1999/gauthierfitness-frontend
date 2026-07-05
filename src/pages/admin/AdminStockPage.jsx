@@ -57,8 +57,9 @@ function AddStockForm({productId, optionId, onSuccess, onCancel}) {
             {error && <p className="adm-error">{error}</p>}
             <div className="adm-form-row">
                 <div className="adm-form-group">
-                    <label className="adm-label">N° de lot *</label>
+                    <label className="adm-label" htmlFor="add-stock-lot-number">N° de lot *</label>
                     <input
+                        id="add-stock-lot-number"
                         className="adm-input"
                         placeholder="LOT-001"
                         value={form.lot_number}
@@ -67,8 +68,9 @@ function AddStockForm({productId, optionId, onSuccess, onCancel}) {
                     />
                 </div>
                 <div className="adm-form-group">
-                    <label className="adm-label">Quantité *</label>
+                    <label className="adm-label" htmlFor="add-stock-quantity">Quantité *</label>
                     <input
+                        id="add-stock-quantity"
                         className="adm-input"
                         type="number"
                         min="1"
@@ -79,8 +81,9 @@ function AddStockForm({productId, optionId, onSuccess, onCancel}) {
                     />
                 </div>
                 <div className="adm-form-group">
-                    <label className="adm-label">Date d'expiration</label>
+                    <label className="adm-label" htmlFor="add-stock-expiration">Date d'expiration</label>
                     <input
+                        id="add-stock-expiration"
                         className="adm-input"
                         type="date"
                         value={form.expiration_date}
@@ -129,8 +132,9 @@ function AdjustLotForm({lot, onSuccess, onCancel}) {
             {error && <p className="adm-error">{error}</p>}
             <div className="adm-form-row">
                 <div className="adm-form-group">
-                    <label className="adm-label">Nouvelle quantité *</label>
+                    <label className="adm-label" htmlFor={`adjust-quantity-${lot.id}`}>Nouvelle quantité *</label>
                     <input
+                        id={`adjust-quantity-${lot.id}`}
                         className="adm-input"
                         type="number"
                         min="0"
@@ -140,8 +144,9 @@ function AdjustLotForm({lot, onSuccess, onCancel}) {
                     />
                 </div>
                 <div className="adm-form-group adm-form-group--wide">
-                    <label className="adm-label">Raison * (inventaire, casse, vol…)</label>
+                    <label className="adm-label" htmlFor={`adjust-reason-${lot.id}`}>Raison * (inventaire, casse, vol…)</label>
                     <input
+                        id={`adjust-reason-${lot.id}`}
                         className="adm-input"
                         placeholder="Ex : Inventaire mensuel"
                         value={reason}
@@ -331,7 +336,7 @@ export default function AdminStockPage() {
             </div>
 
             {/* Tabs */}
-            <div className="adm-tabs">
+            <div className="adm-tabs" role="tablist">
                 {[
                     {id: "stock", label: "Stock actuel"},
                     {id: "movements", label: "Historique des mouvements"},
@@ -339,6 +344,8 @@ export default function AdminStockPage() {
                     <button
                         key={tab.id}
                         type="button"
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
                         className={`adm-tab ${activeTab === tab.id ? "is-active" : ""}`}
                         onClick={() => setActiveTab(tab.id)}
                     >
