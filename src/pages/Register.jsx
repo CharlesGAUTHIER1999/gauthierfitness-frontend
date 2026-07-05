@@ -12,6 +12,7 @@ export default function Register() {
         lastname: "",
         email: "",
         password: "",
+        passwordConfirmation: "",
     });
 
     const [error, setError] = useState(null);
@@ -31,6 +32,12 @@ export default function Register() {
     async function submit(e) {
         e.preventDefault();
         setError(null);
+
+        if (form.password !== form.passwordConfirmation) {
+            setError("Les mots de passe ne correspondent pas.");
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -39,6 +46,7 @@ export default function Register() {
                 lastname: form.lastname.trim(),
                 email: form.email.trim().toLowerCase(),
                 password: form.password, // do not trim
+                password_confirmation: form.passwordConfirmation,
             };
 
             await register(payload);
@@ -68,7 +76,9 @@ export default function Register() {
 
             {error && <div className="ck-error">{error}</div>}
 
+            <label className="sr-only" htmlFor="register-firstname">Prénom</label>
             <input
+                id="register-firstname"
                 name="firstname"
                 placeholder="Prénom"
                 value={form.firstname}
@@ -79,7 +89,9 @@ export default function Register() {
             <br/>
             <br/>
 
+            <label className="sr-only" htmlFor="register-lastname">Nom</label>
             <input
+                id="register-lastname"
                 name="lastname"
                 placeholder="Nom"
                 value={form.lastname}
@@ -90,7 +102,9 @@ export default function Register() {
             <br/>
             <br/>
 
+            <label className="sr-only" htmlFor="register-email">Email</label>
             <input
+                id="register-email"
                 type="email"
                 name="email"
                 placeholder="Email"
@@ -102,7 +116,9 @@ export default function Register() {
             <br/>
             <br/>
 
+            <label className="sr-only" htmlFor="register-password">Mot de passe</label>
             <input
+                id="register-password"
                 type="password"
                 name="password"
                 placeholder="Mot de passe"
@@ -115,8 +131,23 @@ export default function Register() {
             <br/>
             <br/>
 
+            <label className="sr-only" htmlFor="register-password-confirmation">Confirmer le mot de passe</label>
+            <input
+                id="register-password-confirmation"
+                type="password"
+                name="passwordConfirmation"
+                placeholder="Confirmer le mot de passe"
+                value={form.passwordConfirmation}
+                onChange={handleChange}
+                required
+                autoComplete="new-password"
+                minLength={6}
+            />
+            <br/>
+            <br/>
+
             <button type="submit" disabled={loading}>
-                {loading ? "Création..." : "S'enregistrer"}
+                {loading ? "Création..." : "Créer un compte"}
             </button>
 
             <p>

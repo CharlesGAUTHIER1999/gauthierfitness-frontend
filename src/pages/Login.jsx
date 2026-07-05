@@ -10,17 +10,19 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
-    const redirect = searchParams.get("redirect") || "/";
+    const redirectParam = searchParams.get("redirect");
 
-    // Submits credentials, logs the user in, and redirects to the target page
+    // Submits credentials, logs the user in, and redirects to the target page.
+    // Without an explicit ?redirect=, admins land on the back-office instead of the home page.
     async function submit(e) {
         e.preventDefault();
         setError(null);
 
         try {
             const safeEmail = email.trim().toLowerCase();
-            await login(safeEmail, password);
-            navigate(redirect, {replace: true});
+            const data = await login(safeEmail, password);
+            const destination = redirectParam || (data?.user?.is_admin ? "/admin" : "/");
+            navigate(destination, {replace: true});
         } catch (e) {
             const msg =
                 e?.response?.data?.message ||
@@ -35,7 +37,9 @@ export default function Login() {
             <h2>Connexion</h2>
             {error && <div className="ck-error">{error}</div>}
 
+            <label className="sr-only" htmlFor="login-email">Email</label>
             <input
+                id="login-email"
                 type="email"
                 placeholder="Email"
                 value={email}
@@ -46,7 +50,9 @@ export default function Login() {
             <br/>
             <br/>
 
+            <label className="sr-only" htmlFor="login-password">Mot de passe</label>
             <input
+                id="login-password"
                 type="password"
                 placeholder="Mot de passe"
                 value={password}

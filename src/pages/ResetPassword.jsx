@@ -50,7 +50,9 @@ export default function ResetPassword() {
 
             {error && <div className="ck-error">{error}</div>}
 
+            <label className="sr-only" htmlFor="reset-password">Nouveau mot de passe</label>
             <input
+                id="reset-password"
                 type="password"
                 placeholder="Nouveau mot de passe"
                 value={password}
@@ -62,7 +64,9 @@ export default function ResetPassword() {
             <br />
             <br />
 
+            <label className="sr-only" htmlFor="reset-password-confirmation">Confirmer le mot de passe</label>
             <input
+                id="reset-password-confirmation"
                 type="password"
                 placeholder="Confirmer le mot de passe"
                 value={passwordConfirmation}
