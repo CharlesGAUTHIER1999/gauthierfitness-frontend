@@ -1,6 +1,6 @@
 import {render, screen} from '@testing-library/react';
 import {MemoryRouter, Routes, Route} from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoutes';
+import ProtectedRoute from './ProtectedRoute';
 import * as authModule from '../store/auth';
 
 // Tests for ProtectedRoute : redirect to /login if not authenticated, otherwise render children.

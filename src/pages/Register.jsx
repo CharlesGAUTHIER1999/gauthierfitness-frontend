@@ -50,7 +50,8 @@ export default function Register() {
             };
 
             await register(payload);
-            navigate("/");
+            // Redirect happens in the effect above once the auth context
+            // (token) has actually been updated — avoids racing route guards.
         } catch (e) {
             const validation = e?.response?.data?.errors;
             if (validation && typeof validation === "object") {

@@ -48,6 +48,7 @@ export default function AdminProductFormPage() {
                     allow_ai_generation: p.customization?.ai ?? false,
                 });
                 setOptions(Array.isArray(p.options) ? p.options.map((o) => ({
+                    _localId: crypto.randomUUID(),
                     type: o.type,
                     code: o.code,
                     label: o.label ?? ""
@@ -64,7 +65,13 @@ export default function AdminProductFormPage() {
 
     // Appends a new blank option row
     function addOption() {
-        setOptions((prev) => [...prev, {...EMPTY_OPTION}]);
+        setOptions((prev) => [...prev, {...EMPTY_OPTION, _localId: crypto.randomUUID()}]);
+    }
+
+    // Strips the client-only _localId before sending options to the API
+    function toOptionPayload(opt) {
+        const {_localId, ...rest} = opt;
+        return rest;
     }
 
     // Removes the option row at the given index
@@ -93,14 +100,17 @@ export default function AdminProductFormPage() {
         };
 
         if (!form.is_customizable) {
-            payload.options = options.filter((o) => o.code.trim());
+            payload.options = options.filter((o) => o.code.trim()).map(toOptionPayload);
         }
 
         try {
             if (isEdit) {
                 await updateAdminProduct(id, payload);
             } else {
-                await createAdminProduct({...payload, options: options.filter((o) => o.code.trim())});
+                await createAdminProduct({
+                    ...payload,
+                    options: options.filter((o) => o.code.trim()).map(toOptionPayload),
+                });
             }
             navigate("/admin/products");
         } catch (e) {
@@ -257,7 +267,7 @@ export default function AdminProductFormPage() {
                 {options.length === 0 && (
                     <p className="adm-hint">Aucune option — le produit sera ajouté sans taille.</p>)}
 
-                {options.map((opt, idx) => (<div key={idx} className="adm-option-row">
+                {options.map((opt, idx) => (<div key={opt._localId} className="adm-option-row">
                     <select
                         className="adm-input adm-input-sm"
                         value={opt.type}
