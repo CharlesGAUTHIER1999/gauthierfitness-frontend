@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from "react";
+import {useMemo} from "react";
 import {useNavigate} from "react-router-dom";
 import {useCart} from "../../../context/CartContext";
 import {
@@ -9,6 +9,7 @@ import {
 } from "../services/customizationService";
 import {createDefaultCustomization} from "../utils/defaultCustomization";
 import {getProductCustomizer3DConfig} from "../utils/productCustomizerConfigs";
+import {useCustomizationEditorBase} from "../hooks/useCustomizationEditorBase";
 import CustomizationCanvas3D from "./CustomizationCanvas3D";
 import CustomizationPanel from "./CustomizationPanel";
 
@@ -23,16 +24,6 @@ const COLOR_SWATCHES_3D = [
     {label: "Gris anthracite", value: "#374151"},
     {label: "Bordeaux", value: "#7f1d1d"},
 ];
-
-// Returns the style block for a given view, or a default disabled style if missing.
-function ensureViewStyle(style, view) {
-    return (
-        style?.[view] || {
-            pattern: {enabled: false, id: null},
-            gradient: {enabled: false, id: null},
-        }
-    );
-}
 
 // Builds the default customization state for the 3D configurator, seeded with the first available 3D color swatch.
 function createDefault3DCustomization(product) {
@@ -53,18 +44,38 @@ export default function Product3DCustomizer({
                                             }) {
     const navigate = useNavigate();
     const {addItem} = useCart();
-    const [configuration, setConfiguration] = useState(() => createDefault3DCustomization(product));
-    const [session, setSession] = useState(null);
-    const [saving, setSaving] = useState(false);
-    const [finishing, setFinishing] = useState(false);
-    const [error, setError] = useState(null);
-    const [successMessage, setSuccessMessage] = useState("");
-    const [uploadLogoLoading, setUploadLogoLoading] = useState(false);
-    const [uploadLogoError, setUploadLogoError] = useState(null);
-    const [uploadImageLoading, setUploadImageLoading] = useState(false);
-    const [uploadImageError, setUploadImageError] = useState(null);
-    const [aiLoading, setAiLoading] = useState(false);
-    const [aiError, setAiError] = useState(null);
+
+    const {
+        configuration, setConfiguration,
+        session, setSession,
+        saving, setSaving,
+        finishing, setFinishing,
+        error, setError,
+        successMessage, setSuccessMessage,
+        uploadLogoLoading, setUploadLogoLoading,
+        uploadLogoError, setUploadLogoError,
+        uploadImageLoading, setUploadImageLoading,
+        uploadImageError, setUploadImageError,
+        aiLoading, setAiLoading,
+        aiError, setAiError,
+        invalidateSavedSession,
+        handleTemplateChange,
+        handleViewChange,
+        handleTextColorChange,
+        handleAddTextLayer,
+        handlePlayerNameChange,
+        handlePlayerNumberChange,
+        handleToggleLogo,
+        handleLogoSelect,
+        handleRemoveLogo,
+        handleRemoveImageLayer,
+        handlePatternToggle,
+        handlePatternSelect,
+        handleGradientToggle,
+        handleGradientSelect,
+        handleResetConfiguration,
+    } = useCustomizationEditorBase(product, selectedOptionId, createDefault3DCustomization);
+
     const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
     // 3D config of the current product (GLB, UV zones, template chest center).
@@ -72,24 +83,6 @@ export default function Product3DCustomizer({
         () => getProductCustomizer3DConfig(product),
         [product]
     );
-
-    useEffect(() => {
-        setConfiguration(createDefault3DCustomization(product));
-        setSession(null);
-        setError(null);
-        setSuccessMessage("");
-    }, [product]);
-
-    useEffect(() => {
-        setSession(null);
-        setSuccessMessage("");
-    }, [selectedOptionId]);
-
-    // Clears session
-    function invalidateSavedSession() {
-        setSession(null);
-        setSuccessMessage("");
-    }
 
     // ---- Handlers ----
     // Navigates to another color/variants customize page, preserving the selected option.
@@ -108,82 +101,6 @@ export default function Product3DCustomizer({
 
     function handleColorHexChange(hex) {
         setConfiguration((prev) => ({...prev, product_color_hex: hex}));
-        invalidateSavedSession();
-    }
-
-    function handleTemplateChange(templateId) {
-        setConfiguration((prev) => ({...prev, template_id: templateId}));
-        invalidateSavedSession();
-    }
-
-    function handleViewChange(view) {
-        setConfiguration((prev) => ({...prev, view}));
-        invalidateSavedSession();
-    }
-
-    function handleTextColorChange(color) {
-        setConfiguration((prev) => ({
-            ...prev,
-            text_style: {...prev.text_style, color},
-            player_name: {...prev.player_name, color},
-            player_number: {...prev.player_number, color},
-            text_layers: (prev.text_layers || []).map((l) => ({...l, color})),
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handleAddTextLayer(textLayer) {
-        setConfiguration((prev) => ({
-            ...prev,
-            text_layers: [...(prev.text_layers || []), textLayer],
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handlePlayerNameChange(value) {
-        setConfiguration((prev) => ({
-            ...prev,
-            player_name: {...prev.player_name, value},
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handlePlayerNumberChange(value) {
-        setConfiguration((prev) => ({
-            ...prev,
-            player_number: {...prev.player_number, value},
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handleToggleLogo(enabled) {
-        setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, enabled},
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handleLogoSelect(src) {
-        setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, src},
-        }));
-
-        invalidateSavedSession();
-    }
-
-    function handleRemoveLogo() {
-        setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, enabled: false, src: ""},
-        }));
-
         invalidateSavedSession();
     }
 
@@ -247,15 +164,6 @@ export default function Product3DCustomizer({
         } finally {
             setUploadImageLoading(false);
         }
-    }
-
-    function handleRemoveImageLayer(layerId) {
-        setConfiguration((prev) => ({
-            ...prev,
-            image_layers: (prev.image_layers || []).filter((l) => l.id !== layerId),
-        }));
-
-        invalidateSavedSession();
     }
 
     async function handleGenerateAiDesign(prompt) {
@@ -354,102 +262,6 @@ export default function Product3DCustomizer({
     function handleDragEnd() {
         // Invalidate the session only once, at the end of the drag
         invalidateSavedSession();
-    }
-
-    function handlePatternToggle(enabled) {
-        setConfiguration((prev) => {
-            const view = prev.view || "front";
-            const current = ensureViewStyle(prev.style, view);
-
-            return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...current,
-                        pattern: {
-                            enabled,
-                            id: enabled ? current.pattern?.id || "motif1" : null,
-                        },
-                    },
-                },
-            };
-        });
-
-        invalidateSavedSession();
-    }
-
-    function handlePatternSelect(patternId) {
-        setConfiguration((prev) => {
-            const view = prev.view || "front";
-            const current = ensureViewStyle(prev.style, view);
-
-            return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...current,
-                        pattern: {enabled: true, id: patternId},
-                    },
-                },
-            };
-        });
-
-        invalidateSavedSession();
-    }
-
-    function handleGradientToggle(enabled) {
-        setConfiguration((prev) => {
-            const view = prev.view || "front";
-            const current = ensureViewStyle(prev.style, view);
-
-            return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...current,
-                        gradient: {
-                            enabled,
-                            id: enabled ? current.gradient?.id || "degrade1" : null,
-                        },
-                    },
-                },
-            };
-        });
-
-        invalidateSavedSession();
-    }
-
-    function handleGradientSelect(gradientId) {
-        setConfiguration((prev) => {
-            const view = prev.view || "front";
-            const current = ensureViewStyle(prev.style, view);
-
-            return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...current,
-                        gradient: {enabled: true, id: gradientId},
-                    },
-                },
-            };
-        });
-
-        invalidateSavedSession();
-    }
-
-    function handleResetConfiguration() {
-        setConfiguration(createDefault3DCustomization(product));
-        setSession(null);
-        setError(null);
-        setSuccessMessage("");
-        setUploadLogoError(null);
-        setUploadImageError(null);
-        setAiError(null);
     }
 
     // Persists the current configuration as a customization session on the backend.

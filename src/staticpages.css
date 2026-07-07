@@ -18,32 +18,6 @@
    IMAGES PAGE "À PROPOS"
 ========================= */
 
-.about-hero {
-    width: 100%;
-    aspect-ratio: 16 / 7;
-    object-fit: cover;
-    border-radius: 12px;
-    margin: 8px 0 32px;
-}
-
-.about-figure {
-    margin: 32px 0;
-    text-align: center;
-}
-
-.about-figure img {
-    width: 100%;
-    max-width: 340px;
-    border-radius: 12px;
-    border: 1px solid #e5e5e5;
-}
-
-.about-figure figcaption {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #888888;
-}
-
 /* =========================
    PAGES DE CONTENU STATIQUES
    (À propos, juridique, livraison/retours, aide, contact)
@@ -350,11 +324,3 @@
     color: #9b2222;
 }
 
-.contact-info {
-    margin-top: 40px;
-    padding-top: 32px;
-    border-top: 1px solid #e5e5e5;
-    font-size: 14px;
-    color: #555555;
-    line-height: 1.9;
-}

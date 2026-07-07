@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    container_name: gauthierfitness_front_web
+    container_name: gf_frontend_web
     ports:
       - "5173:80"
     extra_hosts:

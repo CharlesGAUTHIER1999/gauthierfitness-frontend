@@ -1,18 +1,28 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useAuth} from "../store/auth";
 import {useNavigate, Link, useSearchParams} from "react-router-dom";
 
 // Login form : authenticates via email/password and redirects on success
 export default function Login() {
-    const {login} = useAuth();
+    const {login, token, user} = useAuth();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
+    const [loggedIn, setLoggedIn] = useState(false);
     const redirectParam = searchParams.get("redirect");
 
-    // Submits credentials, logs the user in, and redirects to the target page.
+    // Only navigate once the auth context (token/user) has actually been
+    // committed — navigating right after `login()` resolves races the
+    // route guards, which may still read the stale, pre-login context.
+    useEffect(() => {
+        if (!loggedIn || !token) return;
+        const destination = redirectParam || (user?.is_admin ? "/admin" : "/");
+        navigate(destination, {replace: true});
+    }, [loggedIn, token, user, redirectParam, navigate]);
+
+    // Submits credentials and logs the user in ; redirect happens in the effect above.
     // Without an explicit ?redirect=, admins land on the back-office instead of the home page.
     async function submit(e) {
         e.preventDefault();
@@ -20,9 +30,8 @@ export default function Login() {
 
         try {
             const safeEmail = email.trim().toLowerCase();
-            const data = await login(safeEmail, password);
-            const destination = redirectParam || (data?.user?.is_admin ? "/admin" : "/");
-            navigate(destination, {replace: true});
+            await login(safeEmail, password);
+            setLoggedIn(true);
         } catch (e) {
             const msg =
                 e?.response?.data?.message ||

@@ -26,13 +26,6 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
 // Set to true to see received UVs + hit-test results in the console.
 const DEBUG_DRAG = false;
 
-// GF12 V2: the Studio-Lab GLB contains 3 t-shirts (3 styles) in the same file.
-// 0 = A01 (1671 verts, low-poly)
-// 1 = A02 (6310 verts, medium)
-// 2 = A03 (24106 verts, high-poly / detailed)
-// Change the value to switch, then freeze it once the right one is found.
-const ACTIVE_MESH_INDEX = 2;
-
 // GF12 V2: "safe" UV zone where texts/images are allowed to live.
 // If the user drags outside it (sleeve, back, collar of the t-shirt), we clamp
 // to avoid the layer landing on a different UV island and becoming unreachable.
@@ -95,21 +88,10 @@ function TShirtMesh({
     useEffect(() => {
         if (!scene) return;
 
-        // GF12 V2: GLB structure diagnostic (temporary, to remove once finalized)
         const meshes = [];
         scene.traverse((child) => {
             if (child.isMesh) meshes.push(child);
         });
-
-        console.log("[3D] Structure modèle :", meshes.length, "mesh(es), mode =", meshMode);
-        console.table(meshes.map((m, i) => ({
-            index: i,
-            name: m.name || "(sans nom)",
-            material: m.material?.name || "(sans nom)",
-            vertices: m.geometry?.attributes?.position?.count || 0,
-            hasUV: !!m.geometry?.attributes?.uv,
-            active: meshMode === "pick" ? i === activeMeshIndex : true,
-        })));
 
         // ── "pick" mode: GLB pack (Studio-Lab). We pick ONE mesh, remove the others.
         if (meshMode === "pick") {
@@ -119,7 +101,7 @@ function TShirtMesh({
                 prunedRef.current = true;
             }
 
-        const activeMesh = meshes[ACTIVE_MESH_INDEX];
+        const activeMesh = meshes[activeMeshIndex];
         if (!activeMesh) return;
 
             if (!centeredRef.current) {
@@ -131,24 +113,6 @@ function TShirtMesh({
                 activeMesh.position.set(0, 0, 0);
 
                 centeredRef.current = true;
-
-                activeMesh.geometry.computeBoundingBox();
-                const newBox = activeMesh.geometry.boundingBox;
-                const newSize = newBox.getSize(new THREE.Vector3());
-                const newCtr = newBox.getCenter(new THREE.Vector3());
-
-                console.log(
-                    "[3D] Mesh actif :",
-                    activeMesh.name,
-                    "| taille :",
-                    newSize.x.toFixed(3),
-                    newSize.y.toFixed(3),
-                    newSize.z.toFixed(3),
-                    "| centre :",
-                    newCtr.x.toFixed(3),
-                    newCtr.y.toFixed(3),
-                    newCtr.z.toFixed(3)
-                );
             }
 
             if (!activeMesh.userData._cloned) {
@@ -190,20 +154,6 @@ function TShirtMesh({
             // (We don't touch individual geometries so UVs/normals stay intact.)
             scene.position.sub(center);
             centeredRef.current = true;
-
-            const size = globalBox.getSize(new THREE.Vector3());
-
-            console.log(
-                "[3D] Modèle (mode all) centré |",
-                "taille :",
-                size.x.toFixed(3),
-                size.y.toFixed(3),
-                size.z.toFixed(3),
-                "| offset appliqué :",
-                center.x.toFixed(3),
-                center.y.toFixed(3),
-                center.z.toFixed(3)
-            );
         }
 
         meshes.forEach((m) => {

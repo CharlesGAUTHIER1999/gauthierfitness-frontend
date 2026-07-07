@@ -1,9 +1,12 @@
-import {useEffect, useMemo, useState} from "react";
+import {lazy, Suspense, useEffect, useMemo, useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {getProduct} from "../services/productService";
-import ProductCustomizer from "../features/customization/components/ProductCustomizer";
-import Product3DCustomizer from "../features/customization/components/Product3DCustomizer";
 import "../productcustomization.css";
+
+// Loaded on demand: a product only ever needs one of the two engines
+// (Konva 2D or Three.js 3D), so bundling both upfront doubles the chunk for nothing.
+const ProductCustomizer = lazy(() => import("../features/customization/components/ProductCustomizer"));
+const Product3DCustomizer = lazy(() => import("../features/customization/components/Product3DCustomizer"));
 
 // Option picker
 function OptionPickerGroup({label, options, activeOptionId, onSelect}) {
@@ -242,21 +245,23 @@ export default function ProductCustomizePage() {
                 </div>
             )}
 
-            {product.customization?.mode === "3d" ? (
-                <Product3DCustomizer
-                    product={product}
-                    selectedOptionId={effectiveSelectedOptionId}
-                    disabled={isMissingRequiredOption}
-                    selectedOptionMeta={activeOptionMeta}
-                />
-            ) : (
-                <ProductCustomizer
-                    product={product}
-                    selectedOptionId={effectiveSelectedOptionId}
-                    disabled={isMissingRequiredOption}
-                    selectedOptionMeta={activeOptionMeta}
-                />
-            )}
+            <Suspense fallback={<p className="pc-loading">Chargement du configurateur...</p>}>
+                {product.customization?.mode === "3d" ? (
+                    <Product3DCustomizer
+                        product={product}
+                        selectedOptionId={effectiveSelectedOptionId}
+                        disabled={isMissingRequiredOption}
+                        selectedOptionMeta={activeOptionMeta}
+                    />
+                ) : (
+                    <ProductCustomizer
+                        product={product}
+                        selectedOptionId={effectiveSelectedOptionId}
+                        disabled={isMissingRequiredOption}
+                        selectedOptionMeta={activeOptionMeta}
+                    />
+                )}
+            </Suspense>
         </div>
     );
 }
