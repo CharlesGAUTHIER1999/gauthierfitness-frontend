@@ -1,4 +1,4 @@
-// Smoke test pour valider la config Jest.
+// Smoke test to validate the Jest config.
 describe('Jest setup', () => {
   it('runs JS', () => {
     expect(1 + 1).toBe(2);

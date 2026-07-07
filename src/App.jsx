@@ -4,8 +4,8 @@ import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
 import CartDrawer from "./components/CartDrawer.jsx";
 import {AuthProvider, useAuth} from "./store/auth";
-import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
-import AdminRoute from "./routes/AdminRoutes.jsx";
+import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import AdminRoute from "./routes/AdminRoute.jsx";
 
 // Lazy-loaded: kept out of the initial bundle so the Home page doesn't pay
 // for the 3D/2D customizer (Three.js, Konva) or the admin back-office.

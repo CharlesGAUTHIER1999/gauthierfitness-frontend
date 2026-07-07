@@ -2,7 +2,7 @@
 #  GauthierFitness Frontend — CI
 #  repo : CharlesGAUTHIER1999/gauthierfitness-frontend
 #
-#  Séquence : ESLint → Build → Build image GHCR → Trigger deploy infra
+#  Séquence : ESLint → Jest → Build → Build image GHCR → Trigger deploy infra
 # ════════════════════════════════════════════════════════════════════
 
 name: CI Frontend
@@ -40,6 +40,9 @@ jobs:
 
       - name: ESLint
         run: npm run lint
+
+      - name: Jest
+        run: npm test -- --ci
 
       - name: Build Vite (vérification compilation)
         run: npm run build

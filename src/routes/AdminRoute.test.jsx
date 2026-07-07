@@ -1,6 +1,6 @@
 import {render, screen} from '@testing-library/react';
 import {MemoryRouter, Routes, Route} from 'react-router-dom';
-import AdminRoute from './AdminRoutes';
+import AdminRoute from './AdminRoute';
 import * as authModule from '../store/auth';
 
 // Tests for AdminRoute
