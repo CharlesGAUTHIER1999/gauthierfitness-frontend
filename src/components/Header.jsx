@@ -33,7 +33,7 @@ export default function Header() {
         <header className="header">
             <div className="header-inner">
                 <Link to="/" className="logo" onClick={closeMenu}>
-                    <img className="logo-img" src="/logos/logo-gf.png" alt="GauthierFitness" width="55" height="32"/>
+                    <img className="logo-img" src="/logos/logo-gf.png" alt="GauthierFitness" width="89" height="32"/>
                     <span>GAUTHIER Fitness</span>
                 </Link>
 
