@@ -46,27 +46,27 @@ export default function Footer() {
                         <h4>PARCOURS NOS STYLES</h4>
                         <ul>
                             <li>
-                                <Link to="/products?gender=femmes">
-                                    Leggings femmes
+                                <Link to="/products?gender=femmes&category=femmes-tshirts">
+                                    T-shirts femmes
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/products?gender=femmes">
-                                    Hauts femmes
+                                <Link to="/products?gender=femmes&category=femmes-vestes">
+                                    Vestes femmes
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/products?gender=hommes">
+                                <Link to="/products?gender=hommes&category=hommes-pantalons">
                                     Pantalons hommes
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/products?gender=hommes">
-                                    Vestes sport
+                                <Link to="/products?gender=hommes&category=hommes-sweats">
+                                    Sweats hommes
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/products">Accessoires</Link>
+                                <Link to="/products?gender=equipments">Équipements</Link>
                             </li>
                         </ul>
                     </div>
