@@ -4,9 +4,20 @@ Toutes les évolutions notables du frontend GauthierFitness sont documentées ic
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
 
-## [Unreleased]
+## [v1.0.0] - 2026-07-08
+
+Première release taguée du frontend. Regroupe l'ensemble des fonctionnalités développées de GF0 à GF31 : boutique,
+configurateur 2D/3D, panier, checkout Stripe, authentification, back-office admin, génération de designs par IA,
+pages légales.
+
 ### Added
 - Template GitHub Issue (`.github/ISSUE_TEMPLATE/bug_report.md`) pour structurer la consignation des anomalies.
+- Tests sur la page de connexion (`Login.test.jsx`).
+
+### Changed
+- Factorisation de la logique commune aux configurateurs 2D/3D dans un hook partagé (`useCustomizationEditorBase`).
+- Renommage `AdminRoutes`/`ProtectedRoutes` → `AdminRoute`/`ProtectedRoute` (cohérence de nommage).
+- Modèle 3D (`tshirt.glb`) et logo compressés pour réduire le poids du bundle.
 
 ## [GF30 — V1GF Last Checkup] - 2026-07-05
 ### Fixed
