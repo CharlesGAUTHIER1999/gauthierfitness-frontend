@@ -392,7 +392,7 @@ export default function CustomizationCanvas3D({
                     intensity={0.5}
                     preset="rembrandt"
                     shadows="contact"
-                    environment="studio"
+                    environment={{ files: "/hdri/studio_small_03_1k.hdr" }}
                     adjustCamera={1.2}
                 >
                     <Suspense fallback={<Loader />}>
