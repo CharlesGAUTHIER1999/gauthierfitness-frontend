@@ -1,7 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {useCart} from "../context/CartContext.jsx";
 import Footer from "../components/Footer.jsx";
-import {Link} from "react-router-dom";
 import api from "../api/axios";
 import {loadStripe} from "@stripe/stripe-js";
 import {Elements} from "@stripe/react-stripe-js";
@@ -132,9 +131,6 @@ export default function CheckoutPage() {
                             <div className="ck-block">
                                 <div className="ck-block-head">
                                     <h2>Contact</h2>
-                                    <Link to="/login" className="ck-link">
-                                        Se connecter
-                                    </Link>
                                 </div>
 
                                 <div className="ck-field">
