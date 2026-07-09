@@ -157,6 +157,14 @@ export function AuthProvider({children}) {
         return res.data;
     }, []);
 
+    // Updates the logged-in user's contact/address details and refreshes the cached user.
+    const updateProfile = useCallback(async (fields) => {
+        const res = await api.patch("/me", fields);
+        setUser(res.data);
+        persistUser(res.data);
+        return res.data;
+    }, []);
+
     // Logs out : calls the API (best effort) then always clears local token/user state.
     const logout = useCallback(async () => {
         try {
@@ -184,8 +192,9 @@ export function AuthProvider({children}) {
             logout,
             forgotPassword,
             resetPassword,
+            updateProfile,
         }),
-        [user, token, loading, login, register, logout, forgotPassword, resetPassword]
+        [user, token, loading, login, register, logout, forgotPassword, resetPassword, updateProfile]
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
