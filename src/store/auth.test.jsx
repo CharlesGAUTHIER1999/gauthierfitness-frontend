@@ -16,8 +16,10 @@ function ConsumerSpy() {
             <span data-testid="user-email">{auth.user?.email ?? 'no-user'}</span>
             <span data-testid="is-auth">{String(auth.isAuthenticated)}</span>
             <span data-testid="loading">{String(auth.loading)}</span>
+            <span data-testid="user-city">{auth.user?.city ?? 'no-city'}</span>
             <button onClick={() => auth.login('alice@example.com', 'secret')}>login</button>
             <button onClick={() => auth.logout()}>logout</button>
+            <button onClick={() => auth.updateProfile({city: 'Paris'})}>update-profile</button>
         </div>
     );
 }
@@ -169,5 +171,31 @@ describe('AuthProvider', () => {
         expect(localStorage.getItem('token')).toBe('still_valid');
         expect(screen.getByTestId('is-auth')).toHaveTextContent('true');
         warnSpy.mockRestore();
+    });
+
+    it('updateProfile patches /me and refreshes the cached user', async () => {
+        localStorage.setItem('token', 'tok_42');
+        localStorage.setItem('user', JSON.stringify({email: 'alice@example.com'}));
+        api.get.mockResolvedValue({data: {email: 'alice@example.com'}});
+        api.patch.mockResolvedValue({
+            data: {id: 1, email: 'alice@example.com', city: 'Paris'},
+        });
+
+        renderWithProvider();
+
+        await waitFor(() => {
+            expect(screen.getByTestId('loading')).toHaveTextContent('false');
+        });
+
+        await act(async () => {
+            screen.getByText('update-profile').click();
+        });
+
+        await waitFor(() => {
+            expect(screen.getByTestId('user-city')).toHaveTextContent('Paris');
+        });
+
+        expect(api.patch).toHaveBeenCalledWith('/me', {city: 'Paris'});
+        expect(JSON.parse(localStorage.getItem('user'))).toMatchObject({city: 'Paris'});
     });
 });
