@@ -4,6 +4,15 @@ Toutes les évolutions notables du frontend GauthierFitness sont documentées ic
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
 
+## [v1.0.1] - 2026-07-10
+
+### Fixed
+- Auto-hébergement de la texture HDR de l'éditeur 3D, suppression de la dépendance externe raw.githack (voir Fiche d'incident 8, CSP).
+- Redirection après connexion vers la page initialement demandée ; suppression d'un lien de connexion mort dans le checkout.
+
+### Removed
+- Composant SearchBar inutilisé.
+
 ## [v1.0.0] - 2026-07-08
 
 Première release taguée du frontend. Regroupe l'ensemble des fonctionnalités développées de GF0 à GF31 : boutique,
