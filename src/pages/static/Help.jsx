@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
-import StaticPage from "../../components/StaticPage.jsx";
-import Footer from "../../components/Footer.jsx";
+import StaticPage from "../../components/layout/StaticPage.jsx";
+import Footer from "../../components/layout/Footer.jsx";
 
 // Static "Help center" placeholder page (feature coming soon)
 export default function Help() {

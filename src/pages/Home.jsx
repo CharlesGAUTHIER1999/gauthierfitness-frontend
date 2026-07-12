@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {getProducts} from "../services/productService.js";
-import ProductCard from "../components/ProductCard.jsx";
-import Footer from "../components/Footer.jsx";
+import ProductCard from "../components/product/ProductCard.jsx";
+import Footer from "../components/layout/Footer.jsx";
 
 // Homepage
 export default function Home() {

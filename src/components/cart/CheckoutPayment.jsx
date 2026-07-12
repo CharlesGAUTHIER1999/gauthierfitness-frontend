@@ -1,7 +1,7 @@
 import {useMemo, useState} from "react";
 import {PaymentElement, useElements, useStripe} from "@stripe/react-stripe-js";
 import {useNavigate} from "react-router-dom";
-import {useCart} from "../context/CartContext.jsx";
+import {useCart} from "../../context/CartContext.jsx";
 
 // Renders Stripe's PaymentElement and confirms the payment on submit.
 export default function CheckoutPayment({email, clientSecret}) {

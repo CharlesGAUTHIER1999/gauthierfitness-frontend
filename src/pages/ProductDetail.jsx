@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {getProduct} from "../services/productService";
-import SizeGuideDrawer from "../components/SizeGuideDrawer.jsx";
+import SizeGuideDrawer from "../components/product/SizeGuideDrawer.jsx";
 import {useCart} from "../context/CartContext.jsx";
 
 // Product page

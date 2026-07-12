@@ -60,11 +60,9 @@ src/
 │   ├── axios.js
 │   └── adminApi.js
 ├── components/           Composants UI réutilisables
-│   ├── Header.jsx · Footer.jsx · MegaMenu.jsx
-│   ├── CartDrawer.jsx · CheckoutPayment.jsx
-│   ├── ProductCard.jsx · SearchBar.jsx
-│   ├── SizeGuideDrawer.jsx
-│   └── StaticPage.jsx
+│   ├── layout/           Header.jsx · Footer.jsx · MegaMenu.jsx · StaticPage.jsx
+│   ├── cart/             CartDrawer.jsx · CheckoutPayment.jsx
+│   └── product/          ProductCard.jsx · SizeGuideDrawer.jsx
 ├── context/              Providers React (Cart, etc.)
 ├── features/             Code par domaine fonctionnel
 │   └── customization/    Configurateur 3D, canvas, preview

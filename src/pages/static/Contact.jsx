@@ -1,7 +1,7 @@
 import {useState} from "react";
-import StaticPage from "../../components/StaticPage.jsx";
+import StaticPage from "../../components/layout/StaticPage.jsx";
 import api from "../../api/axios";
-import Footer from "../../components/Footer.jsx";
+import Footer from "../../components/layout/Footer.jsx";
 
 const EMPTY = {name: "", email: "", subject: "", message: ""};
 

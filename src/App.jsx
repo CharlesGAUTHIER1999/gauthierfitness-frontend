@@ -2,7 +2,7 @@ import {lazy, Suspense} from "react";
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
-import CartDrawer from "./components/CartDrawer.jsx";
+import CartDrawer from "./components/cart/CartDrawer.jsx";
 import {AuthProvider, useAuth} from "./store/auth";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoute.jsx";
