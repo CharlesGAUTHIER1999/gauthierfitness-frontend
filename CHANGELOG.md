@@ -4,6 +4,11 @@ Toutes les évolutions notables du frontend GauthierFitness sont documentées ic
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
 
+## [v1.0.2] - 2026-07-12
+
+### Changed
+- Composants réorganisés en `components/layout/` (Header, Footer, MegaMenu, StaticPage), `components/cart/` (CartDrawer, CheckoutPayment) et `components/product/` (ProductCard, SizeGuideDrawer), au lieu d'un dossier `components/` à plat.
+
 ## [v1.0.1] - 2026-07-10
 
 ### Fixed
