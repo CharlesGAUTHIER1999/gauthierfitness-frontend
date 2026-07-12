@@ -1,8 +1,8 @@
 import {Link} from "react-router-dom";
 import {useMemo, useState} from "react";
 import MegaMenu from "./MegaMenu";
-import {useCart} from "../context/CartContext.jsx";
-import {useAuth} from "../store/auth";
+import {useCart} from "../../context/CartContext.jsx";
+import {useAuth} from "../../store/auth";
 
 const NAV_ITEMS = [
     {key: "femmes", label: "Femmes"},

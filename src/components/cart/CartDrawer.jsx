@@ -1,5 +1,5 @@
 import {useMemo, useRef} from "react";
-import {useCart} from "../context/CartContext";
+import {useCart} from "../../context/CartContext";
 import {useNavigate} from "react-router-dom";
 
 // Slide-in cart drawer : shows items, free-shipping progress, and checkout CTA.

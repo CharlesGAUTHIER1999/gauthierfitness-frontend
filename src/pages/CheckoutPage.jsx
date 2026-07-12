@@ -1,10 +1,10 @@
 import {useEffect, useMemo, useState} from "react";
 import {useCart} from "../context/CartContext.jsx";
-import Footer from "../components/Footer.jsx";
+import Footer from "../components/layout/Footer.jsx";
 import api from "../api/axios";
 import {loadStripe} from "@stripe/stripe-js";
 import {Elements} from "@stripe/react-stripe-js";
-import CheckoutPayment from "../components/CheckoutPayment.jsx";
+import CheckoutPayment from "../components/cart/CheckoutPayment.jsx";
 
 const COUNTRIES = [{code: "FR", label: "France"}];
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);

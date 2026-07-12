@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {getProducts} from "../services/productService";
-import ProductCard from "../components/ProductCard";
+import ProductCard from "../components/product/ProductCard";
 
 // Product listing page
 export default function Products() {
