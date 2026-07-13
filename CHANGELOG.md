@@ -4,6 +4,11 @@ Toutes les évolutions notables du frontend GauthierFitness sont documentées ic
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
 
+## [v1.0.4] - 2026-07-13
+
+### Changed
+- Mise à jour des dépendances npm mineures/patch groupées par Dependabot (10 paquets) et des actions GitHub utilisées en CI/CD (7 mises à jour). Les montées majeures (`@stripe/stripe-js`, `vite`, écosystème Jest) sont volontairement reportées après la soutenance, conformément au processus décrit en Bloc 4 (C4.1.1).
+
 ## [v1.0.3] - 2026-07-13
 
 ### Fixed
