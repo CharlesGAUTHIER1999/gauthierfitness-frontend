@@ -43,7 +43,11 @@ describe('AuthProvider', () => {
     });
 
     it('starts with no token and loading=true when localStorage empty', async () => {
-        api.get.mockRejectedValue(new Error('not called'));
+        api.get.mockImplementation((url) =>
+            url === '/cart'
+                ? Promise.resolve({data: {items: [], count: 0, subtotal: 0}})
+                : Promise.reject(new Error('not called'))
+        );
         renderWithProvider();
 
         expect(screen.getByTestId('token')).toHaveTextContent('no-token');
@@ -159,7 +163,11 @@ describe('AuthProvider', () => {
         localStorage.setItem('user', JSON.stringify({email: 'a@a.fr'}));
         const err = new Error('Server error');
         err.response = {status: 500};
-        api.get.mockRejectedValue(err);
+        api.get.mockImplementation((url) =>
+            url === '/cart'
+                ? Promise.resolve({data: {items: [], count: 0, subtotal: 0}})
+                : Promise.reject(err)
+        );
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {
         });
         renderWithProvider();
