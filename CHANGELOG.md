@@ -4,6 +4,11 @@ Toutes les évolutions notables du frontend GauthierFitness sont documentées ic
 
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
 
+## [v1.0.3] - 2026-07-13
+
+### Fixed
+- `auth.test.jsx` : mock `api.get` scopé par URL pour éviter qu'un `console.error` parasite de `CartProvider` (appel `/cart` échouant en cascade avec le `/me` simulé en échec pour les besoins du test) ne pollue la sortie des tests. Sans impact sur le comportement réel de l'application.
+
 ## [v1.0.2] - 2026-07-12
 
 ### Changed
