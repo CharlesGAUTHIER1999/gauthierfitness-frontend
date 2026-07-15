@@ -1,8 +1,10 @@
 import {useMemo, useRef, useState} from "react";
+import {Link} from "react-router-dom";
 import {FiX} from "react-icons/fi";
 import AiDesignForm from "./AiDesignForm";
 import TemplateSelector from "./TemplateSelector";
 import TextLayerForm from "./TextLayerForm";
+import {useAuth} from "../../../store/auth";
 
 // Constants
 
@@ -382,6 +384,7 @@ function MediasTab({
                        aiLoading,
                        aiError,
                        aiEnabled,
+                       aiLocked,
                    }) {
     const isUploadedLogo =
         Boolean(configuration?.logo?.src) &&
@@ -511,6 +514,14 @@ function MediasTab({
                     error={aiError}
                 />
             )}
+
+            {aiLocked && (
+                <div className="pc-field-group">
+                    <p className="pc-medias-hint">
+                        <Link to="/login">Connecte-toi</Link> pour générer un design par IA.
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
@@ -558,6 +569,8 @@ export default function CustomizationPanel({
                                            }) {
     const [activeTab, setActiveTab] = useState("style");
     const currentView = configuration?.view || "front";
+    const {isAuthenticated} = useAuth();
+    const aiAllowedForProduct = Boolean(product?.customization?.ai);
 
     const currentStyle = useMemo(
         () =>
@@ -643,7 +656,8 @@ export default function CustomizationPanel({
                         onGenerateAiDesign={onGenerateAiDesign}
                         aiLoading={aiLoading}
                         aiError={aiError}
-                        aiEnabled={Boolean(product?.customization?.ai)}
+                        aiEnabled={aiAllowedForProduct && isAuthenticated}
+                        aiLocked={aiAllowedForProduct && !isAuthenticated}
                     />
                 )}
             </div>

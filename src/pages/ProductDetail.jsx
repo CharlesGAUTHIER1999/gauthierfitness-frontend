@@ -121,16 +121,9 @@ export default function ProductDetail() {
 
     const isCustomizable = Boolean(product?.is_customizable);
 
-    // Login redirection
+    // Navigates to the customizer — available to guests, checkout still requires login
     function handleCustomize() {
-        const redirectUrl = `/products/${product.slug}/customize`;
-
-        if (!localStorage.getItem("token")) {
-            navigate(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
-            return;
-        }
-
-        navigate(redirectUrl, {
+        navigate(`/products/${product.slug}/customize`, {
             state: {
                 selectedOptionId: selectedPrimaryOption?.id ?? null,
                 selectedOptionType: selectedPrimaryOption?.type ?? null,

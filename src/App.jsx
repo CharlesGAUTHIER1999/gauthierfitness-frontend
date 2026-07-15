@@ -88,7 +88,7 @@ export default function App() {
                                         <Route path="/products" element={<Products/>}/>
                                         <Route path="/products/:slug" element={<ProductDetail/>}/>
                                         <Route path="/products/:slug/customize"
-                                               element={<ProtectedRoute><ProductCustomizePage/></ProtectedRoute>}/>
+                                               element={<ProductCustomizePage/>}/>
                                         <Route path="/about" element={<About/>}/>
                                         <Route path="/help" element={<Help/>}/>
                                         <Route path="/returns" element={<ReturnsPortal/>}/>
