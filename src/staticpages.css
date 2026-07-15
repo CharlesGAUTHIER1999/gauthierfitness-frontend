@@ -38,7 +38,8 @@
 }
 
 .static-page__header h1 {
-    font-size: 32px;
+    font-family: var(--font-display);
+    font-size: 38px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -58,7 +59,8 @@
 }
 
 .static-page__content h2 {
-    font-size: 18px;
+    font-family: var(--font-display);
+    font-size: 21px;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -66,8 +68,11 @@
 }
 
 .static-page__content h3 {
-    font-size: 15px;
+    font-family: var(--font-display);
+    font-size: 17px;
     font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     margin: 24px 0 8px;
 }
 
@@ -144,11 +149,12 @@
 }
 
 .coming-soon h2 {
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: 26px;
     font-weight: 700;
     margin: 0 0 12px;
-    text-transform: none;
-    letter-spacing: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
 .coming-soon p {
@@ -175,7 +181,8 @@
 }
 
 .about-row__text h1 {
-    font-size: 32px;
+    font-family: var(--font-display);
+    font-size: 38px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -183,7 +190,8 @@
 }
 
 .about-row__text h2 {
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -220,8 +228,11 @@
 
 .about-value-item h3 {
     margin: 0 0 4px;
-    font-size: 15px;
+    font-family: var(--font-display);
+    font-size: 18px;
     font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
 }
 
 .about-value-item p {
@@ -238,7 +249,8 @@
 }
 
 .about-mission h2 {
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;

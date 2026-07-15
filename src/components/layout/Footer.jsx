@@ -1,4 +1,5 @@
 import {Link} from "react-router-dom";
+import {FiInstagram, FiFacebook, FiLinkedin} from "react-icons/fi";
 
 // Site-wide footer
 export default function Footer() {
@@ -20,7 +21,7 @@ export default function Footer() {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                📷
+                                <FiInstagram/>
                             </a>
                             <a
                                 href="https://www.facebook.com/CharlesGauthier1711/"
@@ -28,7 +29,7 @@ export default function Footer() {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                📘
+                                <FiFacebook/>
                             </a>
                             <a
                                 href="https://www.linkedin.com/in/charlesgauthier999/"
@@ -36,7 +37,7 @@ export default function Footer() {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                💼
+                                <FiLinkedin/>
                             </a>
                         </div>
                     </div>

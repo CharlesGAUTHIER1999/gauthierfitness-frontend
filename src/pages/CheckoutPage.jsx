@@ -1,6 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
 import {useCart} from "../context/CartContext.jsx";
-import Footer from "../components/layout/Footer.jsx";
 import api from "../api/axios";
 import {loadStripe} from "@stripe/stripe-js";
 import {Elements} from "@stripe/react-stripe-js";
@@ -430,7 +429,6 @@ export default function CheckoutPage() {
                 </div>
             </div>
 
-            <Footer/>
         </>
     );
 }

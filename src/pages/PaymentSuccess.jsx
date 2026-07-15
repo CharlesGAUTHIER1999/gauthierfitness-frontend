@@ -1,5 +1,6 @@
 import {useEffect, useMemo, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
+import {FiCheckCircle} from "react-icons/fi";
 import {useCart} from "../context/CartContext.jsx";
 
 // Shown after a successful Stripe payment : clears the cart and confirms the order
@@ -39,7 +40,10 @@ export default function PaymentSuccess() {
 
     return (
         <div className="pay-result">
-            <h1>Paiement réussi 🎉</h1>
+            <h1 className="pay-result-title">
+                <FiCheckCircle className="pay-result-icon"/>
+                Paiement réussi
+            </h1>
 
             <p>
                 Merci pour votre commande. Vous recevrez un e-mail de confirmation sous
