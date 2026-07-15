@@ -1,6 +1,5 @@
 import {Link} from "react-router-dom";
 import StaticPage from "../../components/layout/StaticPage.jsx";
-import Footer from "../../components/layout/Footer.jsx";
 
 const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
@@ -73,7 +72,6 @@ export default function LegalMentions() {
                     Dernière mise à jour : {new Date().toLocaleDateString("fr-FR")}.
                 </p>
             </StaticPage>
-            <Footer/>
         </div>
     );
 }

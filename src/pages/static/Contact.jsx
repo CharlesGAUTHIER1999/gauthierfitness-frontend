@@ -1,7 +1,6 @@
 import {useState} from "react";
 import StaticPage from "../../components/layout/StaticPage.jsx";
 import api from "../../api/axios";
-import Footer from "../../components/layout/Footer.jsx";
 
 const EMPTY = {name: "", email: "", subject: "", message: ""};
 
@@ -78,7 +77,6 @@ export default function Contact() {
                 </form>
 
             </StaticPage>
-            <Footer/>
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import {useMemo, useRef, useState} from "react";
+import {FiX} from "react-icons/fi";
 import AiDesignForm from "./AiDesignForm";
 import TemplateSelector from "./TemplateSelector";
 import TextLayerForm from "./TextLayerForm";
@@ -494,7 +495,7 @@ function MediasTab({
                                     className="pc-remove-btn pc-remove-btn-sm"
                                     onClick={() => onRemoveImageLayer?.(layer.id)}
                                 >
-                                    ✕
+                                    <FiX/>
                                 </button>
                             </div>
                         ))}

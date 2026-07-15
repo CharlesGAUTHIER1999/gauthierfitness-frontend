@@ -1,6 +1,7 @@
 import {useMemo, useRef} from "react";
 import {useCart} from "../../context/CartContext";
 import {useNavigate} from "react-router-dom";
+import {FiX, FiCheck, FiTruck} from "react-icons/fi";
 
 // Slide-in cart drawer : shows items, free-shipping progress, and checkout CTA.
 export default function CartDrawer() {
@@ -36,14 +37,14 @@ export default function CartDrawer() {
                         onClick={closeCart}
                         aria-label="Fermer"
                     >
-                        ✕
+                        <FiX/>
                     </button>
                 </div>
 
                 <div className="cart-free-ship">
                     <div className="cart-free-ship-row">
             <span className="cart-free-ship-icon" aria-hidden="true">
-              {freeShip.isFree ? "✓" : "🚚"}
+              {freeShip.isFree ? <FiCheck/> : <FiTruck/>}
             </span>
 
                         {freeShip.isFree ? (

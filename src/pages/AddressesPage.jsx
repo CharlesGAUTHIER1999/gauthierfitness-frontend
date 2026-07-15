@@ -61,20 +61,20 @@ export default function AddressesPage() {
                 Retour aux détails du compte
             </Link>
 
-            {message && <div className="ck-success" style={{marginTop: 18}}>{message}</div>}
+            {message && <div className="ck-success mt-lg">{message}</div>}
 
             {!editing ? (
-                <div className="pay-result-box" style={{marginTop: 18, textAlign: "center"}}>
+                <div className="pay-result-box mt-lg text-center">
                     <div style={{fontWeight: 700}}>Par défaut</div>
 
                     {hasAddress ? (
-                        <div className="ck-muted" style={{marginTop: 6}}>
+                        <div className="ck-muted mt-sm">
                             {user.address && <div>{user.address}</div>}
                             <div>{[user.zip, user.city].filter(Boolean).join(" ")}</div>
                             <div>France</div>
                         </div>
                     ) : (
-                        <div className="ck-muted" style={{marginTop: 6}}>
+                        <div className="ck-muted mt-sm">
                             Aucune adresse enregistrée pour le moment.
                         </div>
                     )}
@@ -86,46 +86,51 @@ export default function AddressesPage() {
                     </div>
                 </div>
             ) : (
-                <form onSubmit={submit} className="pay-result-box" style={{marginTop: 18, maxWidth: 360}}>
+                <form onSubmit={submit} className="pay-result-box mt-lg" style={{maxWidth: 360}}>
                     {error && <div className="ck-error">{error}</div>}
 
-                    <label htmlFor="address-street">Adresse</label>
-                    <input
-                        id="address-street"
-                        type="text"
-                        placeholder="12 rue de la Paix"
-                        value={form.address}
-                        onChange={(e) => setForm({...form, address: e.target.value})}
-                        autoComplete="street-address"
-                    />
-                    <br/>
-                    <br/>
+                    <div className="ck-grid mt-md" style={{textAlign: "left"}}>
+                        <div className="ck-field ck-col-12">
+                            <label className="ck-label" htmlFor="address-street">Adresse</label>
+                            <input
+                                id="address-street"
+                                className="ck-input"
+                                type="text"
+                                placeholder="12 rue de la Paix"
+                                value={form.address}
+                                onChange={(e) => setForm({...form, address: e.target.value})}
+                                autoComplete="street-address"
+                            />
+                        </div>
 
-                    <label htmlFor="address-zip">Code postal</label>
-                    <input
-                        id="address-zip"
-                        type="text"
-                        placeholder="75002"
-                        value={form.zip}
-                        onChange={(e) => setForm({...form, zip: e.target.value})}
-                        autoComplete="postal-code"
-                    />
-                    <br/>
-                    <br/>
+                        <div className="ck-field ck-col-6">
+                            <label className="ck-label" htmlFor="address-zip">Code postal</label>
+                            <input
+                                id="address-zip"
+                                className="ck-input"
+                                type="text"
+                                placeholder="75002"
+                                value={form.zip}
+                                onChange={(e) => setForm({...form, zip: e.target.value})}
+                                autoComplete="postal-code"
+                            />
+                        </div>
 
-                    <label htmlFor="address-city">Ville</label>
-                    <input
-                        id="address-city"
-                        type="text"
-                        placeholder="Paris"
-                        value={form.city}
-                        onChange={(e) => setForm({...form, city: e.target.value})}
-                        autoComplete="address-level2"
-                    />
-                    <br/>
-                    <br/>
+                        <div className="ck-field ck-col-6">
+                            <label className="ck-label" htmlFor="address-city">Ville</label>
+                            <input
+                                id="address-city"
+                                className="ck-input"
+                                type="text"
+                                placeholder="Paris"
+                                value={form.city}
+                                onChange={(e) => setForm({...form, city: e.target.value})}
+                                autoComplete="address-level2"
+                            />
+                        </div>
+                    </div>
 
-                    <div className="pay-result-actions" style={{justifyContent: "center"}}>
+                    <div className="pay-result-actions mt-lg" style={{justifyContent: "center"}}>
                         <button className="ck-submit" type="submit" disabled={loading}>
                             {loading ? "Enregistrement…" : "Enregistrer"}
                         </button>

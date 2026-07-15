@@ -1,5 +1,6 @@
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useMemo, useState} from "react";
+import {FiUser, FiShoppingCart} from "react-icons/fi";
 import MegaMenu from "./MegaMenu";
 import {useCart} from "../../context/CartContext.jsx";
 import {useAuth} from "../../store/auth";
@@ -14,6 +15,8 @@ const NAV_ITEMS = [
 // Top site header
 export default function Header() {
     const [openMenu, setOpenMenu] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const navigate = useNavigate();
     const {count, openCart} = useCart();
     const {isAuthenticated, user} = useAuth();
     const profileHref = isAuthenticated ? "/account" : "/login";
@@ -27,6 +30,15 @@ export default function Header() {
     // Closes any open mega menu
     function closeMenu() {
         setOpenMenu(null);
+    }
+
+    // Navigates to the product listing filtered by the typed search term
+    function submitSearch(e) {
+        e.preventDefault();
+        const term = searchQuery.trim();
+        if (!term) return;
+        closeMenu();
+        navigate(`/products?search=${encodeURIComponent(term)}`);
     }
 
     return (
@@ -62,12 +74,16 @@ export default function Header() {
                 </nav>
 
                 <div className="actions">
-                    <input
-                        type="search"
-                        placeholder="Rechercher un produit"
-                        aria-label="Rechercher un produit"
-                        className="search"
-                    />
+                    <form role="search" onSubmit={submitSearch}>
+                        <input
+                            type="search"
+                            placeholder="Rechercher un produit"
+                            aria-label="Rechercher un produit"
+                            className="search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </form>
 
                     <Link
                         to={profileHref}
@@ -75,7 +91,7 @@ export default function Header() {
                         aria-label="Mon compte"
                         onClick={closeMenu}
                     >
-                        {isAuthenticated && initials ? initials : "👤"}
+                        {isAuthenticated && initials ? initials : <FiUser/>}
                     </Link>
 
                     <button
@@ -87,7 +103,7 @@ export default function Header() {
                         }}
                         aria-label="Ouvrir le panier"
                     >
-                        🛒{count > 0 && <span className="cart-badge">{count}</span>}
+                        <FiShoppingCart/>{count > 0 && <span className="cart-badge">{count}</span>}
                     </button>
                 </div>
             </div>

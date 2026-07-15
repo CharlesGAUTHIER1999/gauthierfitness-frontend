@@ -1,4 +1,5 @@
 import {useEffect, useMemo, useRef, useState} from "react";
+import {FiX} from "react-icons/fi";
 
 // Slide-in drawer showing the size guide table, with a CM/IN unit toggle.
 export default function SizeGuideDrawer({open, onClose}) {
@@ -141,7 +142,7 @@ export default function SizeGuideDrawer({open, onClose}) {
                                 lineHeight: 1,
                             }}
                         >
-                            ✕
+                            <FiX/>
                         </button>
                     </div>
 

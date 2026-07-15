@@ -72,86 +72,95 @@ export default function Register() {
     }
 
     return (
-        <form onSubmit={submit} style={{maxWidth: 320, margin: "50px auto"}}>
+        <form onSubmit={submit} style={{maxWidth: 360, margin: "50px auto"}}>
             <h2>Créer un compte</h2>
 
             {error && <div className="ck-error">{error}</div>}
 
-            <label className="sr-only" htmlFor="register-firstname">Prénom</label>
-            <input
-                id="register-firstname"
-                name="firstname"
-                placeholder="Prénom"
-                value={form.firstname}
-                onChange={handleChange}
-                required
-                autoComplete="given-name"
-            />
-            <br/>
-            <br/>
+            <div className="ck-grid" style={{marginTop: 18}}>
+                <div className="ck-field ck-col-6">
+                    <label className="ck-label" htmlFor="register-firstname">Prénom</label>
+                    <input
+                        id="register-firstname"
+                        className="ck-input"
+                        name="firstname"
+                        placeholder="Prénom"
+                        value={form.firstname}
+                        onChange={handleChange}
+                        required
+                        autoComplete="given-name"
+                    />
+                </div>
 
-            <label className="sr-only" htmlFor="register-lastname">Nom</label>
-            <input
-                id="register-lastname"
-                name="lastname"
-                placeholder="Nom"
-                value={form.lastname}
-                onChange={handleChange}
-                required
-                autoComplete="family-name"
-            />
-            <br/>
-            <br/>
+                <div className="ck-field ck-col-6">
+                    <label className="ck-label" htmlFor="register-lastname">Nom</label>
+                    <input
+                        id="register-lastname"
+                        className="ck-input"
+                        name="lastname"
+                        placeholder="Nom"
+                        value={form.lastname}
+                        onChange={handleChange}
+                        required
+                        autoComplete="family-name"
+                    />
+                </div>
 
-            <label className="sr-only" htmlFor="register-email">Email</label>
-            <input
-                id="register-email"
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                autoComplete="email"
-            />
-            <br/>
-            <br/>
+                <div className="ck-field ck-col-12">
+                    <label className="ck-label" htmlFor="register-email">Email</label>
+                    <input
+                        id="register-email"
+                        className="ck-input"
+                        type="email"
+                        name="email"
+                        placeholder="Email"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                        autoComplete="email"
+                    />
+                </div>
 
-            <label className="sr-only" htmlFor="register-password">Mot de passe</label>
-            <input
-                id="register-password"
-                type="password"
-                name="password"
-                placeholder="Mot de passe"
-                value={form.password}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                minLength={6}
-            />
-            <br/>
-            <br/>
+                <div className="ck-field ck-col-12">
+                    <label className="ck-label" htmlFor="register-password">Mot de passe</label>
+                    <input
+                        id="register-password"
+                        className="ck-input"
+                        type="password"
+                        name="password"
+                        placeholder="Mot de passe"
+                        value={form.password}
+                        onChange={handleChange}
+                        required
+                        autoComplete="new-password"
+                        minLength={6}
+                    />
+                </div>
 
-            <label className="sr-only" htmlFor="register-password-confirmation">Confirmer le mot de passe</label>
-            <input
-                id="register-password-confirmation"
-                type="password"
-                name="passwordConfirmation"
-                placeholder="Confirmer le mot de passe"
-                value={form.passwordConfirmation}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                minLength={6}
-            />
-            <br/>
-            <br/>
+                <div className="ck-field ck-col-12">
+                    <label className="ck-label" htmlFor="register-password-confirmation">
+                        Confirmer le mot de passe
+                    </label>
+                    <input
+                        id="register-password-confirmation"
+                        className="ck-input"
+                        type="password"
+                        name="passwordConfirmation"
+                        placeholder="Confirmer le mot de passe"
+                        value={form.passwordConfirmation}
+                        onChange={handleChange}
+                        required
+                        autoComplete="new-password"
+                        minLength={6}
+                    />
+                </div>
+            </div>
 
-            <button type="submit" disabled={loading}>
+            <button className="ck-submit" type="submit" disabled={loading} style={{marginTop: 18}}>
                 {loading ? "Création..." : "Créer un compte"}
             </button>
 
-            <p>
+            <p style={{marginTop: 14}}>
                 Déjà inscrit ? <Link to="/login">Connexion</Link>
             </p>
         </form>

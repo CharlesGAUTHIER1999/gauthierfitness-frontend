@@ -42,14 +42,7 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="pay-result">
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "baseline",
-                    gap: 12,
-                }}
-            >
+            <div className="row-between">
                 <h1>Détails de la commande</h1>
                 <Link className="ck-link" to="/account/orders">
                     Retour
@@ -71,22 +64,9 @@ export default function OrderDetailsPage() {
                             <strong>{statusLabel(order.order_status)}</strong>
                         </div>
 
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
-                                gap: 14,
-                                marginBottom: 16,
-                            }}
-                        >
-                            <div
-                                style={{
-                                    border: "1px solid #eee",
-                                    borderRadius: 12,
-                                    padding: 12,
-                                }}
-                            >
-                                <div style={{fontWeight: 650, marginBottom: 8}}>
+                        <div className="grid-2" style={{marginBottom: 16}}>
+                            <div className="ck-card">
+                                <div className="card-title">
                                     Adresse de livraison
                                 </div>
                                 <div className="ck-muted" style={{lineHeight: 1.5}}>
@@ -101,14 +81,8 @@ export default function OrderDetailsPage() {
                                 </div>
                             </div>
 
-                            <div
-                                style={{
-                                    border: "1px solid #eee",
-                                    borderRadius: 12,
-                                    padding: 12,
-                                }}
-                            >
-                                <div style={{fontWeight: 650, marginBottom: 8}}>
+                            <div className="ck-card">
+                                <div className="card-title">
                                     Adresse de facturation
                                 </div>
                                 <div className="ck-muted" style={{lineHeight: 1.5}}>
@@ -124,35 +98,18 @@ export default function OrderDetailsPage() {
                             </div>
                         </div>
 
-                        <div
-                            style={{
-                                overflowX: "auto",
-                                border: "1px solid #eee",
-                                borderRadius: 12,
-                            }}
-                        >
-                            <table
-                                style={{
-                                    width: "100%",
-                                    borderCollapse: "collapse",
-                                    fontSize: 14,
-                                }}
-                            >
+                        <div className="ck-card" style={{overflowX: "auto", padding: 0}}>
+                            <table className="ck-table">
                                 <thead>
-                                <tr
-                                    style={{
-                                        textAlign: "left",
-                                        borderBottom: "1px solid #eee",
-                                    }}
-                                >
-                                    <th style={{padding: "10px 12px"}}>Produit</th>
-                                    <th style={{padding: "10px 12px", textAlign: "right"}}>
+                                <tr>
+                                    <th>Produit</th>
+                                    <th className="is-right">
                                         Prix
                                     </th>
-                                    <th style={{padding: "10px 12px", textAlign: "center"}}>
+                                    <th className="is-center">
                                         Quantité
                                     </th>
-                                    <th style={{padding: "10px 12px", textAlign: "right"}}>
+                                    <th className="is-right">
                                         Total
                                     </th>
                                 </tr>
@@ -180,11 +137,8 @@ export default function OrderDetailsPage() {
                                     const isCustomized = Boolean(it?.custom_product_session_id);
 
                                     return (
-                                        <tr
-                                            key={it.id}
-                                            style={{borderBottom: "1px solid #f2f2f2"}}
-                                        >
-                                            <td style={{padding: "12px"}}>
+                                        <tr key={it.id}>
+                                            <td>
                                                 <div
                                                     style={{
                                                         display: "flex",
@@ -216,19 +170,13 @@ export default function OrderDetailsPage() {
                                                         </div>
 
                                                         {isCustomized && (
-                                                            <div
-                                                                className="ck-muted"
-                                                                style={{marginTop: 4}}
-                                                            >
+                                                            <div className="ck-muted mt-sm">
                                                                 Produit personnalisé
                                                             </div>
                                                         )}
 
                                                         {snapshot?.player_name?.value && (
-                                                            <div
-                                                                className="ck-muted"
-                                                                style={{marginTop: 4}}
-                                                            >
+                                                            <div className="ck-muted mt-sm">
                                                                 Nom : {snapshot.player_name.value}
                                                             </div>
                                                         )}
@@ -252,10 +200,7 @@ export default function OrderDetailsPage() {
                                                         )}
 
                                                         {it?.product?.slug && (
-                                                            <div
-                                                                className="ck-muted"
-                                                                style={{marginTop: 6}}
-                                                            >
+                                                            <div className="ck-muted mt-sm">
                                                                 <Link
                                                                     className="ck-link"
                                                                     to={`/products/${it.product.slug}`}
@@ -268,27 +213,15 @@ export default function OrderDetailsPage() {
                                                 </div>
                                             </td>
 
-                                            <td
-                                                style={{
-                                                    padding: "12px",
-                                                    textAlign: "right",
-                                                    fontWeight: 650,
-                                                }}
-                                            >
+                                            <td className="is-right" style={{fontWeight: 650}}>
                                                 {formatPriceEUR(unit)}
                                             </td>
 
-                                            <td style={{padding: "12px", textAlign: "center"}}>
+                                            <td className="is-center">
                                                 {qty}
                                             </td>
 
-                                            <td
-                                                style={{
-                                                    padding: "12px",
-                                                    textAlign: "right",
-                                                    fontWeight: 650,
-                                                }}
-                                            >
+                                            <td className="is-right" style={{fontWeight: 650}}>
                                                 {formatPriceEUR(line)}
                                             </td>
                                         </tr>
@@ -298,58 +231,27 @@ export default function OrderDetailsPage() {
                             </table>
                         </div>
 
-                        <div
-                            style={{
-                                display: "grid",
-                                gridTemplateColumns: "1fr 1fr",
-                                gap: 14,
-                                marginTop: 16,
-                            }}
-                        >
-                            <div
-                                style={{
-                                    border: "1px solid #eee",
-                                    borderRadius: 12,
-                                    padding: 12,
-                                }}
-                            >
-                                <div style={{fontWeight: 650, marginBottom: 10}}>
+                        <div className="grid-2 mt-md">
+                            <div className="ck-card">
+                                <div className="card-title">
                                     Détails de la commande
                                 </div>
                                 <div style={{display: "grid", gap: 8}}>
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            gap: 10,
-                                        }}
-                                    >
+                                    <div className="row-between">
                                         <span className="ck-muted">Transporteur</span>
                                         <span style={{fontWeight: 650}}>
                                             {shipment?.carrier || "—"}
                                         </span>
                                     </div>
 
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            gap: 10,
-                                        }}
-                                    >
+                                    <div className="row-between">
                                         <span className="ck-muted">Paiement</span>
                                         <span style={{fontWeight: 650}}>
                                             {payment?.provider || "stripe"}
                                         </span>
                                     </div>
 
-                                    <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            gap: 10,
-                                        }}
-                                    >
+                                    <div className="row-between">
                                         <span className="ck-muted">Statut paiement</span>
                                         <span style={{fontWeight: 650}}>
                                             {payment?.status || order.payment_status}
@@ -358,27 +260,15 @@ export default function OrderDetailsPage() {
                                 </div>
                             </div>
 
-                            <div
-                                style={{
-                                    border: "1px solid #eee",
-                                    borderRadius: 12,
-                                    padding: 12,
-                                }}
-                            >
-                                <div style={{fontWeight: 650, marginBottom: 10}}>Total</div>
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        justifyContent: "space-between",
-                                        gap: 10,
-                                    }}
-                                >
+                            <div className="ck-card">
+                                <div className="card-title">Total</div>
+                                <div className="row-between">
                                     <span className="ck-muted">Total TTC</span>
                                     <span style={{fontWeight: 750, fontSize: 18}}>
                                         {formatPriceEUR(order.total_ttc)}
                                     </span>
                                 </div>
-                                <div className="ck-muted" style={{marginTop: 8}}>
+                                <div className="ck-muted mt-sm">
                                     Taxes incluses.
                                 </div>
                             </div>

@@ -1,6 +1,6 @@
 import {Link} from "react-router-dom";
+import {FiAlertTriangle} from "react-icons/fi";
 import StaticPage from "../../components/layout/StaticPage.jsx";
-import Footer from "../../components/layout/Footer.jsx";
 
 const PH = ({children}) => (
     <span className="placeholder-field">{children}</span>
@@ -22,7 +22,7 @@ export default function Refunds() {
                 </p>
 
                 <div className="static-notice">
-                    ⚠️ <strong>Produits personnalisés</strong> - Les articles
+                    <FiAlertTriangle/> <strong>Produits personnalisés</strong> - Les articles
                     confectionnés via le configurateur (couleurs, motifs, logos sur
                     mesure) ne sont <strong>ni repris ni échangés</strong>, sauf défaut
                     de fabrication ou de conformité (art. L221-28 du Code de la
@@ -68,7 +68,6 @@ export default function Refunds() {
                     Dernière mise à jour : {new Date().toLocaleDateString("fr-FR")}.
                 </p>
             </StaticPage>
-            <Footer/>
         </div>
     );
 }

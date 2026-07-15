@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
+import {FiActivity, FiRepeat, FiZap} from "react-icons/fi";
 import {getProducts} from "../services/productService.js";
 import ProductCard from "../components/product/ProductCard.jsx";
-import Footer from "../components/layout/Footer.jsx";
 
 // Homepage
 export default function Home() {
@@ -90,7 +90,7 @@ export default function Home() {
 
                 <div className="promises-grid">
                     <div className="promise-item">
-                        <div className="promise-icon">💪</div>
+                        <div className="promise-icon"><FiActivity/></div>
                         <h3>La performance</h3>
                         <p>
                             Des produits conçus pour t'accompagner dans chaque entraînement et
@@ -99,7 +99,7 @@ export default function Home() {
                     </div>
 
                     <div className="promise-item">
-                        <div className="promise-icon">🔁</div>
+                        <div className="promise-icon"><FiRepeat/></div>
                         <h3>La polyvalence</h3>
                         <p>
                             Des vêtements pensés pour le sport, mais aussi pour ton quotidien.
@@ -107,7 +107,7 @@ export default function Home() {
                     </div>
 
                     <div className="promise-item">
-                        <div className="promise-icon">🔥</div>
+                        <div className="promise-icon"><FiZap/></div>
                         <h3>La motivation</h3>
                         <p>
                             Un style et une qualité qui donnent envie de rester constant et
@@ -117,7 +117,6 @@ export default function Home() {
                 </div>
             </section>
 
-            <Footer/>
         </>
     );
 }
