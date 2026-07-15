@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
+import {FiSearch} from "react-icons/fi";
 import {getProducts} from "../services/productService";
 import ProductCard from "../components/product/ProductCard";
 
@@ -22,15 +23,28 @@ export default function Products() {
 
     if (loading) return <p>Chargement…</p>;
 
+    const searchTerm = params.get("search");
+
     return (
         <div className="container">
             <h1>Nos produits</h1>
 
-            <div className="product-grid">
-                {products.map((p) => (
-                    <ProductCard key={p.slug} product={p}/>
-                ))}
-            </div>
+            {products.length === 0 ? (
+                <div className="empty-state">
+                    <FiSearch className="empty-state-icon"/>
+                    <p className="ck-muted">
+                        {searchTerm
+                            ? <>Aucun produit trouvé pour « {searchTerm} ».</>
+                            : "Aucun produit ne correspond à ces critères."}
+                    </p>
+                </div>
+            ) : (
+                <div className="product-grid">
+                    {products.map((p) => (
+                        <ProductCard key={p.slug} product={p}/>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -48,39 +48,45 @@ export default function Login() {
     }
 
     return (
-        <form onSubmit={submit} style={{maxWidth: 320, margin: "50px auto"}}>
+        <form onSubmit={submit} style={{maxWidth: 360, margin: "50px auto"}}>
             <h2>Connexion</h2>
             {error && <div className="ck-error">{error}</div>}
 
-            <label className="sr-only" htmlFor="login-email">Email</label>
-            <input
-                id="login-email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-            />
-            <br/>
-            <br/>
+            <div className="ck-grid" style={{marginTop: 18}}>
+                <div className="ck-field ck-col-12">
+                    <label className="ck-label" htmlFor="login-email">Email</label>
+                    <input
+                        id="login-email"
+                        className="ck-input"
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                    />
+                </div>
 
-            <label className="sr-only" htmlFor="login-password">Mot de passe</label>
-            <input
-                id="login-password"
-                type="password"
-                placeholder="Mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-            />
-            <br/>
-            <br/>
+                <div className="ck-field ck-col-12">
+                    <label className="ck-label" htmlFor="login-password">Mot de passe</label>
+                    <input
+                        id="login-password"
+                        className="ck-input"
+                        type="password"
+                        placeholder="Mot de passe"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        autoComplete="current-password"
+                    />
+                </div>
+            </div>
 
-            <button type="submit">Se connecter</button>
+            <button className="ck-submit" type="submit" style={{marginTop: 18}}>
+                Se connecter
+            </button>
 
-            <p>
+            <p style={{marginTop: 14}}>
                 <Link to="/forgot-password">Mot de passe oublié ?</Link>
             </p>
             <p>

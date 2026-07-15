@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from "react";
+import { FiEye, FiTool, FiMousePointer, FiMove } from "react-icons/fi";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
 import * as THREE from "three";
@@ -380,7 +381,7 @@ export default function CustomizationCanvas3D({
                     onClick={() => setDebugUV((v) => !v)}
                     title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
                 >
-                    {debugUV ? "🎨 Mode normal" : "🔧 Debug UV"}
+                    {debugUV ? <><FiEye/> Mode normal</> : <><FiTool/> Debug UV</>}
                 </button>
             )}
 
@@ -427,9 +428,9 @@ export default function CustomizationCanvas3D({
 
             <div className="pc3d-canvas-hint">
                 <span>
-                    🖱 Cliquer-glisser pour faire pivoter · Molette pour zoomer
+                    <FiMousePointer/> Cliquer-glisser pour faire pivoter · Molette pour zoomer
                     {" · "}
-                    ✋ Cliquer un texte ou une image pour le déplacer
+                    <FiMove/> Cliquer un texte ou une image pour le déplacer
                 </span>
             </div>
         </div>

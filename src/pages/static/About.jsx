@@ -1,6 +1,5 @@
 import {useEffect} from "react";
 import {Link} from "react-router-dom";
-import Footer from "../../components/layout/Footer.jsx";
 
 // Static "About us" page
 export default function About() {
@@ -88,7 +87,6 @@ export default function About() {
                     </p>
                 </section>
             </div>
-            <Footer/>
         </div>
     );
 }

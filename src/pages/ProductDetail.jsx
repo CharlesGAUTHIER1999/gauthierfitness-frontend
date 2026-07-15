@@ -1,5 +1,5 @@
 import {useEffect, useMemo, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 import {getProduct} from "../services/productService";
 import SizeGuideDrawer from "../components/product/SizeGuideDrawer.jsx";
 import {useCart} from "../context/CartContext.jsx";
@@ -9,6 +9,7 @@ export default function ProductDetail() {
     const {slug} = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
+    const [notFound, setNotFound] = useState(false);
     const {addItem, openCart} = useCart();
 
     const [selectedSizeOpt, setSelectedSizeOpt] = useState(null);
@@ -19,12 +20,21 @@ export default function ProductDetail() {
     useEffect(() => {
         let mounted = true;
 
+        setNotFound(false);
+
         getProduct(slug).then((p) => {
             if (!mounted) return;
             setProduct(p);
             setSelectedSizeOpt(null);
             setSelectedFormatOpt(null);
             setSelectedCapacityOpt(null);
+        }).catch((e) => {
+            if (!mounted) return;
+            if (e?.response?.status === 404) {
+                setNotFound(true);
+            } else {
+                throw e;
+            }
         });
 
         return () => {
@@ -91,6 +101,16 @@ export default function ProductDetail() {
         if (formatOptions.length > 0) return "Goûts";
         return "Couleur";
     }, [product?.variant_name, product?.variant_type, formatOptions.length]);
+
+    if (notFound) {
+        return (
+            <div className="container pay-result">
+                <h1>Produit introuvable</h1>
+                <p className="ck-muted">Ce produit n'existe pas ou n'est plus disponible.</p>
+                <Link className="ck-link" to="/products">Voir tous les produits</Link>
+            </div>
+        );
+    }
 
     if (!product) return <p>Chargement...</p>;
 

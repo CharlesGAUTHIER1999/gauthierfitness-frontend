@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
+import {FiPackage} from "react-icons/fi";
 import api from "../api/axios";
 import {formatPriceEUR, formatDateFR, statusLabel} from "../utils/orderUtils";
 
@@ -33,7 +34,7 @@ export default function OrdersPage() {
 
     return (
         <div className="pay-result">
-            <div style={{display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12}}>
+            <div className="row-between">
                 <h1>Mes commandes</h1>
                 <Link className="ck-link" to="/account">Retour compte</Link>
             </div>
@@ -44,29 +45,32 @@ export default function OrdersPage() {
                 ) : err ? (
                     <div className="ck-error">{err}</div>
                 ) : orders.length === 0 ? (
-                    <p className="ck-muted">Vous n’avez encore passé aucune commande.</p>
+                    <div className="empty-state">
+                        <FiPackage className="empty-state-icon"/>
+                        <p className="ck-muted">Vous n’avez encore passé aucune commande.</p>
+                    </div>
                 ) : (
                     <div style={{overflowX: "auto"}}>
-                        <table style={{width: "100%", borderCollapse: "collapse", fontSize: 14}}>
+                        <table className="ck-table">
                             <thead>
-                            <tr style={{textAlign: "left", borderBottom: "1px solid #eee"}}>
-                                <th style={{padding: "10px 8px"}}>Référence</th>
-                                <th style={{padding: "10px 8px"}}>Date</th>
-                                <th style={{padding: "10px 8px"}}>Statut</th>
-                                <th style={{padding: "10px 8px", textAlign: "right"}}>Total</th>
-                                <th style={{padding: "10px 8px", textAlign: "right"}}></th>
+                            <tr>
+                                <th>Référence</th>
+                                <th>Date</th>
+                                <th>Statut</th>
+                                <th className="is-right">Total</th>
+                                <th className="is-right"></th>
                             </tr>
                             </thead>
                             <tbody>
                             {orders.map((o) => (
-                                <tr key={o.id} style={{borderBottom: "1px solid #f2f2f2"}}>
-                                    <td style={{padding: "12px 8px", fontWeight: 650}}>#{o.id}</td>
-                                    <td style={{padding: "12px 8px"}}>{formatDateFR(o.created_at)}</td>
-                                    <td style={{padding: "12px 8px"}}>{statusLabel(o.order_status)}</td>
-                                    <td style={{padding: "12px 8px", textAlign: "right", fontWeight: 650}}>
+                                <tr key={o.id}>
+                                    <td style={{fontWeight: 650}}>#{o.id}</td>
+                                    <td>{formatDateFR(o.created_at)}</td>
+                                    <td>{statusLabel(o.order_status)}</td>
+                                    <td className="is-right" style={{fontWeight: 650}}>
                                         {formatPriceEUR(o.total_ttc)}
                                     </td>
-                                    <td style={{padding: "12px 8px", textAlign: "right"}}>
+                                    <td className="is-right">
                                         <Link className="ck-link" to={`/account/orders/${o.id}`}>
                                             Détails
                                         </Link>

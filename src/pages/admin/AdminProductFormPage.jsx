@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import {FiX} from "react-icons/fi";
 import {useNavigate, useParams} from "react-router-dom";
 import {createAdminProduct, getAdminProduct, updateAdminProduct,} from "../../api/adminApi";
 
@@ -297,7 +298,7 @@ export default function AdminProductFormPage() {
                         className="adm-action-btn adm-action-danger"
                         onClick={() => removeOption(idx)}
                     >
-                        ✕
+                        <FiX/>
                     </button>
                 </div>))}
             </div>
