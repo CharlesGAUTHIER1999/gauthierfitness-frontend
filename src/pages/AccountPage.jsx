@@ -33,7 +33,7 @@ export default function AccountPage() {
     }, []);
 
     const latest = orders.slice(0, 3);
-    const addressCount = Boolean(user?.address || user?.zip || user?.city) ? 1 : 0;
+    const addressCount = (user?.address || user?.zip || user?.city) ? 1 : 0;
 
     return (
         <div className="pay-result">
