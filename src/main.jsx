@@ -1,5 +1,7 @@
 import {createRoot} from "react-dom/client";
 import * as Sentry from "@sentry/react";
+import "@fontsource/bebas-neue/400.css";
+import "@fontsource/manrope/index.css";
 import "./index.css";
 import App from "./App.jsx";
 import {CartProvider} from "./context/CartContext.jsx";

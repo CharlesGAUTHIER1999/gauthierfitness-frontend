@@ -879,6 +879,40 @@
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
 }
 
+/* Reprise après perte du contexte WebGL (onglet en arrière-plan trop longtemps, etc.) */
+.pc3d-context-lost {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(240, 244, 255, 0.92);
+    backdrop-filter: blur(2px);
+    text-align: center;
+    padding: 24px;
+}
+
+.pc3d-context-lost p {
+    margin: 0;
+    font-size: 14px;
+    color: #374151;
+    max-width: 320px;
+}
+
+.pc3d-context-lost button {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: #111;
+    color: #fff;
+}
+
 /* Bouton debug UV (calibration temporaire) */
 .pc3d-debug-btn {
     position: absolute;
