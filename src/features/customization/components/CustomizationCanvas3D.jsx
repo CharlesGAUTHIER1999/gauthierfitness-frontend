@@ -308,6 +308,11 @@ function TShirtMesh({
     );
 }
 
+// If the tab stays hidden longer than this, the GPU context is likely to have
+// been reclaimed by the browser even without a clean "contextlost" event on
+// some platforms — remount proactively instead of waiting to find out.
+const STALE_AFTER_HIDDEN_MS = 15 * 60 * 1000;
+
 function Loader() {
     return (
         <mesh>
@@ -332,6 +337,51 @@ export default function CustomizationCanvas3D({
     const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
     const [debugUV, setDebugUV] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
+    const [contextLost, setContextLost] = useState(false);
+    const [remountKey, setRemountKey] = useState(0);
+    const hiddenAtRef = useRef(null);
+
+    // Fully remounts the <Canvas> tree: cleanest way to get a fresh
+    // WebGLRenderer + re-uploaded textures/geometries after a context loss.
+    function remountCanvas() {
+        setContextLost(false);
+        setRemountKey((k) => k + 1);
+    }
+
+    // Detects a lost/restored WebGL context on the canvas element itself.
+    function handleCanvasCreated({gl}) {
+        const canvasEl = gl.domElement;
+
+        canvasEl.addEventListener("webglcontextlost", (event) => {
+            // Required for the browser to actually attempt restoration.
+            event.preventDefault();
+            setContextLost(true);
+        });
+
+        canvasEl.addEventListener("webglcontextrestored", remountCanvas);
+    }
+
+    // Proactive safety net: if the tab was hidden for a while, assume the
+    // context may be stale and remount on return rather than wait for a
+    // "contextlost" event that some browsers/drivers don't always fire.
+    useEffect(() => {
+        function handleVisibilityChange() {
+            if (document.visibilityState === "hidden") {
+                hiddenAtRef.current = Date.now();
+                return;
+            }
+
+            const hiddenAt = hiddenAtRef.current;
+            hiddenAtRef.current = null;
+
+            if (hiddenAt && Date.now() - hiddenAt > STALE_AFTER_HIDDEN_MS) {
+                remountCanvas();
+            }
+        }
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    }, []);
 
     // GF13: the 3D config (GLB, UV zones, template chest center) is read
     // from productCustomizerConfigs.model3d via the model3d prop. Defensive
@@ -385,9 +435,20 @@ export default function CustomizationCanvas3D({
                 </button>
             )}
 
+            {contextLost && (
+                <div className="pc3d-context-lost">
+                    <p>L'aperçu 3D s'est interrompu (mise en veille du navigateur).</p>
+                    <button type="button" onClick={remountCanvas}>
+                        Relancer l'aperçu
+                    </button>
+                </div>
+            )}
+
             <Canvas
+                key={remountKey}
                 camera={{ position: [0, 0, 5], fov: 45 }}
                 gl={{ preserveDrawingBuffer: true }}
+                onCreated={handleCanvasCreated}
             >
                 <Stage
                     intensity={0.5}
