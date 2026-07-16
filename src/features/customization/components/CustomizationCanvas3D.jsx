@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { FiEye, FiTool, FiMousePointer, FiMove } from "react-icons/fi";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
@@ -77,7 +77,15 @@ function TShirtMesh({
                         meshMode,
                         activeMeshIndex,
                     }) {
-    const { scene } = useGLTF(glbPath);
+    const { scene: cachedScene } = useGLTF(glbPath);
+    // useGLTF caches the loaded scene globally by URL, shared across every
+    // mount that requests the same glbPath. The effect below mutates it
+    // (removing meshes, translating geometry) — without cloning, a second
+    // mount (e.g. navigating back to this page) prunes an already-pruned
+    // scene and can end up removing the last remaining mesh, leaving an
+    // empty scene. Cloning gives each mount its own disposable hierarchy;
+    // geometry/material stay shared references, so no extra GPU cost.
+    const scene = useMemo(() => cachedScene.clone(true), [cachedScene]);
     const groupRef = useRef();
     const dragState = useRef(null); // { id, type, pointerId }
 
