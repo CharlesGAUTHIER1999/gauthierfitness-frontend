@@ -1,5 +1,5 @@
 import {lazy, Suspense} from "react";
-import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
+import {BrowserRouter, Navigate, Route, Routes, useLocation} from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
 import CartDrawer from "./components/cart/CartDrawer.jsx";
@@ -50,11 +50,21 @@ const AdminOrderDetailPage = lazy(() => import("./pages/admin/AdminOrderDetailsP
 const AdminStockListPage = lazy(() => import("./pages/admin/AdminStockListPage.jsx"));
 const AdminStockPage = lazy(() => import("./pages/admin/AdminStockPage.jsx"));
 
-// Only renders children for unauthenticated visitors; redirects logged-in users to /account.
+// Only renders children for unauthenticated visitors; redirects logged-in users away.
+// Mirrors ProtectedRoute/Login's own `from` redirect-back so the two don't race each
+// other: without this, logging in from a `from`-tagged redirect to /login (e.g. the
+// checkout flow bouncing a guest here) could land the user on /account instead of
+// back where they were headed, because this guard and Login's own effect both react
+// to the same `token` becoming truthy and can resolve to different destinations.
 function GuestOnly({children}) {
     const {token, loading} = useAuth();
+    const location = useLocation();
     if (loading) return null;
-    if (token) return <Navigate to="/account" replace/>;
+    if (token) {
+        const from = location.state?.from;
+        const destination = from ? `${from.pathname}${from.search || ""}` : "/account";
+        return <Navigate to={destination} replace/>;
+    }
     return children;
 }
 
