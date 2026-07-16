@@ -340,6 +340,8 @@ export default function CustomizationCanvas3D({
     const [contextLost, setContextLost] = useState(false);
     const [remountKey, setRemountKey] = useState(0);
     const hiddenAtRef = useRef(null);
+    const wrapperRef = useRef(null);
+    const glRef = useRef(null);
 
     // Fully remounts the <Canvas> tree: cleanest way to get a fresh
     // WebGLRenderer + re-uploaded textures/geometries after a context loss.
@@ -350,6 +352,7 @@ export default function CustomizationCanvas3D({
 
     // Detects a lost/restored WebGL context on the canvas element itself.
     function handleCanvasCreated({gl}) {
+        glRef.current = gl;
         const canvasEl = gl.domElement;
 
         canvasEl.addEventListener("webglcontextlost", (event) => {
@@ -360,6 +363,32 @@ export default function CustomizationCanvas3D({
 
         canvasEl.addEventListener("webglcontextrestored", remountCanvas);
     }
+
+    // On some client-side route transitions (e.g. browser back/forward into
+    // this page), R3F's own resize handling can miss the wrapper's first
+    // real measurement and leave the drawing buffer at the browser's default
+    // 300x150 even though the CSS size is correct — the render then looks
+    // squashed. A ResizeObserver on the wrapper (rather than a one-shot check
+    // in onCreated) keeps re-asserting the real size onto the renderer for as
+    // long as the canvas is mounted, so it self-heals regardless of when the
+    // wrapper actually settles into its final layout.
+    useEffect(() => {
+        const wrapper = wrapperRef.current;
+        if (!wrapper) return;
+
+        const ro = new ResizeObserver((entries) => {
+            const entry = entries[0];
+            if (!entry) return;
+
+            const {width, height} = entry.contentRect;
+            if (width > 0 && height > 0) {
+                glRef.current?.setSize(width, height, false);
+            }
+        });
+
+        ro.observe(wrapper);
+        return () => ro.disconnect();
+    }, [remountKey]);
 
     // Proactive safety net: if the tab was hidden for a while, assume the
     // context may be stale and remount on return rather than wait for a
@@ -423,7 +452,7 @@ export default function CustomizationCanvas3D({
     }
 
     return (
-        <div className="pc3d-canvas-wrapper">
+        <div className="pc3d-canvas-wrapper" ref={wrapperRef}>
             {debugUVAllowed && (
                 <button
                     type="button"
