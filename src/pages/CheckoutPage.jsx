@@ -1,5 +1,7 @@
 import {useEffect, useMemo, useState} from "react";
+import {Link} from "react-router-dom";
 import {useCart} from "../context/CartContext.jsx";
+import {useAuth} from "../store/auth";
 import api from "../api/axios";
 import {loadStripe} from "@stripe/stripe-js";
 import {Elements} from "@stripe/react-stripe-js";
@@ -36,6 +38,7 @@ function loadStoredForm() {
 // Checkout page
 export default function CheckoutPage() {
     const {items, subtotal} = useCart();
+    const {isAuthenticated} = useAuth();
 
     const [form, setForm] = useState(loadStoredForm);
 
@@ -81,6 +84,7 @@ export default function CheckoutPage() {
 
         try {
             const payload = {
+                email: form.email,
                 shipping: {
                     firstname: form.firstname,
                     lastname: form.lastname,
@@ -130,6 +134,15 @@ export default function CheckoutPage() {
                             <div className="ck-block">
                                 <div className="ck-block-head">
                                     <h2>Contact</h2>
+                                    {!isAuthenticated && (
+                                        <Link
+                                            to="/login"
+                                            state={{from: {pathname: "/checkout"}}}
+                                            className="ck-link"
+                                        >
+                                            Vous avez un compte ? Se connecter
+                                        </Link>
+                                    )}
                                 </div>
 
                                 <div className="ck-field">

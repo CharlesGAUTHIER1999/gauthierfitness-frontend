@@ -2,11 +2,13 @@ import {useEffect, useMemo, useState} from "react";
 import {Link, useLocation} from "react-router-dom";
 import {FiCheckCircle} from "react-icons/fi";
 import {useCart} from "../context/CartContext.jsx";
+import {useAuth} from "../store/auth";
 
 // Shown after a successful Stripe payment : clears the cart and confirms the order
 export default function PaymentSuccess() {
     const location = useLocation();
     const {refetchCart, clear, closeCart} = useCart();
+    const {isAuthenticated} = useAuth();
     const [done, setDone] = useState(false);
 
     const params = useMemo(
@@ -71,9 +73,11 @@ export default function PaymentSuccess() {
             </div>
 
             <div className="pay-result-actions">
-                <Link to="/account/orders" className="btn">
-                    Voir ma commande
-                </Link>
+                {isAuthenticated && (
+                    <Link to="/account/orders" className="btn">
+                        Voir ma commande
+                    </Link>
+                )}
                 <Link to="/products" className="btn btn-outline">
                     Retour boutique
                 </Link>
