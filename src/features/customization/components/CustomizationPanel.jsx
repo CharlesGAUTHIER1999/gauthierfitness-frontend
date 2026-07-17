@@ -560,11 +560,10 @@ export default function CustomizationPanel({
                                                onProductColorChange,
                                                onResetConfiguration,
                                                onSave,
-                                               onFinish,
+                                               onAddToCart,
                                                saving,
                                                finishing,
                                                disabled = false,
-                                               hasSavedSession = false,
                                                mode = "2d",
                                            }) {
     const [activeTab, setActiveTab] = useState("style");
@@ -686,14 +685,10 @@ export default function CustomizationPanel({
                 <button
                     type="button"
                     className="pc-primary-btn"
-                    onClick={onFinish}
+                    onClick={onAddToCart}
                     disabled={disabled || finishing}
                 >
-                    {finishing
-                        ? "Finalisation…"
-                        : hasSavedSession
-                            ? "Terminer la configuration"
-                            : "Sauvegarder et terminer"}
+                    {finishing ? "Ajout au panier…" : "Ajouter au panier"}
                 </button>
             </div>
         </aside>

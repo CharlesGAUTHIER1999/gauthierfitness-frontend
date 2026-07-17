@@ -123,8 +123,9 @@ export default function App() {
                                         <Route path="/account/addresses"
                                                element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
                                         <Route path="/cart" element={<CartPage/>}/>
-                                        <Route path="/checkout"
-                                               element={<ProtectedRoute><CheckoutPage/></ProtectedRoute>}/>
+                                        {/* Guest checkout is allowed — CheckoutPage itself offers an
+                                            optional login link for customers who want their account. */}
+                                        <Route path="/checkout" element={<CheckoutPage/>}/>
                                         <Route path="/checkout/success" element={<PaymentSuccess/>}/>
                                         <Route path="/checkout/cancel" element={<PaymentCancel/>}/>
                                         <Route path="/dashboard"

@@ -1,5 +1,3 @@
-import {useMemo} from "react";
-import {useNavigate} from "react-router-dom";
 import {useCart} from "../../../context/CartContext";
 import {
     createCustomizationSession,
@@ -37,8 +35,7 @@ export default function ProductCustomizer({
                                               selectedOptionId = null,
                                               disabled = false,
                                           }) {
-    const navigate = useNavigate();
-    const {addItem} = useCart();
+    const {addItem, openCart} = useCart();
 
     const {
         configuration, setConfiguration,
@@ -70,8 +67,6 @@ export default function ProductCustomizer({
         handleGradientSelect,
         handleResetConfiguration,
     } = useCustomizationEditorBase(product, selectedOptionId, createDefaultCustomization);
-
-    const hasSavedSession = useMemo(() => !!session?.id, [session]);
 
     async function handleUploadLogo(file) {
         try {
@@ -320,8 +315,10 @@ export default function ProductCustomizer({
         await saveCustomization();
     }
 
-    // Ensures the session is saved, adds the item to the cart, then goes to checkout.
-    async function handleFinishConfiguration() {
+    // Ensures the session is saved, then adds the item to the cart. Stays on the
+    // page (rather than jumping to checkout) so the customer can keep configuring
+    // and adding more items — checkout is a separate, deliberate step from the cart.
+    async function handleAddToCart() {
         if (disabled) {
             setError("Veuillez d'abord sélectionner l'option requise.");
             return;
@@ -349,11 +346,12 @@ export default function ProductCustomizer({
                 customProductSessionId: currentSession.id,
             });
 
-            navigate("/checkout");
+            setSuccessMessage("Ajouté au panier.");
+            openCart();
         } catch (e) {
             setError(
                 e?.response?.data?.message ||
-                "Impossible de terminer la configuration."
+                "Impossible d'ajouter au panier."
             );
         } finally {
             setFinishing(false);
@@ -413,11 +411,10 @@ export default function ProductCustomizer({
                 onGradientSelect={handleGradientSelect}
                 onResetConfiguration={handleResetConfiguration}
                 onSave={handleSaveCustomization}
-                onFinish={handleFinishConfiguration}
+                onAddToCart={handleAddToCart}
                 saving={saving}
                 finishing={finishing}
                 disabled={disabled}
-                hasSavedSession={hasSavedSession}
             />
         </section>
     );
