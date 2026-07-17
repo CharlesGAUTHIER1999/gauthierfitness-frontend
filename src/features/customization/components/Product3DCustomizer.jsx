@@ -1,5 +1,5 @@
-import {useMemo} from "react";
-import {useNavigate} from "react-router-dom";
+import {useEffect, useMemo, useRef} from "react";
+import {useNavigate, useNavigationType} from "react-router-dom";
 import {useCart} from "../../../context/CartContext";
 import {
     createCustomizationSession,
@@ -43,7 +43,9 @@ export default function Product3DCustomizer({
                                                 disabled = false,
                                             }) {
     const navigate = useNavigate();
-    const {addItem, openCart} = useCart();
+    const navigationType = useNavigationType();
+    const {addItem, openCart, items, remove} = useCart();
+    const resumedFromCartRef = useRef(false);
 
     const {
         configuration, setConfiguration,
@@ -81,6 +83,32 @@ export default function Product3DCustomizer({
         () => getProductCustomizer3DConfig(product),
         [product]
     );
+
+    // Landing here via the browser's back button (e.g. from checkout) while this
+    // exact product/option is already in the cart as a customized item means the
+    // customer is resuming that design, not starting a new one — reload it, and
+    // drop the stale cart line so it isn't left duplicated once they add it back.
+    // A regular "Personnaliser ce produit" navigation (PUSH) is left untouched.
+    useEffect(() => {
+        if (navigationType !== "POP" || resumedFromCartRef.current) return;
+
+        const existingItem = items.find(
+            (it) =>
+                Number(it.productId) === Number(product?.id) &&
+                Number(it.optionId) === Number(selectedOptionId) &&
+                it.customProductSessionId
+        );
+
+        if (!existingItem) return;
+
+        resumedFromCartRef.current = true;
+        setConfiguration(
+            existingItem.customization?.configuration || createDefault3DCustomization(product)
+        );
+        setSession({id: existingItem.customProductSessionId});
+        void remove(existingItem);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items, navigationType, product?.id, selectedOptionId]);
 
     // ---- Handlers ----
     // Navigates to another color/variants customize page, preserving the selected option.
