@@ -68,17 +68,13 @@ export default function Contact() {
                         <input type="email" name="email" value={form.email} onChange={update} required maxLength={190}/>
                     </label>
                     <label>
-                        Motif
+                        Sujet
                         <select name="reason" value={form.reason} onChange={update} required>
                             <option value="" disabled>Sélectionnez un motif</option>
                             {REASONS.map((r) => (
                                 <option key={r.value} value={r.value}>{r.label}</option>
                             ))}
                         </select>
-                    </label>
-                    <label>
-                        Sujet
-                        <input name="subject" value={form.subject} onChange={update} maxLength={160}/>
                     </label>
                     <label>
                         Message
