@@ -1,6 +1,6 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useMemo, useState} from "react";
-import {FiUser, FiShoppingCart} from "react-icons/fi";
+import {FiUser, FiShoppingCart, FiGrid} from "react-icons/fi";
 import MegaMenu from "./MegaMenu";
 import {useCart} from "../../context/CartContext.jsx";
 import {useAuth} from "../../store/auth";
@@ -84,6 +84,18 @@ export default function Header() {
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </form>
+
+                    {isAuthenticated && user?.is_admin && (
+                        <Link
+                            to="/admin"
+                            className="icon"
+                            aria-label="Back-office"
+                            title="Back-office"
+                            onClick={closeMenu}
+                        >
+                            <FiGrid/>
+                        </Link>
+                    )}
 
                     <Link
                         to={profileHref}

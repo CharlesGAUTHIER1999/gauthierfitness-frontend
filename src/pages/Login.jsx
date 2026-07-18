@@ -4,7 +4,7 @@ import {useNavigate, Link, useSearchParams, useLocation} from "react-router-dom"
 
 // Login form : authenticates via email/password and redirects on success
 export default function Login() {
-    const {login, token, user} = useAuth();
+    const {login, token} = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
@@ -24,12 +24,13 @@ export default function Login() {
     // route guards, which may still read the stale, pre-login context.
     useEffect(() => {
         if (!loggedIn || !token) return;
-        const destination = redirectParam || fromPath || (user?.is_admin ? "/admin" : "/");
+        const destination = redirectParam || fromPath || "/";
         navigate(destination, {replace: true});
-    }, [loggedIn, token, user, redirectParam, fromPath, navigate]);
+    }, [loggedIn, token, redirectParam, fromPath, navigate]);
 
     // Submits credentials and logs the user in ; redirect happens in the effect above.
-    // Without an explicit ?redirect=, admins land on the back-office instead of the home page.
+    // Without an explicit ?redirect= or origin page, everyone lands on the home page —
+    // admins reach the back-office through its own nav entry, not an automatic redirect.
     async function submit(e) {
         e.preventDefault();
         setError(null);
