@@ -1,7 +1,7 @@
 import {Link} from "react-router-dom";
 import {FiInstagram, FiFacebook, FiLinkedin} from "react-icons/fi";
 
-// Site-wide footer
+// Footer
 export default function Footer() {
     return (
         <footer className="footer">

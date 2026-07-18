@@ -339,3 +339,49 @@
     color: #9b2222;
 }
 
+/* =========================
+   CENTRE D'AIDE (FAQ)
+========================= */
+
+.faq-section {
+    margin-bottom: 8px;
+}
+
+.faq-item {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.faq-item__question {
+    list-style: none;
+    cursor: pointer;
+    padding: 16px 28px 16px 0;
+    position: relative;
+    font-weight: 600;
+    font-size: 15px;
+    color: #222222;
+}
+
+.faq-item__question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item__question::after {
+    content: "+";
+    position: absolute;
+    right: 4px;
+    top: 14px;
+    font-size: 20px;
+    font-weight: 400;
+    color: #888888;
+}
+
+.faq-item[open] > .faq-item__question::after {
+    content: "–";
+}
+
+.faq-item__answer {
+    padding: 0 24px 18px 0;
+    color: #555555;
+    line-height: 1.7;
+}
+
