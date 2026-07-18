@@ -2,6 +2,7 @@ import {useMemo, useRef} from "react";
 import {useCart} from "../../context/CartContext";
 import {useNavigate} from "react-router-dom";
 import {FiX, FiCheck, FiTruck} from "react-icons/fi";
+import {FREE_SHIPPING_THRESHOLD} from "../../constants/shipping.js";
 
 // Slide-in cart drawer : shows items, free-shipping progress, and checkout CTA.
 export default function CartDrawer() {
@@ -9,7 +10,6 @@ export default function CartDrawer() {
     const {isOpen, closeCart, items, subtotal, inc, dec, remove} = useCart();
     const drawerRef = useRef(null);
     const closeBtnRef = useRef(null);
-    const FREE_SHIPPING_THRESHOLD = 70;
     const freeShip = useMemo(() => {
         const remaining = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
         const progress = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);

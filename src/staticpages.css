@@ -296,6 +296,7 @@
 }
 
 .contact-form input,
+.contact-form select,
 .contact-form textarea {
     font: inherit;
     padding: 12px 14px;
@@ -305,9 +306,11 @@
     letter-spacing: 0;
     font-weight: 400;
     color: #222222;
+    background: #ffffff;
 }
 
 .contact-form input:focus,
+.contact-form select:focus,
 .contact-form textarea:focus {
     outline: none;
     border-color: #000000;

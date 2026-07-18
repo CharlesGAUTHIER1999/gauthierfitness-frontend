@@ -2,7 +2,15 @@ import {useState} from "react";
 import StaticPage from "../../components/layout/StaticPage.jsx";
 import api from "../../api/axios";
 
-const EMPTY = {name: "", email: "", subject: "", message: ""};
+const EMPTY = {name: "", email: "", reason: "", subject: "", message: ""};
+
+const REASONS = [
+    {value: "order", label: "Problème de commande"},
+    {value: "delivery", label: "Problème de livraison"},
+    {value: "payment", label: "Problème de paiement"},
+    {value: "customization", label: "Personnalisation d'un produit"},
+    {value: "other", label: "Autre"},
+];
 
 // Contact page with a form that posts the message to the backend contact endpoint.
 export default function Contact() {
@@ -58,6 +66,15 @@ export default function Contact() {
                     <label>
                         Email
                         <input type="email" name="email" value={form.email} onChange={update} required maxLength={190}/>
+                    </label>
+                    <label>
+                        Motif
+                        <select name="reason" value={form.reason} onChange={update} required>
+                            <option value="" disabled>Sélectionnez un motif</option>
+                            {REASONS.map((r) => (
+                                <option key={r.value} value={r.value}>{r.label}</option>
+                            ))}
+                        </select>
                     </label>
                     <label>
                         Sujet
