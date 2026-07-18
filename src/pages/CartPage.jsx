@@ -1,13 +1,15 @@
 import {Link, useNavigate} from "react-router-dom";
 import {useMemo} from "react";
 import {useCart} from "../context/CartContext";
+import {estimateShippingCost} from "../constants/shipping.js";
 
 // Cart page : lists items, lets user adjust quantity/remove, and proceed to checkout
 export default function CartPage() {
     const navigate = useNavigate();
     const {items, subtotal, inc, dec, remove} = useCart();
 
-    const shippingCost = useMemo(() => (subtotal >= 50 ? 0 : 3.9), [subtotal]);
+    // Preview only (standard rate) — the actual method is chosen at checkout.
+    const shippingCost = useMemo(() => estimateShippingCost("standard", subtotal), [subtotal]);
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
 
     if (items.length === 0) {
@@ -51,7 +53,7 @@ export default function CartPage() {
             <hr/>
 
             <div>Sous-total : {subtotal.toFixed(2)} €</div>
-            <div>Livraison : {shippingCost === 0 ? "Gratuite" : `${shippingCost} €`}</div>
+            <div>Livraison (standard) : {shippingCost === 0 ? "Gratuite" : `${shippingCost.toFixed(2)} €`}</div>
             <strong>Total : {total.toFixed(2)} €</strong>
 
             <button onClick={() => navigate("/checkout")}>
