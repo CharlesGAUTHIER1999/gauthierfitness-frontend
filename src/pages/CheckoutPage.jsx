@@ -6,6 +6,7 @@ import api from "../api/axios";
 import {loadStripe} from "@stripe/stripe-js";
 import {Elements} from "@stripe/react-stripe-js";
 import CheckoutPayment from "../components/cart/CheckoutPayment.jsx";
+import {SHIPPING_METHODS, estimateShippingCost} from "../constants/shipping.js";
 
 const COUNTRIES = [{code: "FR", label: "France"}];
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
@@ -55,7 +56,10 @@ export default function CheckoutPage() {
         }
     }, [form]);
 
-    const shippingCost = useMemo(() => (subtotal >= 50 ? 0 : 3.9), [subtotal]);
+    const shippingCost = useMemo(
+        () => estimateShippingCost(form.shippingMethod, subtotal),
+        [form.shippingMethod, subtotal]
+    );
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
 
     function update(key, value) {
@@ -63,7 +67,7 @@ export default function CheckoutPage() {
 
         if (
             clientSecret &&
-            ["address", "zip", "city", "country", "firstname", "lastname"].includes(key)
+            ["address", "zip", "city", "country", "firstname", "lastname", "shippingMethod"].includes(key)
         ) {
             setClientSecret(null);
         }
@@ -85,6 +89,7 @@ export default function CheckoutPage() {
         try {
             const payload = {
                 email: form.email,
+                shipping_method: form.shippingMethod,
                 shipping: {
                     firstname: form.firstname,
                     lastname: form.lastname,
@@ -320,21 +325,29 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className="ck-radio-card">
-                                    <label className="ck-radio">
-                                        <input
-                                            type="radio"
-                                            name="shippingMethod"
-                                            value="standard"
-                                            checked={form.shippingMethod === "standard"}
-                                            onChange={(e) => update("shippingMethod", e.target.value)}
-                                        />
-                                        <span className="ck-radio-label">
-                                            Livraison
-                                            <span className="ck-radio-price">
-                                                {shippingCost === 0 ? "Gratuite" : `${shippingCost.toFixed(2)} €`}
-                                            </span>
-                                        </span>
-                                    </label>
+                                    {SHIPPING_METHODS.map((m) => {
+                                        const cost = estimateShippingCost(m.value, subtotal);
+                                        return (
+                                            <label key={m.value} className="ck-radio">
+                                                <input
+                                                    type="radio"
+                                                    name="shippingMethod"
+                                                    value={m.value}
+                                                    checked={form.shippingMethod === m.value}
+                                                    onChange={(e) => update("shippingMethod", e.target.value)}
+                                                />
+                                                <span className="ck-radio-label">
+                                                    {m.label}
+                                                    <span className="ck-muted" style={{display: "block", fontSize: "0.85em"}}>
+                                                        {m.eta}
+                                                    </span>
+                                                    <span className="ck-radio-price">
+                                                        {cost === 0 ? "Gratuite" : `${cost.toFixed(2)} €`}
+                                                    </span>
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
