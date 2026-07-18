@@ -63,13 +63,13 @@ describe('Login', () => {
         expect(screen.getByText('Home page')).toBeInTheDocument();
     });
 
-    it('navigates to /admin when the logged-in user is an admin', async () => {
+    it('navigates home even when the logged-in user is an admin', async () => {
         const login = jest.fn().mockResolvedValue({user: {id: 1, is_admin: true}});
         authModule.useAuth.mockReturnValue({login, token: 'tok_admin', user: {id: 1, is_admin: true}});
 
         renderLogin();
         await submitForm();
 
-        expect(screen.getByText('Admin page')).toBeInTheDocument();
+        expect(screen.getByText('Home page')).toBeInTheDocument();
     });
 });

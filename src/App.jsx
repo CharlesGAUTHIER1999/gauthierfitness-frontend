@@ -57,14 +57,12 @@ const AdminStockPage = lazy(() => import("./pages/admin/AdminStockPage.jsx"));
 // back where they were headed, because this guard and Login's own effect both react
 // to the same `token` becoming truthy and can resolve to different destinations.
 function GuestOnly({children}) {
-    const {token, user, loading} = useAuth();
+    const {token, loading} = useAuth();
     const location = useLocation();
     if (loading) return null;
     if (token) {
         const from = location.state?.from;
-        const destination = from
-            ? `${from.pathname}${from.search || ""}`
-            : (user?.is_admin ? "/admin" : "/");
+        const destination = from ? `${from.pathname}${from.search || ""}` : "/";
         return <Navigate to={destination} replace/>;
     }
     return children;
