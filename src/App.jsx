@@ -7,8 +7,7 @@ import {AuthProvider, useAuth} from "./store/auth";
 import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 import AdminRoute from "./routes/AdminRoute.jsx";
 
-// Lazy-loaded: kept out of the initial bundle so the Home page doesn't pay
-// for the 3D/2D customizer (Three.js, Konva) or the admin back-office.
+// Lazy-loaded
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -16,7 +15,6 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Products = lazy(() => import("./pages/Products"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const ProductCustomizePage = lazy(() => import("./pages/ProductCustomizePage"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CartPage = lazy(() => import("./pages/CartPage.jsx"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess.jsx"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel.jsx"));
@@ -50,12 +48,7 @@ const AdminOrderDetailPage = lazy(() => import("./pages/admin/AdminOrderDetailsP
 const AdminStockListPage = lazy(() => import("./pages/admin/AdminStockListPage.jsx"));
 const AdminStockPage = lazy(() => import("./pages/admin/AdminStockPage.jsx"));
 
-// Only renders children for unauthenticated visitors; redirects logged-in users away.
-// Mirrors ProtectedRoute/Login's own `from` redirect-back so the two don't race each
-// other: without this, logging in from a `from`-tagged redirect to /login (e.g. the
-// checkout flow bouncing a guest here) could land the user on /account instead of
-// back where they were headed, because this guard and Login's own effect both react
-// to the same `token` becoming truthy and can resolve to different destinations.
+// Renders children for unauthenticated visitors
 function GuestOnly({children}) {
     const {token, loading} = useAuth();
     const location = useLocation();
@@ -68,12 +61,11 @@ function GuestOnly({children}) {
     return children;
 }
 
-// Root app component: sets up routing for admin and public sections.
+// Root app component
 export default function App() {
-    return (
-        <BrowserRouter>
-            <AuthProvider>
-                <Suspense fallback={null}>
+    return (<BrowserRouter>
+        <AuthProvider>
+            <Suspense fallback={null}>
                 <Routes>
                     {/* Admin */}
                     <Route path="/admin" element={<AdminRoute><AdminLayout/></AdminRoute>}>
@@ -90,55 +82,47 @@ export default function App() {
                     {/* Public */}
                     <Route
                         path="/*"
-                        element={
-                            <>
-                                <AppLayout>
-                                    <Routes>
-                                        <Route path="/" element={<Home/>}/>
-                                        <Route path="/products" element={<Products/>}/>
-                                        <Route path="/products/:slug" element={<ProductDetail/>}/>
-                                        <Route path="/products/:slug/customize"
-                                               element={<ProductCustomizePage/>}/>
-                                        <Route path="/about" element={<About/>}/>
-                                        <Route path="/help" element={<Help/>}/>
-                                        <Route path="/returns" element={<ReturnsPortal/>}/>
-                                        <Route path="/contact" element={<Contact/>}/>
-                                        <Route path="/cgv" element={<Cgv/>}/>
-                                        <Route path="/privacy" element={<Privacy/>}/>
-                                        <Route path="/legal" element={<LegalMentions/>}/>
-                                        <Route path="/shipping" element={<Shipping/>}/>
-                                        <Route path="/refunds" element={<Refunds/>}/>
-                                        <Route path="/login" element={<GuestOnly><Login/></GuestOnly>}/>
-                                        <Route path="/register" element={<GuestOnly><Register/></GuestOnly>}/>
-                                        <Route path="/forgot-password"
-                                               element={<GuestOnly><ForgotPassword/></GuestOnly>}/>
-                                        <Route path="/reset-password"
-                                               element={<GuestOnly><ResetPassword/></GuestOnly>}/>
-                                        <Route path="/account"
-                                               element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>
-                                        <Route path="/account/orders"
-                                               element={<ProtectedRoute><OrdersPage/></ProtectedRoute>}/>
-                                        <Route path="/account/orders/:id"
-                                               element={<ProtectedRoute><OrderDetailsPage/></ProtectedRoute>}/>
-                                        <Route path="/account/addresses"
-                                               element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
-                                        <Route path="/cart" element={<CartPage/>}/>
-                                        {/* Guest checkout is allowed — CheckoutPage itself offers an
-                                            optional login link for customers who want their account. */}
-                                        <Route path="/checkout" element={<CheckoutPage/>}/>
-                                        <Route path="/checkout/success" element={<PaymentSuccess/>}/>
-                                        <Route path="/checkout/cancel" element={<PaymentCancel/>}/>
-                                        <Route path="/dashboard"
-                                               element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
-                                    </Routes>
-                                </AppLayout>
-                                <CartDrawer/>
-                            </>
-                        }
+                        element={<>
+                            <AppLayout>
+                                <Routes>
+                                    <Route path="/" element={<Home/>}/>
+                                    <Route path="/products" element={<Products/>}/>
+                                    <Route path="/products/:slug" element={<ProductDetail/>}/>
+                                    <Route path="/products/:slug/customize" element={<ProductCustomizePage/>}/>
+                                    <Route path="/about" element={<About/>}/>
+                                    <Route path="/help" element={<Help/>}/>
+                                    <Route path="/returns" element={<ReturnsPortal/>}/>
+                                    <Route path="/contact" element={<Contact/>}/>
+                                    <Route path="/cgv" element={<Cgv/>}/>
+                                    <Route path="/privacy" element={<Privacy/>}/>
+                                    <Route path="/legal" element={<LegalMentions/>}/>
+                                    <Route path="/shipping" element={<Shipping/>}/>
+                                    <Route path="/refunds" element={<Refunds/>}/>
+                                    <Route path="/login" element={<GuestOnly><Login/></GuestOnly>}/>
+                                    <Route path="/register" element={<GuestOnly><Register/></GuestOnly>}/>
+                                    <Route path="/forgot-password"
+                                           element={<GuestOnly><ForgotPassword/></GuestOnly>}/>
+                                    <Route path="/reset-password"
+                                           element={<GuestOnly><ResetPassword/></GuestOnly>}/>
+                                    <Route path="/account"
+                                           element={<ProtectedRoute><AccountPage/></ProtectedRoute>}/>
+                                    <Route path="/account/orders"
+                                           element={<ProtectedRoute><OrdersPage/></ProtectedRoute>}/>
+                                    <Route path="/account/orders/:id"
+                                           element={<ProtectedRoute><OrderDetailsPage/></ProtectedRoute>}/>
+                                    <Route path="/account/addresses"
+                                           element={<ProtectedRoute><AddressesPage/></ProtectedRoute>}/>
+                                    <Route path="/cart" element={<CartPage/>}/>
+                                    <Route path="/checkout" element={<CheckoutPage/>}/>
+                                    <Route path="/checkout/success" element={<PaymentSuccess/>}/>
+                                    <Route path="/checkout/cancel" element={<PaymentCancel/>}/>
+                                </Routes>
+                            </AppLayout>
+                            <CartDrawer/>
+                        </>}
                     />
                 </Routes>
-                </Suspense>
-            </AuthProvider>
-        </BrowserRouter>
-    );
+            </Suspense>
+        </AuthProvider>
+    </BrowserRouter>);
 }

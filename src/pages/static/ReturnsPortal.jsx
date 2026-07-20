@@ -1,7 +1,7 @@
 import {Link} from "react-router-dom";
 import StaticPage from "../../components/layout/StaticPage.jsx";
 
-// Static "Returns portal" placeholder page (feature coming soon)
+// Returns portal page
 export default function ReturnsPortal() {
     return (
         <div>

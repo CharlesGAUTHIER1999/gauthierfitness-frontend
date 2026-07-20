@@ -1,41 +1,33 @@
 import {useEffect, useMemo, useRef} from "react";
 import {useNavigate, useNavigationType} from "react-router-dom";
 import {useCart} from "../../../context/CartContext";
-import {
-    createCustomizationSession,
-    generateAiDesign,
-    uploadCustomizationLogo,
-    uploadCustomizationImage
-} from "../services/customizationService";
+import {generateAiDesign, uploadCustomizationImage} from "../services/customizationService";
 import {createDefaultCustomization} from "../utils/defaultCustomization";
 import {getProductCustomizer3DConfig} from "../utils/productCustomizerConfigs";
 import {useCustomizationEditorBase} from "../hooks/useCustomizationEditorBase";
+import {useCustomizationSubmission} from "../hooks/useCustomizationSubmission";
 import CustomizationCanvas3D from "./CustomizationCanvas3D";
 import CustomizationPanel from "./CustomizationPanel";
 
-// Base colors available for the 3D configurator
-const COLOR_SWATCHES_3D = [
-    {label: "Bleu fitness", value: "#1d4ed8"},
-    {label: "Noir", value: "#111111"},
-    {label: "Blanc", value: "#f9fafb"},
-    {label: "Rouge", value: "#dc2626"},
-    {label: "Vert", value: "#16a34a"},
-    {label: "Marine", value: "#1e3a5f"},
-    {label: "Gris anthracite", value: "#374151"},
-    {label: "Bordeaux", value: "#7f1d1d"},
-];
+// Base colors available for 3D configurator
+const COLOR_SWATCHES_3D = [{label: "Bleu fitness", value: "#1d4ed8"}, {
+    label: "Noir", value: "#111111"
+}, {label: "Blanc", value: "#f9fafb"}, {label: "Rouge", value: "#dc2626"}, {
+    label: "Vert", value: "#16a34a"
+}, {label: "Marine", value: "#1e3a5f"}, {label: "Gris anthracite", value: "#374151"}, {
+    label: "Bordeaux", value: "#7f1d1d"
+},];
 
-// Builds the default customization state for the 3D configurator, seeded with the first available 3D color swatch.
+// Builds default customization state for 3D configurator
 function createDefault3DCustomization(product) {
     const base = createDefaultCustomization(product);
 
     return {
-        ...base,
-        product_color_hex: COLOR_SWATCHES_3D[0].value,
+        ...base, product_color_hex: COLOR_SWATCHES_3D[0].value,
     };
 }
 
-// Top-level 3D product customizer : owns configuration state and orchestrates the 3D canvas + side panel, plus save/checkout flow.
+// Top-level 3D product customizer
 export default function Product3DCustomizer({
                                                 product,
                                                 selectedOptionId = null,
@@ -44,22 +36,34 @@ export default function Product3DCustomizer({
                                             }) {
     const navigate = useNavigate();
     const navigationType = useNavigationType();
-    const {addItem, openCart, items, remove} = useCart();
+    const {items, remove} = useCart();
     const resumedFromCartRef = useRef(false);
 
     const {
-        configuration, setConfiguration,
-        session, setSession,
-        saving, setSaving,
-        finishing, setFinishing,
-        error, setError,
-        successMessage, setSuccessMessage,
-        uploadLogoLoading, setUploadLogoLoading,
-        uploadLogoError, setUploadLogoError,
-        uploadImageLoading, setUploadImageLoading,
-        uploadImageError, setUploadImageError,
-        aiLoading, setAiLoading,
-        aiError, setAiError,
+        configuration,
+        setConfiguration,
+        session,
+        setSession,
+        saving,
+        setSaving,
+        finishing,
+        setFinishing,
+        error,
+        setError,
+        successMessage,
+        setSuccessMessage,
+        uploadLogoLoading,
+        setUploadLogoLoading,
+        uploadLogoError,
+        setUploadLogoError,
+        uploadImageLoading,
+        setUploadImageLoading,
+        uploadImageError,
+        setUploadImageError,
+        aiLoading,
+        setAiLoading,
+        aiError,
+        setAiError,
         invalidateSavedSession,
         handleTemplateChange,
         handleViewChange,
@@ -78,40 +82,40 @@ export default function Product3DCustomizer({
         handleResetConfiguration,
     } = useCustomizationEditorBase(product, selectedOptionId, createDefault3DCustomization);
 
-    // 3D config of the current product (GLB, UV zones, template chest center).
-    const model3d = useMemo(
-        () => getProductCustomizer3DConfig(product),
-        [product]
-    );
+    const {handleUploadLogo, handleSaveCustomization, handleAddToCart} = useCustomizationSubmission({
+        product,
+        selectedOptionId,
+        configuration,
+        setConfiguration,
+        disabled,
+        session,
+        setSession,
+        setSaving,
+        setFinishing,
+        setError,
+        setSuccessMessage,
+        setUploadLogoLoading,
+        setUploadLogoError,
+        invalidateSavedSession,
+    });
 
-    // Landing here via the browser's back button (e.g. from checkout) while this
-    // exact product/option is already in the cart as a customized item means the
-    // customer is resuming that design, not starting a new one — reload it, and
-    // drop the stale cart line so it isn't left duplicated once they add it back.
-    // A regular "Personnaliser ce produit" navigation (PUSH) is left untouched.
+    // 3D config of the current product
+    const model3d = useMemo(() => getProductCustomizer3DConfig(product), [product]);
+
     useEffect(() => {
         if (navigationType !== "POP" || resumedFromCartRef.current) return;
 
-        const existingItem = items.find(
-            (it) =>
-                Number(it.productId) === Number(product?.id) &&
-                Number(it.optionId) === Number(selectedOptionId) &&
-                it.customProductSessionId
-        );
+        const existingItem = items.find((it) => Number(it.productId) === Number(product?.id) && Number(it.optionId) === Number(selectedOptionId) && it.customProductSessionId);
 
         if (!existingItem) return;
-
         resumedFromCartRef.current = true;
-        setConfiguration(
-            existingItem.customization?.configuration || createDefault3DCustomization(product)
-        );
+        setConfiguration(existingItem.customization?.configuration || createDefault3DCustomization(product));
         setSession({id: existingItem.customProductSessionId});
         void remove(existingItem);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, navigationType, product?.id, selectedOptionId]);
 
     // ---- Handlers ----
-    // Navigates to another color/variants customize page, preserving the selected option.
     function handleVariantSelect(variantSlug) {
         if (!variantSlug || variantSlug === product?.slug) return;
 
@@ -130,28 +134,6 @@ export default function Product3DCustomizer({
         invalidateSavedSession();
     }
 
-    async function handleUploadLogo(file) {
-        try {
-            setUploadLogoLoading(true);
-            setUploadLogoError(null);
-
-            const uploaded = await uploadCustomizationLogo(file);
-
-            setConfiguration((prev) => ({
-                ...prev,
-                logo: {...prev.logo, enabled: true, src: uploaded?.url || ""},
-            }));
-
-            invalidateSavedSession();
-        } catch (e) {
-            setUploadLogoError(
-                e?.response?.data?.message || "Impossible d'importer le logo."
-            );
-        } finally {
-            setUploadLogoLoading(false);
-        }
-    }
-
     async function handleUploadImage(file) {
         try {
             setUploadImageLoading(true);
@@ -161,32 +143,24 @@ export default function Product3DCustomizer({
             const currentView = configuration?.view || "front";
 
             setConfiguration((prev) => ({
-                ...prev,
-                image_layers: [
-                    ...(Array.isArray(prev.image_layers) ? prev.image_layers : []),
-                    {
-                        id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                        src: uploaded?.url || "",
-                        original_name: uploaded?.original_name || file.name,
-                        view: currentView,
-                        x: 325,
-                        y: 285,
-                        width: 90,
-                        height: 90,
-                        rotation: 0,
-                        uv: {x: 0.45, y: 0.25},
-                        size: {w: 0.05, h: 0.05},
-                    },
-                ],
+                ...prev, image_layers: [...(Array.isArray(prev.image_layers) ? prev.image_layers : []), {
+                    id: `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    src: uploaded?.url || "",
+                    original_name: uploaded?.original_name || file.name,
+                    view: currentView,
+                    x: 325,
+                    y: 285,
+                    width: 90,
+                    height: 90,
+                    rotation: 0,
+                    uv: {x: 0.45, y: 0.25},
+                    size: {w: 0.05, h: 0.05},
+                },],
             }));
 
             invalidateSavedSession();
         } catch (e) {
-            setUploadImageError(
-                e?.message ||
-                e?.response?.data?.message ||
-                "Impossible d'importer l'image."
-            );
+            setUploadImageError(e?.message || e?.response?.data?.message || "Impossible d'importer l'image.");
         } finally {
             setUploadImageLoading(false);
         }
@@ -203,40 +177,31 @@ export default function Product3DCustomizer({
             setAiError(null);
 
             const design = await generateAiDesign({
-                productId: product.id,
-                productOptionId: selectedOptionId,
-                prompt,
+                productId: product.id, productOptionId: selectedOptionId, prompt,
             });
 
             const currentView = configuration?.view || "front";
 
             setConfiguration((prev) => ({
-                ...prev,
-                image_layers: [
-                    ...(Array.isArray(prev.image_layers) ? prev.image_layers : []),
-                    {
-                        id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-                        src: design?.preview_url || "",
-                        original_name: design?.name || "Design IA",
-                        design_id: design?.id ?? null,
-                        view: currentView,
-                        x: 325,
-                        y: 285,
-                        width: 90,
-                        height: 90,
-                        rotation: 0,
-                        uv: {x: 0.45, y: 0.25},
-                        size: {w: 0.05, h: 0.05},
-                    },
-                ],
+                ...prev, image_layers: [...(Array.isArray(prev.image_layers) ? prev.image_layers : []), {
+                    id: `ai-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    src: design?.preview_url || "",
+                    original_name: design?.name || "Design IA",
+                    design_id: design?.id ?? null,
+                    view: currentView,
+                    x: 325,
+                    y: 285,
+                    width: 90,
+                    height: 90,
+                    rotation: 0,
+                    uv: {x: 0.45, y: 0.25},
+                    size: {w: 0.05, h: 0.05},
+                },],
             }));
             invalidateSavedSession();
             return true;
         } catch (e) {
-            setAiError(
-                e?.response?.data?.message ||
-                "Impossible de générer le design."
-            );
+            setAiError(e?.response?.data?.message || "Impossible de générer le design.");
             return false;
         } finally {
             setAiLoading(false);
@@ -246,198 +211,100 @@ export default function Product3DCustomizer({
     // Handlers for UV drag & drop of layers on the 3D t-shirt
     function handleUpdateTextLayer(layerId, patch) {
         setConfiguration((prev) => ({
-            ...prev,
-            text_layers: (prev.text_layers || []).map((l) =>
-                l.id === layerId ? {...l, ...patch} : l
-            ),
+            ...prev, text_layers: (prev.text_layers || []).map((l) => l.id === layerId ? {...l, ...patch} : l),
         }));
     }
 
-    // Applies a UV/patch update to an image layer during drag
+    // Applies a UV/patch update to image layer
     function handleUpdateImageLayer(layerId, patch) {
         setConfiguration((prev) => ({
-            ...prev,
-            image_layers: (prev.image_layers || []).map((l) =>
-                l.id === layerId ? {...l, ...patch} : l
-            ),
+            ...prev, image_layers: (prev.image_layers || []).map((l) => l.id === layerId ? {...l, ...patch} : l),
         }));
     }
 
     // Drag of the logo, player name, player number ("system" elements)
     function handleUpdateLogoUV(uv) {
         setConfiguration((prev) => ({
-            ...prev,
-            logo: {...(prev.logo || {}), uv},
+            ...prev, logo: {...(prev.logo || {}), uv},
         }));
     }
 
     function handleUpdatePlayerNameUV(uv) {
         setConfiguration((prev) => ({
-            ...prev,
-            player_name: {...(prev.player_name || {}), uv},
+            ...prev, player_name: {...(prev.player_name || {}), uv},
         }));
     }
 
     function handleUpdatePlayerNumberUV(uv) {
         setConfiguration((prev) => ({
-            ...prev,
-            player_number: {...(prev.player_number || {}), uv},
+            ...prev, player_number: {...(prev.player_number || {}), uv},
         }));
     }
 
     function handleDragEnd() {
-        // Invalidate the session only once, at the end of the drag
         invalidateSavedSession();
     }
 
-    // Persists the current configuration as a customization session on the backend.
-    async function saveCustomization() {
-        if (disabled) {
-            setError("Veuillez d'abord sélectionner l'option requise.");
-            return null;
-        }
+    return (<section className="pc-layout">
+        <div className="pc-main">
+            {error && (<div className="pc-alert pc-alert-error" role="alert">
+                {error}
+            </div>)}
 
-        try {
-            setSaving(true);
-            setError(null);
-            setSuccessMessage("");
+            {successMessage && (<div className="pc-alert pc-alert-success" role="status">
+                {successMessage}
+            </div>)}
 
-            const createdSession = await createCustomizationSession({
-                productId: product.id,
-                productOptionId: selectedOptionId,
-                configuration,
-                previewImagePath: null,
-            });
-
-            setSession(createdSession);
-            setSuccessMessage("Configuration enregistrée.");
-
-            return createdSession;
-        } catch (e) {
-            setError(
-                e?.response?.data?.message ||
-                "Impossible d'enregistrer la personnalisation."
-            );
-
-            return null;
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    async function handleSaveCustomization() {
-        await saveCustomization();
-    }
-
-    // Ensures the session is saved, then adds the item to the cart. Stays on the
-    // page (rather than jumping to checkout) so the customer can keep configuring
-    // and adding more items — checkout is a separate, deliberate step from the cart.
-    async function handleAddToCart() {
-        if (disabled) {
-            setError("Veuillez d'abord sélectionner l'option requise.");
-            return;
-        }
-
-        try {
-            setFinishing(true);
-            setError(null);
-
-            let currentSession = session;
-
-            if (!currentSession?.id) {
-                currentSession = await saveCustomization();
-            }
-
-            if (!currentSession?.id) {
-                setFinishing(false);
-                return;
-            }
-
-            await addItem({
-                productId: product.id,
-                optionId: selectedOptionId,
-                quantity: 1,
-                customProductSessionId: currentSession.id,
-            });
-
-            setSuccessMessage("Ajouté au panier.");
-            openCart();
-        } catch (e) {
-            setError(
-                e?.response?.data?.message ||
-                "Impossible d'ajouter au panier."
-            );
-        } finally {
-            setFinishing(false);
-        }
-    }
-
-    return (
-        <section className="pc-layout">
-            <div className="pc-main">
-                {error && (
-                    <div className="pc-alert pc-alert-error" role="alert">
-                        {error}
-                    </div>
-                )}
-
-                {successMessage && (
-                    <div className="pc-alert pc-alert-success" role="status">
-                        {successMessage}
-                    </div>
-                )}
-
-                {/* 3D canvas : no more top bar, swatches are in the right-hand panel */}
-                <CustomizationCanvas3D
-                    configuration={configuration}
-                    model3d={model3d}
-                    onUpdateTextLayer={handleUpdateTextLayer}
-                    onUpdateImageLayer={handleUpdateImageLayer}
-                    onUpdateLogoUV={handleUpdateLogoUV}
-                    onUpdatePlayerNameUV={handleUpdatePlayerNameUV}
-                    onUpdatePlayerNumberUV={handleUpdatePlayerNumberUV}
-                    onDragEnd={handleDragEnd}
-                />
-            </div>
-
-            <CustomizationPanel
-                product={product}
+            {/* 3D canvas */}
+            <CustomizationCanvas3D
                 configuration={configuration}
-                variants={Array.isArray(product?.variants) ? product.variants : []}
-                currentVariantSlug={product?.slug}
-                onVariantSelect={handleVariantSelect}
-                onTemplateChange={handleTemplateChange}
-                onViewChange={handleViewChange}
-                onAddTextLayer={handleAddTextLayer}
-                onPlayerNameChange={handlePlayerNameChange}
-                onPlayerNumberChange={handlePlayerNumberChange}
-                onToggleLogo={handleToggleLogo}
-                onTextColorChange={handleTextColorChange}
-                onLogoSelect={handleLogoSelect}
-                onUploadLogo={handleUploadLogo}
-                uploadLogoLoading={uploadLogoLoading}
-                uploadLogoError={uploadLogoError}
-                onRemoveLogo={handleRemoveLogo}
-                onUploadImage={handleUploadImage}
-                uploadImageLoading={uploadImageLoading}
-                uploadImageError={uploadImageError}
-                onRemoveImageLayer={handleRemoveImageLayer}
-                onGenerateAiDesign={handleGenerateAiDesign}
-                aiLoading={aiLoading}
-                aiError={aiError}
-                onPatternToggle={handlePatternToggle}
-                onPatternSelect={handlePatternSelect}
-                onGradientToggle={handleGradientToggle}
-                onGradientSelect={handleGradientSelect}
-                onProductColorChange={handleColorHexChange}
-                onResetConfiguration={handleResetConfiguration}
-                onSave={handleSaveCustomization}
-                onAddToCart={handleAddToCart}
-                saving={saving}
-                finishing={finishing}
-                disabled={disabled}
-                mode="3d"
+                model3d={model3d}
+                onUpdateTextLayer={handleUpdateTextLayer}
+                onUpdateImageLayer={handleUpdateImageLayer}
+                onUpdateLogoUV={handleUpdateLogoUV}
+                onUpdatePlayerNameUV={handleUpdatePlayerNameUV}
+                onUpdatePlayerNumberUV={handleUpdatePlayerNumberUV}
+                onDragEnd={handleDragEnd}
             />
-        </section>
-    );
+        </div>
+
+        <CustomizationPanel
+            product={product}
+            configuration={configuration}
+            variants={Array.isArray(product?.variants) ? product.variants : []}
+            currentVariantSlug={product?.slug}
+            onVariantSelect={handleVariantSelect}
+            onTemplateChange={handleTemplateChange}
+            onViewChange={handleViewChange}
+            onAddTextLayer={handleAddTextLayer}
+            onPlayerNameChange={handlePlayerNameChange}
+            onPlayerNumberChange={handlePlayerNumberChange}
+            onToggleLogo={handleToggleLogo}
+            onTextColorChange={handleTextColorChange}
+            onLogoSelect={handleLogoSelect}
+            onUploadLogo={handleUploadLogo}
+            uploadLogoLoading={uploadLogoLoading}
+            uploadLogoError={uploadLogoError}
+            onRemoveLogo={handleRemoveLogo}
+            onUploadImage={handleUploadImage}
+            uploadImageLoading={uploadImageLoading}
+            uploadImageError={uploadImageError}
+            onRemoveImageLayer={handleRemoveImageLayer}
+            onGenerateAiDesign={handleGenerateAiDesign}
+            aiLoading={aiLoading}
+            aiError={aiError}
+            onPatternToggle={handlePatternToggle}
+            onPatternSelect={handlePatternSelect}
+            onGradientToggle={handleGradientToggle}
+            onGradientSelect={handleGradientSelect}
+            onProductColorChange={handleColorHexChange}
+            onResetConfiguration={handleResetConfiguration}
+            onSave={handleSaveCustomization}
+            onAddToCart={handleAddToCart}
+            saving={saving}
+            finishing={finishing}
+            disabled={disabled}
+            mode="3d"
+        />
+    </section>);
 }

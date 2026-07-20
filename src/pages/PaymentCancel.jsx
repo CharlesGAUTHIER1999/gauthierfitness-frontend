@@ -7,10 +7,7 @@ export default function PaymentCancel() {
     const location = useLocation();
     const {refetchCart} = useCart();
 
-    const params = useMemo(
-        () => new URLSearchParams(location.search),
-        [location.search]
-    );
+    const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
     const redirectStatus = params.get("redirect_status");
     const paymentIntent = params.get("payment_intent");
@@ -21,36 +18,27 @@ export default function PaymentCancel() {
         void refetchCart();
     }, [refetchCart]);
 
-    return (
-        <div className="pay-result">
-            <h1>Paiement annulé</h1>
-            <p>Aucun montant n’a été débité. Vous pouvez réessayer quand vous voulez.</p>
+    return (<div className="pay-result">
+        <h1>Paiement annulé</h1>
+        <p>Aucun montant n’a été débité. Vous pouvez réessayer quand vous voulez.</p>
 
-            {(redirectStatus || (isDev && paymentIntent)) && (
-                <div className="pay-result-box">
-                    {redirectStatus && (
-                        <p>
-                            Statut : <strong>{redirectStatus}</strong>
-                        </p>
-                    )}
+        {(redirectStatus || (isDev && paymentIntent)) && (<div className="pay-result-box">
+            {redirectStatus && (<p>
+                Statut : <strong>{redirectStatus}</strong>
+            </p>)}
 
-                    {/* PaymentIntent shown only in DEV */}
-                    {isDev && paymentIntent && (
-                        <p style={{wordBreak: "break-word"}}>
-                            PaymentIntent : <strong>{paymentIntent}</strong>
-                        </p>
-                    )}
-                </div>
-            )}
+            {isDev && paymentIntent && (<p style={{wordBreak: "break-word"}}>
+                PaymentIntent : <strong>{paymentIntent}</strong>
+            </p>)}
+        </div>)}
 
-            <div className="pay-result-actions">
-                <Link to="/checkout" className="btn">
-                    Revenir au paiement
-                </Link>
-                <Link to="/cart" className="btn btn-outline">
-                    Retour panier
-                </Link>
-            </div>
+        <div className="pay-result-actions">
+            <Link to="/checkout" className="btn">
+                Revenir au paiement
+            </Link>
+            <Link to="/cart" className="btn btn-outline">
+                Retour panier
+            </Link>
         </div>
-    );
+    </div>);
 }

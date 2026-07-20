@@ -1,7 +1,7 @@
 import {Navigate, useLocation} from "react-router-dom";
 import {useAuth} from "../store/auth";
 
-// Guards routes that require authentication
+// Guards routes that require auth
 export default function ProtectedRoute({children}) {
     const {token, loading} = useAuth();
     const location = useLocation();

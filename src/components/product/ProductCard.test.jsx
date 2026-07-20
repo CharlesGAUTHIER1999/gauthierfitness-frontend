@@ -2,7 +2,7 @@ import {render, screen, fireEvent} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import ProductCard from './ProductCard';
 
-// ProductCard tests : product rendering, hover image, formatted price, product link.
+// ProductCard tests
 function renderCard(productOverrides = {}) {
     const product = {
         id: 1,
@@ -11,14 +11,11 @@ function renderCard(productOverrides = {}) {
         main_image: '/img/main.png',
         hover_image: '/img/hover.png',
         price_ttc: 29.9,
-        sizes_preview: ['S', 'M', 'L'],
-        ...productOverrides,
+        sizes_preview: ['S', 'M', 'L'], ...productOverrides,
     };
-    return render(
-        <MemoryRouter>
-            <ProductCard product={product}/>
-        </MemoryRouter>
-    );
+    return render(<MemoryRouter>
+        <ProductCard product={product}/>
+    </MemoryRouter>);
 }
 
 describe('ProductCard', () => {

@@ -1,6 +1,4 @@
-/**
- * Tests for the shared axios instance: baseURL, auth interceptors, 401 handling.
- */
+// Tests for the shared axios instance
 
 describe('axios instance', () => {
     let api;

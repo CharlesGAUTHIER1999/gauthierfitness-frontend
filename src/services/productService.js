@@ -1,7 +1,7 @@
 import api from "../api/axios.js";
 
 export const getProducts = async (filters = {}) => {
-    const res = await api.get("/products", { params: filters });
+    const res = await api.get("/products", {params: filters});
     return res.data.data;
 };
 
