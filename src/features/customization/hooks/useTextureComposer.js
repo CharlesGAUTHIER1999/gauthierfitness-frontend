@@ -51,30 +51,22 @@ const DEFAULT_UV_ZONES = {
 
 // Fallback chest-center box
 const DEFAULT_TEMPLATE_CHEST = {
-    cx: 0.50,
-    cy: 0.60,
-    w: 0.28,
-    h: 0.24,
+    cx: 0.50, cy: 0.60, w: 0.28, h: 0.24,
 };
 
-// Finds which UV zone a given UV point falls into and returns its transform
+// Finds which UV zone a given UV point falls into
 function detectTransformForUV(uv, uvZones, fallback = "mirror_y") {
     for (const key of Object.keys(uvZones)) {
         const z = uvZones[key];
 
-        if (
-            uv.x >= z.x &&
-            uv.x <= z.x + z.w &&
-            uv.y >= z.y &&
-            uv.y <= z.y + z.h
-        ) {
+        if (uv.x >= z.x && uv.x <= z.x + z.w && uv.y >= z.y && uv.y <= z.y + z.h) {
             return z.transform;
         }
     }
     return fallback;
 }
 
-// Loads an image usable by CanvasRenderingContext2D
+// Loads image usable by CanvasRenderingContext2D
 async function loadImage(src) {
     if (!src) return null;
 
@@ -92,7 +84,6 @@ async function loadImage(src) {
     try {
         const res = await fetch(src, {mode: "cors", credentials: "omit"});
         if (!res.ok) return null;
-
         const blob = await res.blob();
         const blobUrl = URL.createObjectURL(blob);
 
@@ -130,7 +121,7 @@ function getGradientSrc(id) {
     return id ? `/degrades/${id}.jpg` : null;
 }
 
-// Draws the decorative front template
+// Draws decorative front template
 function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
     if (!templateId) return;
     const isLight = textColor === "#ffffff";
@@ -149,11 +140,9 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
 
     if (templateId === "basic-front-template") {
         const stripeH = CHEST_H * 0.20;
-        const stripes = [
-            {y: CHEST_TOP_Y + CHEST_H * 0.04, h: stripeH},
-            {y: CHEST_TOP_Y + CHEST_H * 0.42, h: stripeH},
-            {y: CHEST_TOP_Y + CHEST_H * 0.81, h: stripeH},
-        ];
+        const stripes = [{y: CHEST_TOP_Y + CHEST_H * 0.04, h: stripeH}, {
+            y: CHEST_TOP_Y + CHEST_H * 0.42, h: stripeH
+        }, {y: CHEST_TOP_Y + CHEST_H * 0.81, h: stripeH},];
         ctx.fillStyle = stripeColor;
         stripes.forEach((stripe) => {
             ctx.beginPath();
@@ -212,20 +201,13 @@ function drawTemplate(ctx, templateId, S, textColor, chestCenter) {
     ctx.restore();
 }
 
-// Draws a numbered, colored 10x10 grid over the texture
+// Draws numbered, colored 10x10 grid over texture
 function drawDebugGrid(ctx, S) {
     const COLS = 10;
     const ROWS = 10;
     const cw = S / COLS;
     const ch = S / ROWS;
-    const colors = [
-        "#ff000055",
-        "#00ff0055",
-        "#0000ff55",
-        "#ffff0055",
-        "#ff00ff55",
-        "#00ffff55",
-    ];
+    const colors = ["#ff000055", "#00ff0055", "#0000ff55", "#ffff0055", "#ff00ff55", "#00ffff55",];
 
     for (let row = 0; row < ROWS; row++) {
         for (let col = 0; col < COLS; col++) {
@@ -246,7 +228,7 @@ function drawDebugGrid(ctx, S) {
     }
 }
 
-// Composes the 3D garment's texture on an offscreen 2D canvas and exposes it as a THREE.CanvasTexture
+// Composes the 3D garment's texture
 export function useTextureComposer(configuration, debugUV = false, options = {}) {
     const uvZones = options.uvZones || DEFAULT_UV_ZONES;
     const templateChest = options.templateChest || DEFAULT_TEMPLATE_CHEST;
@@ -272,7 +254,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
         if (!canvasRef.current || !textureRef.current) return;
         let cancelled = false;
 
-        // Redraws the whole texture canvas from the current configuration
+        // Redraws whole texture canvas
         async function compose() {
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
@@ -331,8 +313,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                     const dfltCx = uvZones.logo.x + uvZones.logo.w / 2;
                     const dfltCy = uvZones.logo.y + uvZones.logo.h / 2;
                     const lUV = configuration.logo.uv && typeof configuration.logo.uv.x === "number" ? configuration.logo.uv : {
-                        x: dfltCx,
-                        y: dfltCy
+                        x: dfltCx, y: dfltCy
                     };
                     const lW = uvZones.logo.w;
                     const lH = uvZones.logo.h;
@@ -361,8 +342,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                 const dfltCx = uvZones.back_number.x + uvZones.back_number.w / 2;
                 const dfltCy = uvZones.back_number.y + uvZones.back_number.h / 2;
                 const nUV = configuration.player_number.uv && typeof configuration.player_number.uv.x === "number" ? configuration.player_number.uv : {
-                    x: dfltCx,
-                    y: dfltCy
+                    x: dfltCx, y: dfltCy
                 };
                 const size = Math.round(uvZones.back_number.h * S * 0.38);
                 ctx.save();
@@ -392,11 +372,9 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                 const dfltCx = uvZones.back_name.x + uvZones.back_name.w / 2;
                 const dfltCy = uvZones.back_name.y + uvZones.back_name.h / 2;
 
-                const mUV =
-                    configuration.player_name.uv &&
-                    typeof configuration.player_name.uv.x === "number"
-                        ? configuration.player_name.uv
-                        : {x: dfltCx, y: dfltCy};
+                const mUV = configuration.player_name.uv && typeof configuration.player_name.uv.x === "number" ? configuration.player_name.uv : {
+                    x: dfltCx, y: dfltCy
+                };
 
                 const size = Math.round(uvZones.back_name.h * S * 0.32);
 
@@ -409,35 +387,22 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                 const cx = mUV.x * S;
                 const cy = mUV.y * S;
 
-                drawTextTransformed(
-                    ctx,
-                    playerName.toUpperCase(),
-                    cx,
-                    cy,
-                    detectTransformForUV(mUV, uvZones, transformFallback)
-                );
+                drawTextTransformed(ctx, playerName.toUpperCase(), cx, cy, detectTransformForUV(mUV, uvZones, transformFallback));
 
                 const metrics = ctx.measureText(playerName.toUpperCase());
                 const nw = metrics.width;
                 const nh = size * 1.2;
 
                 newBboxes.push({
-                    id: "__player_name__",
-                    type: "player_name",
-                    uv: {
-                        x0: (cx - nw / 2) / S,
-                        y0: (cy - nh / 2) / S,
-                        x1: (cx + nw / 2) / S,
-                        y1: (cy + nh / 2) / S,
+                    id: "__player_name__", type: "player_name", uv: {
+                        x0: (cx - nw / 2) / S, y0: (cy - nh / 2) / S, x1: (cx + nw / 2) / S, y1: (cy + nh / 2) / S,
                     },
                 });
 
                 ctx.restore();
             }
 
-            const textLayers = Array.isArray(configuration?.text_layers)
-                ? configuration.text_layers
-                : [];
+            const textLayers = Array.isArray(configuration?.text_layers) ? configuration.text_layers : [];
 
             textLayers.forEach((layer) => {
                 const fallbackUV = {
@@ -445,11 +410,9 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                     y: uvZones.front_center.y + uvZones.front_center.h / 2,
                 };
 
-                const uv =
-                    layer.uv && typeof layer.uv.x === "number" ? layer.uv : fallbackUV;
+                const uv = layer.uv && typeof layer.uv.x === "number" ? layer.uv : fallbackUV;
 
-                const fontSize =
-                    layer.size && layer.size > 20 ? Math.min(layer.size, 44) : 42;
+                const fontSize = layer.size && layer.size > 20 ? Math.min(layer.size, 44) : 42;
 
                 ctx.save();
                 ctx.fillStyle = layer.color || textColor;
@@ -460,35 +423,22 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                 const cx = uv.x * S;
                 const cy = uv.y * S;
 
-                drawTextTransformed(
-                    ctx,
-                    layer.text,
-                    cx,
-                    cy,
-                    detectTransformForUV(uv, uvZones, transformFallback)
-                );
+                drawTextTransformed(ctx, layer.text, cx, cy, detectTransformForUV(uv, uvZones, transformFallback));
 
                 const metrics = ctx.measureText(layer.text);
                 const w = metrics.width;
                 const h = fontSize * 1.2;
 
                 newBboxes.push({
-                    id: layer.id,
-                    type: "text",
-                    uv: {
-                        x0: (cx - w / 2) / S,
-                        y0: (cy - h / 2) / S,
-                        x1: (cx + w / 2) / S,
-                        y1: (cy + h / 2) / S,
+                    id: layer.id, type: "text", uv: {
+                        x0: (cx - w / 2) / S, y0: (cy - h / 2) / S, x1: (cx + w / 2) / S, y1: (cy + h / 2) / S,
                     },
                 });
 
                 ctx.restore();
             });
 
-            const imageLayers = Array.isArray(configuration?.image_layers)
-                ? configuration.image_layers
-                : [];
+            const imageLayers = Array.isArray(configuration?.image_layers) ? configuration.image_layers : [];
 
             for (const layer of imageLayers) {
                 if (!layer?.src) continue;
@@ -499,43 +449,23 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
                 if (img) {
                     const fallbackUV = {
-                        x: uvZones.logo.x + uvZones.logo.w / 2,
-                        y: uvZones.logo.y + uvZones.logo.h / 2,
+                        x: uvZones.logo.x + uvZones.logo.w / 2, y: uvZones.logo.y + uvZones.logo.h / 2,
                     };
 
-                    const uv =
-                        layer.uv && typeof layer.uv.x === "number"
-                            ? layer.uv
-                            : fallbackUV;
+                    const uv = layer.uv && typeof layer.uv.x === "number" ? layer.uv : fallbackUV;
 
-                    const size =
-                        layer.size && typeof layer.size.w === "number"
-                            ? layer.size
-                            : {w: 0.05, h: 0.05};
+                    const size = layer.size && typeof layer.size.w === "number" ? layer.size : {w: 0.05, h: 0.05};
 
                     const drawX = (uv.x - size.w / 2) * S;
                     const drawY = (uv.y - size.h / 2) * S;
                     const drawW = size.w * S;
                     const drawH = size.h * S;
 
-                    drawImageTransformed(
-                        ctx,
-                        img,
-                        drawX,
-                        drawY,
-                        drawW,
-                        drawH,
-                        detectTransformForUV(uv, uvZones, transformFallback)
-                    );
+                    drawImageTransformed(ctx, img, drawX, drawY, drawW, drawH, detectTransformForUV(uv, uvZones, transformFallback));
 
                     newBboxes.push({
-                        id: layer.id,
-                        type: "image",
-                        uv: {
-                            x0: uv.x - size.w / 2,
-                            y0: uv.y - size.h / 2,
-                            x1: uv.x + size.w / 2,
-                            y1: uv.y + size.h / 2,
+                        id: layer.id, type: "image", uv: {
+                            x0: uv.x - size.w / 2, y0: uv.y - size.h / 2, x1: uv.x + size.w / 2, y1: uv.y + size.h / 2,
                         },
                     });
                 }
@@ -545,7 +475,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
             textureRef.current.needsUpdate = true;
         }
 
-        compose();
+        void compose();
 
         return () => {
             cancelled = true;

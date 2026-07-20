@@ -1,20 +1,12 @@
-import {
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
+import {createContext, useCallback, useContext, useEffect, useMemo, useState,} from "react";
 import api, {clearGuestCartToken, peekGuestCartToken} from "../api/axios";
 import {useCart} from "../context/CartContext";
 
 const AuthContext = createContext(null);
-
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
-// Stores or clears the auth token in localStorage.
+// Stores or clears auth token
 function persistToken(t) {
     if (t) {
         localStorage.setItem(TOKEN_KEY, t);
@@ -23,7 +15,7 @@ function persistToken(t) {
     }
 }
 
-// Stores or clears the cached user object in localStorage.
+// Stores or clears cached user object
 function persistUser(u) {
     if (u) {
         localStorage.setItem(USER_KEY, JSON.stringify(u));
@@ -32,7 +24,7 @@ function persistUser(u) {
     }
 }
 
-// Provides auth state (token/user) and actions (login, register, logout, password reset) to the app.
+// Provides auth state + actions to the app
 export function AuthProvider({children}) {
     const {refetchCart} = useCart();
     const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
@@ -60,11 +52,10 @@ export function AuthProvider({children}) {
                 return;
             }
 
-            // Sync state from storage.
+            // Sync state from storage
             if (mounted) setToken(storedToken);
 
             try {
-                // /me must validate the token and return the user.
                 const res = await api.get("/me");
                 if (!mounted) return;
                 setUser(res.data);
@@ -74,19 +65,15 @@ export function AuthProvider({children}) {
 
                 const status = e?.response?.status;
 
-                // If 401 => token invalid => clear everything.
+                // If 401 => token invalid
                 if (status === 401) {
                     persistToken(null);
                     persistUser(null);
                     setToken(null);
                     setUser(null);
                 } else {
-                    // If 500/CORS/Network => backend is down => KEEP the token + cached user.
-                    console.warn(
-                        "BOOTSTRAP /me failed (kept token & cached user):",
-                        status,
-                        e?.message
-                    );
+                    // If 500/CORS/Network => backend down
+                    console.warn("BOOTSTRAP /me failed (kept token & cached user):", status, e?.message);
                 }
             } finally {
                 if (mounted) setLoading(false);
@@ -100,12 +87,9 @@ export function AuthProvider({children}) {
         };
     }, []);
 
-    // Logs in with email/password, merges any guest cart, and persists the returned token + user
     const login = useCallback(async (email, password) => {
         const res = await api.post("/login", {
-            email: email.trim().toLowerCase(),
-            password,
-            guest_cart_token: peekGuestCartToken(),
+            email: email.trim().toLowerCase(), password, guest_cart_token: peekGuestCartToken(),
         });
 
         persistToken(res.data.token);
@@ -117,12 +101,10 @@ export function AuthProvider({children}) {
         return res.data;
     }, [refetchCart]);
 
-    // Registers a new account, merges any guest cart, and persists the returned token + user
+    // Registers a new account
     const register = useCallback(async (form) => {
         const res = await api.post("/register", {
-            ...form,
-            email: form.email.trim().toLowerCase(),
-            guest_cart_token: peekGuestCartToken(),
+            ...form, email: form.email.trim().toLowerCase(), guest_cart_token: peekGuestCartToken(),
         });
 
         persistToken(res.data.token);
@@ -136,7 +118,7 @@ export function AuthProvider({children}) {
         return res.data;
     }, [refetchCart]);
 
-    // Requests a password reset email for the given address
+    // Requests a password reset email
     const forgotPassword = useCallback(async (email) => {
         const res = await api.post("/forgot-password", {
             email: email.trim().toLowerCase(),
@@ -145,19 +127,16 @@ export function AuthProvider({children}) {
         return res.data;
     }, []);
 
-    // Submits a new password using the reset token received by email
+    // Submits new password using the reset token
     const resetPassword = useCallback(async ({email, token, password, password_confirmation}) => {
         const res = await api.post("/reset-password", {
-            email: email.trim().toLowerCase(),
-            token,
-            password,
-            password_confirmation,
+            email: email.trim().toLowerCase(), token, password, password_confirmation,
         });
 
         return res.data;
     }, []);
 
-    // Updates the logged-in user's contact/address details and refreshes the cached user.
+    // Updates logged-in user's contact/address details
     const updateProfile = useCallback(async (fields) => {
         const res = await api.patch("/me", fields);
         setUser(res.data);
@@ -165,7 +144,7 @@ export function AuthProvider({children}) {
         return res.data;
     }, []);
 
-    // Logs out : calls the API (best effort) then always clears local token/user state.
+    // Logs out
     const logout = useCallback(async () => {
         try {
             await api.post("/logout");
@@ -176,31 +155,28 @@ export function AuthProvider({children}) {
             persistUser(null);
             setToken(null);
             setUser(null);
-            // Switch the displayed cart back to the (fresh) guest cart.
             void refetchCart();
         }
     }, [refetchCart]);
 
-    const value = useMemo(
-        () => ({
-            user,
-            token,
-            loading,
-            isAuthenticated: !!token,
-            login,
-            register,
-            logout,
-            forgotPassword,
-            resetPassword,
-            updateProfile,
-        }),
-        [user, token, loading, login, register, logout, forgotPassword, resetPassword, updateProfile]
-    );
+    const value = useMemo(() => ({
+        user,
+        token,
+        loading,
+        isAuthenticated: !!token,
+        login,
+        register,
+        logout,
+        forgotPassword,
+        resetPassword,
+        updateProfile,
+    }), [user, token, loading, login, register, logout, forgotPassword, resetPassword, updateProfile]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // Hook to access the auth context
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
     return useContext(AuthContext);
 }

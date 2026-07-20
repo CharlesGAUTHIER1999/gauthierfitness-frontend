@@ -14,12 +14,11 @@ export default function Home() {
 
     useEffect(() => {
         setLoading(true);
-        Promise.all([
-            getProducts({gender: "femmes", tag: "new", per_page: 4}),
-            getProducts({gender: "hommes", tag: "new", per_page: 4}),
-            getProducts({gender: "femmes", tag: "bestseller", per_page: 4}),
-            getProducts({gender: "hommes", tag: "bestseller", per_page: 4}),
-        ])
+        Promise.all([getProducts({gender: "femmes", tag: "new", per_page: 4}), getProducts({
+            gender: "hommes", tag: "new", per_page: 4
+        }), getProducts({gender: "femmes", tag: "bestseller", per_page: 4}), getProducts({
+            gender: "hommes", tag: "bestseller", per_page: 4
+        }),])
             .then(([wNew, mNew, wBest, mBest]) => {
                 setWomenNew(wNew?.slice?.(0, 4) ?? []);
                 setMenNew(mNew?.slice?.(0, 4) ?? []);
@@ -33,90 +32,75 @@ export default function Home() {
     if (loading) return <p>Chargement…</p>;
     if (error) return <p>{error}</p>;
 
-    return (
-        <>
-            <div className="container">
-                {/* SHOP THE LOOK - FEMMES */}
-                <section className="shop-look">
-                    <p className="eyebrow">SHOP THE LOOK</p>
-                    <h2>Nouveautés pour femmes</h2>
+    return (<>
+        <div className="container">
+            <section className="shop-look">
+                <p className="eyebrow">SHOP THE LOOK</p>
+                <h2>Nouveautés pour femmes</h2>
 
-                    <div className="product-grid">
-                        {womenNew.map((p) => (
-                            <ProductCard key={p.id} product={p}/>
-                        ))}
-                    </div>
-                </section>
-
-                {/* SHOP THE LOOK - HOMMES */}
-                <section className="shop-look">
-                    <p className="eyebrow">SHOP THE LOOK</p>
-                    <h2>Nouveautés pour hommes</h2>
-
-                    <div className="product-grid">
-                        {menNew.map((p) => (
-                            <ProductCard key={p.id} product={p}/>
-                        ))}
-                    </div>
-                </section>
-
-                {/* RECOMMANDATIONS FEMMES */}
-                <section className="recommendations">
-                    <h2>Nos produits les plus vendus – Femmes</h2>
-
-                    <div className="product-grid">
-                        {womenBest.map((p) => (
-                            <ProductCard key={p.id} product={p}/>
-                        ))}
-                    </div>
-                </section>
-
-                {/* RECOMMANDATIONS HOMMES */}
-                <section className="recommendations">
-                    <h2>Nos produits les plus vendus – Hommes</h2>
-
-                    <div className="product-grid">
-                        {menBest.map((p) => (
-                            <ProductCard key={p.id} product={p}/>
-                        ))}
-                    </div>
-                </section>
-            </div>
-
-            {/* PROMISES + FOOTER */}
-            <section className="promises">
-                <p className="promises-brand">GAUTHIER GYMWEAR</p>
-                <h2 className="promises-title">Nos promesses</h2>
-
-                <div className="promises-grid">
-                    <div className="promise-item">
-                        <div className="promise-icon"><FiActivity/></div>
-                        <h3>La performance</h3>
-                        <p>
-                            Des produits conçus pour t'accompagner dans chaque entraînement et
-                            te pousser à te dépasser.
-                        </p>
-                    </div>
-
-                    <div className="promise-item">
-                        <div className="promise-icon"><FiRepeat/></div>
-                        <h3>La polyvalence</h3>
-                        <p>
-                            Des vêtements pensés pour le sport, mais aussi pour ton quotidien.
-                        </p>
-                    </div>
-
-                    <div className="promise-item">
-                        <div className="promise-icon"><FiZap/></div>
-                        <h3>La motivation</h3>
-                        <p>
-                            Un style et une qualité qui donnent envie de rester constant et
-                            engagé.
-                        </p>
-                    </div>
+                <div className="product-grid">
+                    {womenNew.map((p) => (<ProductCard key={p.id} product={p}/>))}
                 </div>
             </section>
 
-        </>
-    );
+            <section className="shop-look">
+                <p className="eyebrow">SHOP THE LOOK</p>
+                <h2>Nouveautés pour hommes</h2>
+
+                <div className="product-grid">
+                    {menNew.map((p) => (<ProductCard key={p.id} product={p}/>))}
+                </div>
+            </section>
+
+            <section className="recommendations">
+                <h2>Nos produits les plus vendus – Femmes</h2>
+
+                <div className="product-grid">
+                    {womenBest.map((p) => (<ProductCard key={p.id} product={p}/>))}
+                </div>
+            </section>
+
+            <section className="recommendations">
+                <h2>Nos produits les plus vendus – Hommes</h2>
+
+                <div className="product-grid">
+                    {menBest.map((p) => (<ProductCard key={p.id} product={p}/>))}
+                </div>
+            </section>
+        </div>
+
+        <section className="promises">
+            <p className="promises-brand">GAUTHIER GYMWEAR</p>
+            <h2 className="promises-title">Nos promesses</h2>
+
+            <div className="promises-grid">
+                <div className="promise-item">
+                    <div className="promise-icon"><FiActivity/></div>
+                    <h3>La performance</h3>
+                    <p>
+                        Des produits conçus pour t'accompagner dans chaque entraînement et
+                        te pousser à te dépasser.
+                    </p>
+                </div>
+
+                <div className="promise-item">
+                    <div className="promise-icon"><FiRepeat/></div>
+                    <h3>La polyvalence</h3>
+                    <p>
+                        Des vêtements pensés pour le sport, mais aussi pour ton quotidien.
+                    </p>
+                </div>
+
+                <div className="promise-item">
+                    <div className="promise-icon"><FiZap/></div>
+                    <h3>La motivation</h3>
+                    <p>
+                        Un style et une qualité qui donnent envie de rester constant et
+                        engagé.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </>);
 }

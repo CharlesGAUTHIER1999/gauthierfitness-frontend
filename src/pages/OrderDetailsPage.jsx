@@ -40,242 +40,211 @@ export default function OrderDetailsPage() {
         return Array.isArray(raw) ? raw : [];
     }, [order]);
 
-    return (
-        <div className="pay-result">
-            <div className="row-between">
-                <h1>Détails de la commande</h1>
-                <Link className="ck-link" to="/account/orders">
-                    Retour
-                </Link>
-            </div>
+    return (<div className="pay-result">
+        <div className="row-between">
+            <h1>Détails de la commande</h1>
+            <Link className="ck-link" to="/account/orders">
+                Retour
+            </Link>
+        </div>
 
-            <div className="pay-result-box">
-                {loading ? (
-                    <p className="ck-muted">Chargement…</p>
-                ) : err ? (
-                    <div className="ck-error">{err}</div>
-                ) : !order ? (
-                    <p className="ck-muted">Commande introuvable.</p>
-                ) : (
-                    <>
-                        <div className="ck-muted" style={{marginBottom: 14}}>
-                            Référence <strong>#{order.id}</strong> — placée le{" "}
-                            <strong>{formatDateTimeFR(order.created_at)}</strong> — statut{" "}
-                            <strong>{statusLabel(order.order_status)}</strong>
+        <div className="pay-result-box">
+            {loading ? (<p className="ck-muted">Chargement…</p>) : err ? (
+                <div className="ck-error">{err}</div>) : !order ? (
+                <p className="ck-muted">Commande introuvable.</p>) : (<>
+                <div className="ck-muted" style={{marginBottom: 14}}>
+                    Référence <strong>#{order.id}</strong> — placée le{" "}
+                    <strong>{formatDateTimeFR(order.created_at)}</strong> — statut{" "}
+                    <strong>{statusLabel(order.order_status)}</strong>
+                </div>
+
+                <div className="grid-2" style={{marginBottom: 16}}>
+                    <div className="ck-card">
+                        <div className="card-title">
+                            Adresse de livraison
                         </div>
-
-                        <div className="grid-2" style={{marginBottom: 16}}>
-                            <div className="ck-card">
-                                <div className="card-title">
-                                    Adresse de livraison
-                                </div>
-                                <div className="ck-muted" style={{lineHeight: 1.5}}>
-                                    <div>
-                                        {shipment?.firstname} {shipment?.lastname}
-                                    </div>
-                                    <div>{shipment?.address}</div>
-                                    <div>
-                                        {shipment?.zip} {shipment?.city}
-                                    </div>
-                                    <div>{shipment?.country}</div>
-                                </div>
+                        <div className="ck-muted" style={{lineHeight: 1.5}}>
+                            <div>
+                                {shipment?.firstname} {shipment?.lastname}
                             </div>
-
-                            <div className="ck-card">
-                                <div className="card-title">
-                                    Adresse de facturation
-                                </div>
-                                <div className="ck-muted" style={{lineHeight: 1.5}}>
-                                    <div>
-                                        {shipment?.firstname} {shipment?.lastname}
-                                    </div>
-                                    <div>{shipment?.address}</div>
-                                    <div>
-                                        {shipment?.zip} {shipment?.city}
-                                    </div>
-                                    <div>{shipment?.country}</div>
-                                </div>
+                            <div>{shipment?.address}</div>
+                            <div>
+                                {shipment?.zip} {shipment?.city}
                             </div>
+                            <div>{shipment?.country}</div>
                         </div>
+                    </div>
 
-                        <div className="ck-card" style={{overflowX: "auto", padding: 0}}>
-                            <table className="ck-table">
-                                <thead>
-                                <tr>
-                                    <th>Produit</th>
-                                    <th className="is-right">
-                                        Prix
-                                    </th>
-                                    <th className="is-center">
-                                        Quantité
-                                    </th>
-                                    <th className="is-right">
-                                        Total
-                                    </th>
-                                </tr>
-                                </thead>
+                    <div className="ck-card">
+                        <div className="card-title">
+                            Adresse de facturation
+                        </div>
+                        <div className="ck-muted" style={{lineHeight: 1.5}}>
+                            <div>
+                                {shipment?.firstname} {shipment?.lastname}
+                            </div>
+                            <div>{shipment?.address}</div>
+                            <div>
+                                {shipment?.zip} {shipment?.city}
+                            </div>
+                            <div>{shipment?.country}</div>
+                        </div>
+                    </div>
+                </div>
 
-                                <tbody>
-                                {items.map((it) => {
-                                    const name = it?.product?.name || "Produit";
-                                    const qty = Number(it?.quantity || 0);
-                                    const unit = Number(it?.unit_price || 0);
-                                    const line = Number(it?.total || unit * qty);
-                                    const optLabel = it?.option?.label
-                                        ? ` • ${it.option.label}`
-                                        : "";
-                                    const rawImg =
-                                        it?.customization_preview_path ||
-                                        it?.product?.main_image ||
-                                        null;
-                                    const previewSrc = !rawImg
-                                        ? "/placeholder.png"
-                                        : /^https?:\/\//.test(rawImg) || rawImg.startsWith("/")
-                                            ? rawImg
-                                            : `/storage/${rawImg}`;
-                                    const snapshot = it?.customization_snapshot || null;
-                                    const isCustomized = Boolean(it?.custom_product_session_id);
+                <div className="ck-card" style={{overflowX: "auto", padding: 0}}>
+                    <table className="ck-table">
+                        <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th className="is-right">
+                                Prix
+                            </th>
+                            <th className="is-center">
+                                Quantité
+                            </th>
+                            <th className="is-right">
+                                Total
+                            </th>
+                        </tr>
+                        </thead>
 
-                                    return (
-                                        <tr key={it.id}>
-                                            <td>
-                                                <div
-                                                    style={{
-                                                        display: "flex",
-                                                        gap: 12,
-                                                        alignItems: "flex-start",
-                                                    }}
+                        <tbody>
+                        {items.map((it) => {
+                            const name = it?.product?.name || "Produit";
+                            const qty = Number(it?.quantity || 0);
+                            const unit = Number(it?.unit_price || 0);
+                            const line = Number(it?.total || unit * qty);
+                            const optLabel = it?.option?.label ? ` • ${it.option.label}` : "";
+                            const rawImg = it?.customization_preview_path || it?.product?.main_image || null;
+                            const previewSrc = !rawImg ? "/placeholder.png" : /^https?:\/\//.test(rawImg) || rawImg.startsWith("/") ? rawImg : `/storage/${rawImg}`;
+                            const snapshot = it?.customization_snapshot || null;
+                            const isCustomized = Boolean(it?.custom_product_session_id);
+
+                            return (<tr key={it.id}>
+                                <td>
+                                    <div
+                                        style={{
+                                            display: "flex", gap: 12, alignItems: "flex-start",
+                                        }}
+                                    >
+                                        <img
+                                            src={previewSrc}
+                                            alt={name}
+                                            onError={(e) => {
+                                                e.currentTarget.onerror = null;
+                                                e.currentTarget.src = "/placeholder.png";
+                                            }}
+                                            style={{
+                                                width: 72,
+                                                height: 72,
+                                                objectFit: "cover",
+                                                borderRadius: 10,
+                                                border: "1px solid #eee",
+                                                flexShrink: 0,
+                                            }}
+                                        />
+
+                                        <div>
+                                            <div style={{fontWeight: 650}}>
+                                                {name}
+                                                {optLabel}
+                                            </div>
+
+                                            {isCustomized && (<div className="ck-muted mt-sm">
+                                                Produit personnalisé
+                                            </div>)}
+
+                                            {snapshot?.player_name?.value && (<div className="ck-muted mt-sm">
+                                                Nom : {snapshot.player_name.value}
+                                            </div>)}
+
+                                            {snapshot?.player_number?.value && (<div
+                                                className="ck-muted"
+                                                style={{marginTop: 2}}
+                                            >
+                                                Numéro : {snapshot.player_number.value}
+                                            </div>)}
+
+                                            {snapshot?.template_id && (<div
+                                                className="ck-muted"
+                                                style={{marginTop: 2}}
+                                            >
+                                                Template : {snapshot.template_id}
+                                            </div>)}
+
+                                            {it?.product?.slug && (<div className="ck-muted mt-sm">
+                                                <Link
+                                                    className="ck-link"
+                                                    to={`/products/${it.product.slug}`}
                                                 >
-                                                    <img
-                                                        src={previewSrc}
-                                                        alt={name}
-                                                        onError={(e) => {
-                                                            e.currentTarget.onerror = null;
-                                                            e.currentTarget.src = "/placeholder.png";
-                                                        }}
-                                                        style={{
-                                                            width: 72,
-                                                            height: 72,
-                                                            objectFit: "cover",
-                                                            borderRadius: 10,
-                                                            border: "1px solid #eee",
-                                                            flexShrink: 0,
-                                                        }}
-                                                    />
+                                                    Voir le produit
+                                                </Link>
+                                            </div>)}
+                                        </div>
+                                    </div>
+                                </td>
 
-                                                    <div>
-                                                        <div style={{fontWeight: 650}}>
-                                                            {name}
-                                                            {optLabel}
-                                                        </div>
+                                <td className="is-right" style={{fontWeight: 650}}>
+                                    {formatPriceEUR(unit)}
+                                </td>
 
-                                                        {isCustomized && (
-                                                            <div className="ck-muted mt-sm">
-                                                                Produit personnalisé
-                                                            </div>
-                                                        )}
+                                <td className="is-center">
+                                    {qty}
+                                </td>
 
-                                                        {snapshot?.player_name?.value && (
-                                                            <div className="ck-muted mt-sm">
-                                                                Nom : {snapshot.player_name.value}
-                                                            </div>
-                                                        )}
+                                <td className="is-right" style={{fontWeight: 650}}>
+                                    {formatPriceEUR(line)}
+                                </td>
+                            </tr>);
+                        })}
+                        </tbody>
+                    </table>
+                </div>
 
-                                                        {snapshot?.player_number?.value && (
-                                                            <div
-                                                                className="ck-muted"
-                                                                style={{marginTop: 2}}
-                                                            >
-                                                                Numéro : {snapshot.player_number.value}
-                                                            </div>
-                                                        )}
-
-                                                        {snapshot?.template_id && (
-                                                            <div
-                                                                className="ck-muted"
-                                                                style={{marginTop: 2}}
-                                                            >
-                                                                Template : {snapshot.template_id}
-                                                            </div>
-                                                        )}
-
-                                                        {it?.product?.slug && (
-                                                            <div className="ck-muted mt-sm">
-                                                                <Link
-                                                                    className="ck-link"
-                                                                    to={`/products/${it.product.slug}`}
-                                                                >
-                                                                    Voir le produit
-                                                                </Link>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </td>
-
-                                            <td className="is-right" style={{fontWeight: 650}}>
-                                                {formatPriceEUR(unit)}
-                                            </td>
-
-                                            <td className="is-center">
-                                                {qty}
-                                            </td>
-
-                                            <td className="is-right" style={{fontWeight: 650}}>
-                                                {formatPriceEUR(line)}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                                </tbody>
-                            </table>
+                <div className="grid-2 mt-md">
+                    <div className="ck-card">
+                        <div className="card-title">
+                            Détails de la commande
                         </div>
-
-                        <div className="grid-2 mt-md">
-                            <div className="ck-card">
-                                <div className="card-title">
-                                    Détails de la commande
-                                </div>
-                                <div style={{display: "grid", gap: 8}}>
-                                    <div className="row-between">
-                                        <span className="ck-muted">Transporteur</span>
-                                        <span style={{fontWeight: 650}}>
+                        <div style={{display: "grid", gap: 8}}>
+                            <div className="row-between">
+                                <span className="ck-muted">Transporteur</span>
+                                <span style={{fontWeight: 650}}>
                                             {shipment?.carrier || "—"}
                                         </span>
-                                    </div>
+                            </div>
 
-                                    <div className="row-between">
-                                        <span className="ck-muted">Paiement</span>
-                                        <span style={{fontWeight: 650}}>
+                            <div className="row-between">
+                                <span className="ck-muted">Paiement</span>
+                                <span style={{fontWeight: 650}}>
                                             {payment?.provider || "stripe"}
                                         </span>
-                                    </div>
+                            </div>
 
-                                    <div className="row-between">
-                                        <span className="ck-muted">Statut paiement</span>
-                                        <span style={{fontWeight: 650}}>
+                            <div className="row-between">
+                                <span className="ck-muted">Statut paiement</span>
+                                <span style={{fontWeight: 650}}>
                                             {payment?.status || order.payment_status}
                                         </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="ck-card">
-                                <div className="card-title">Total</div>
-                                <div className="row-between">
-                                    <span className="ck-muted">Total TTC</span>
-                                    <span style={{fontWeight: 750, fontSize: 18}}>
-                                        {formatPriceEUR(order.total_ttc)}
-                                    </span>
-                                </div>
-                                <div className="ck-muted mt-sm">
-                                    Taxes incluses.
-                                </div>
                             </div>
                         </div>
-                    </>
-                )}
-            </div>
+                    </div>
+
+                    <div className="ck-card">
+                        <div className="card-title">Total</div>
+                        <div className="row-between">
+                            <span className="ck-muted">Total TTC</span>
+                            <span style={{fontWeight: 750, fontSize: 18}}>
+                                        {formatPriceEUR(order.total_ttc)}
+                                    </span>
+                        </div>
+                        <div className="ck-muted mt-sm">
+                            Taxes incluses.
+                        </div>
+                    </div>
+                </div>
+            </>)}
         </div>
-    );
+    </div>);
 }

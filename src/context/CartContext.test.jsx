@@ -1,6 +1,4 @@
-/**
- * Tests for CartContext: guest cart fetch/add without a Bearer token.
- */
+// Tests for CartContext
 import {render, screen, waitFor, act} from '@testing-library/react';
 import {CartProvider, useCart} from './CartContext';
 import api from '../api/axios';
@@ -9,20 +7,16 @@ jest.mock('../api/axios');
 
 function ConsumerSpy() {
     const cart = useCart();
-    return (
-        <div>
-            <span data-testid="count">{cart.count}</span>
-            <button onClick={() => cart.addItem({productId: 1, quantity: 2})}>add</button>
-        </div>
-    );
+    return (<div>
+        <span data-testid="count">{cart.count}</span>
+        <button onClick={() => cart.addItem({productId: 1, quantity: 2})}>add</button>
+    </div>);
 }
 
 function renderWithProvider() {
-    return render(
-        <CartProvider>
-            <ConsumerSpy/>
-        </CartProvider>
-    );
+    return render(<CartProvider>
+        <ConsumerSpy/>
+    </CartProvider>);
 }
 
 describe('CartProvider (guest)', () => {
@@ -68,8 +62,7 @@ describe('CartProvider (guest)', () => {
         });
 
         expect(api.post).toHaveBeenCalledWith('/cart/items', expect.objectContaining({
-            product_id: 1,
-            quantity: 2,
+            product_id: 1, quantity: 2,
         }));
 
         await waitFor(() => {

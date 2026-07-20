@@ -1,13 +1,13 @@
 import api from "./axios";
 
-// ── Stats ──────────────────────────────────────────────────────────────────
+// Stats
 export function getAdminStats() {
     return api.get("/admin/stats").then((r) => r.data);
 }
 
-// ── Products ───────────────────────────────────────────────────────────────
+// Products
 export function getAdminProducts(params = {}) {
-    return api.get("/admin/products", { params }).then((r) => r.data);
+    return api.get("/admin/products", {params}).then((r) => r.data);
 }
 
 export function getAdminProduct(id) {
@@ -30,9 +30,9 @@ export function toggleAdminProductActive(id) {
     return api.patch(`/admin/products/${id}/toggle-active`).then((r) => r.data);
 }
 
-// ── Orders ─────────────────────────────────────────────────────────────────
+// Orders
 export function getAdminOrders(params = {}) {
-    return api.get("/admin/orders", { params }).then((r) => r.data);
+    return api.get("/admin/orders", {params}).then((r) => r.data);
 }
 
 export function getAdminOrder(id) {
@@ -41,13 +41,13 @@ export function getAdminOrder(id) {
 
 export function updateAdminOrderStatus(id, order_status) {
     return api
-        .patch(`/admin/orders/${id}/status`, { order_status })
+        .patch(`/admin/orders/${id}/status`, {order_status})
         .then((r) => r.data);
 }
 
-// ── Stock ──────────────────────────────────────────────────────────────────
+// Stock
 export function getAdminStock(params = {}) {
-    return api.get("/admin/stock", { params }).then((r) => r.data);
+    return api.get("/admin/stock", {params}).then((r) => r.data);
 }
 
 export function getAdminProductStock(productId) {
@@ -64,6 +64,6 @@ export function adjustAdminStockLot(lotId, data) {
 
 export function getAdminStockMovements(productId, params = {}) {
     return api
-        .get(`/admin/products/${productId}/stock/movements`, { params })
+        .get(`/admin/products/${productId}/stock/movements`, {params})
         .then((r) => r.data);
 }

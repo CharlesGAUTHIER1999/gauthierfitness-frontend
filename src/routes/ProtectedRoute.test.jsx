@@ -3,28 +3,22 @@ import {MemoryRouter, Routes, Route} from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import * as authModule from '../store/auth';
 
-// Tests for ProtectedRoute : redirect to /login if not authenticated, otherwise render children.
-
 jest.mock('../store/auth');
 
-// Renders ProtectedRoute
+// Tests for ProtectedRoute
 function renderAt(path, useAuthReturn) {
     authModule.useAuth.mockReturnValue(useAuthReturn);
-    return render(
-        <MemoryRouter initialEntries={[path]}>
-            <Routes>
-                <Route
-                    path="/dashboard"
-                    element={
-                        <ProtectedRoute>
-                            <div>Dashboard content</div>
-                        </ProtectedRoute>
-                    }
-                />
-                <Route path="/login" element={<div>Login page</div>}/>
-            </Routes>
-        </MemoryRouter>
-    );
+    return render(<MemoryRouter initialEntries={[path]}>
+        <Routes>
+            <Route
+                path="/dashboard"
+                element={<ProtectedRoute>
+                    <div>Dashboard content</div>
+                </ProtectedRoute>}
+            />
+            <Route path="/login" element={<div>Login page</div>}/>
+        </Routes>
+    </MemoryRouter>);
 }
 
 describe('ProtectedRoute', () => {

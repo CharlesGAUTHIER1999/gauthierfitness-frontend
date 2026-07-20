@@ -3,7 +3,7 @@ import {PaymentElement, useElements, useStripe} from "@stripe/react-stripe-js";
 import {useNavigate} from "react-router-dom";
 import {useCart} from "../../context/CartContext.jsx";
 
-// Renders Stripe's PaymentElement and confirms the payment on submit.
+// Renders Stripe's PaymentElement
 export default function CheckoutPayment({email, clientSecret}) {
     const stripe = useStripe();
     const elements = useElements();
@@ -13,7 +13,7 @@ export default function CheckoutPayment({email, clientSecret}) {
     const [error, setError] = useState(null);
     const returnUrl = useMemo(() => `${window.location.origin}/checkout/success`, []);
 
-    // Runs after a successful payment
+    // Runs after successful payment
     async function afterSuccess(paymentIntentId) {
         try {
             await refetchCart();
@@ -31,7 +31,7 @@ export default function CheckoutPayment({email, clientSecret}) {
         navigate(`/checkout/success?${qs.toString()}`, {replace: true});
     }
 
-    // Submits the payment form and confirms the Stripe PaymentIntent (handles 3DS/no-redirect cases)
+    // Submits payment form
     async function confirm() {
         if (!stripe || !elements) return;
 
@@ -47,12 +47,9 @@ export default function CheckoutPayment({email, clientSecret}) {
             }
 
             const {error: confirmError, paymentIntent} = await stripe.confirmPayment({
-                elements,
-                confirmParams: {
-                    receipt_email: email || undefined,
-                    return_url: returnUrl,
-                },
-                redirect: "if_required",
+                elements, confirmParams: {
+                    receipt_email: email || undefined, return_url: returnUrl,
+                }, redirect: "if_required",
             });
 
             if (confirmError) {
@@ -68,7 +65,7 @@ export default function CheckoutPayment({email, clientSecret}) {
                 return;
             }
 
-            // Sometimes paymentIntent is null -> retrieve it via clientSecret
+            // paymentIntent null (retrieve with clientSecret)
             if (clientSecret) {
                 const {paymentIntent: pi} = await stripe.retrievePaymentIntent(clientSecret);
                 if (pi?.status === "succeeded") {
@@ -85,38 +82,34 @@ export default function CheckoutPayment({email, clientSecret}) {
         }
     }
 
-    return (
-        <div className="ck-payment-box">
-            <div className="ck-payment-head">
-                <div className="ck-payment-title">Paiement</div>
-                <div className="ck-payment-sub">
-                    Toutes les transactions sont sécurisées et chiffrées.
-                </div>
-            </div>
-
-            <div className="ck-payment-element">
-                <PaymentElement options={{layout: "tabs"}}/>
-            </div>
-
-            {error && (
-                <div className="ck-error" role="alert" style={{marginTop: 10}}>
-                    {error}
-                </div>
-            )}
-
-            <button
-                type="button"
-                className="ck-submit"
-                onClick={confirm}
-                disabled={!stripe || !elements || isPaying}
-                style={{marginTop: 12}}
-            >
-                {isPaying ? "Paiement en cours..." : "Payer maintenant"}
-            </button>
-
-            <div className="ck-muted" style={{marginTop: 10}}>
-                Apple Pay / Google Pay s’affichent seulement si l’appareil et la config Stripe le permettent.
+    return (<div className="ck-payment-box">
+        <div className="ck-payment-head">
+            <div className="ck-payment-title">Paiement</div>
+            <div className="ck-payment-sub">
+                Toutes les transactions sont sécurisées et chiffrées.
             </div>
         </div>
-    );
+
+        <div className="ck-payment-element">
+            <PaymentElement options={{layout: "tabs"}}/>
+        </div>
+
+        {error && (<div className="ck-error" role="alert" style={{marginTop: 10}}>
+            {error}
+        </div>)}
+
+        <button
+            type="button"
+            className="ck-submit"
+            onClick={confirm}
+            disabled={!stripe || !elements || isPaying}
+            style={{marginTop: 12}}
+        >
+            {isPaying ? "Paiement en cours..." : "Payer maintenant"}
+        </button>
+
+        <div className="ck-muted" style={{marginTop: 10}}>
+            Apple Pay / Google Pay s’affichent seulement si l’appareil et la config Stripe le permettent.
+        </div>
+    </div>);
 }

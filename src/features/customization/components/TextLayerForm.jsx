@@ -1,10 +1,10 @@
 import {useState} from "react";
 
-// Form to add a free text layer to the product with default position/style
+// Form to add free text layer to product
 export default function TextLayerForm({onAddText, textColor = "#111111"}) {
     const [text, setText] = useState("");
 
-    // Builds a new text layer object
+    // Builds new text layer object
     function handleSubmit(e) {
         e.preventDefault();
 
@@ -26,22 +26,20 @@ export default function TextLayerForm({onAddText, textColor = "#111111"}) {
         setText("");
     }
 
-    return (
-        <form className="pc-section" onSubmit={handleSubmit}>
-            <h4 className="pc-section-title">Ajouter du texte libre</h4>
+    return (<form className="pc-section" onSubmit={handleSubmit}>
+        <h4 className="pc-section-title">Ajouter du texte libre</h4>
 
-            <input
-                className="pc-input"
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Ex: CHAMPION"
-                maxLength={30}
-            />
+        <input
+            className="pc-input"
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Ex: CHAMPION"
+            maxLength={30}
+        />
 
-            <button type="submit" className="pc-secondary-btn" disabled={!text.trim()}>
-                Ajouter le texte
-            </button>
-        </form>
-    );
+        <button type="submit" className="pc-secondary-btn" disabled={!text.trim()}>
+            Ajouter le texte
+        </button>
+    </form>);
 }

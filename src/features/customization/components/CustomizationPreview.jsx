@@ -1,16 +1,10 @@
 import {useEffect, useMemo, useState} from "react";
 import {
-    Stage,
-    Layer,
-    Image as KonvaImage,
-    Rect,
-    Text,
-    Line,
-    Group,
+    Stage, Layer, Image as KonvaImage, Rect, Text, Line, Group,
 } from "react-konva";
 import {getProductCustomizerViewConfig} from "../utils/productCustomizerConfigs";
 
-// Loads an HTML Image element from a src URL, re-loading whenever src changes.
+// Loads HTML Image element
 function useHtmlImage(src) {
     const [image, setImage] = useState(null);
 
@@ -22,9 +16,7 @@ function useHtmlImage(src) {
 
         const img = new window.Image();
 
-        const isLocalPublicAsset =
-            src.startsWith("/") ||
-            src.startsWith(window.location.origin);
+        const isLocalPublicAsset = src.startsWith("/") || src.startsWith(window.location.origin);
 
         if (isLocalPublicAsset) {
             img.crossOrigin = "anonymous";
@@ -46,39 +38,34 @@ function useHtmlImage(src) {
     return image;
 }
 
-// Draggable Konva image for a single uploaded image layer.
+// Draggable Konva image
 function UploadedImageLayer({layer, index, onPositionChange}) {
     const image = useHtmlImage(layer?.src || null);
 
     if (!image) return null;
 
-    return (
-        <KonvaImage
-            image={image}
-            x={layer?.x ?? 320}
-            y={layer?.y ?? 280}
-            width={layer?.width ?? 90}
-            height={layer?.height ?? 90}
-            rotation={layer?.rotation ?? 0}
-            draggable
-            onDragEnd={(e) =>
-                onPositionChange?.(index, {
-                    x: e.target.x(),
-                    y: e.target.y(),
-                })
-            }
-        />
-    );
+    return (<KonvaImage
+        image={image}
+        x={layer?.x ?? 320}
+        y={layer?.y ?? 280}
+        width={layer?.width ?? 90}
+        height={layer?.height ?? 90}
+        rotation={layer?.rotation ?? 0}
+        draggable
+        onDragEnd={(e) => onPositionChange?.(index, {
+            x: e.target.x(), y: e.target.y(),
+        })}
+    />);
 }
 
-// Resolves a product image entry (string or object) to a usable URL.
+// Resolves product image entry
 function getProductImageUrl(image) {
     if (!image) return null;
     if (typeof image === "string") return image;
     return image.full_url || image.url || null;
 }
 
-// Maps a pattern id to its static asset path.
+// Maps pattern id
 function getPatternImageSrc(patternId) {
     if (!patternId) return null;
 
@@ -94,7 +81,7 @@ function getPatternImageSrc(patternId) {
     }
 }
 
-// Maps a gradient id to its static asset path.
+// Maps gradient id
 function getGradientImageSrc(gradientId) {
     if (!gradientId) return null;
 
@@ -110,7 +97,7 @@ function getGradientImageSrc(gradientId) {
     }
 }
 
-// Picks the product image to display for a given view (front / back)
+// Picks product image
 function getFallbackViewImage(product, view) {
     const images = Array.isArray(product?.images) ? product.images : [];
 
@@ -119,49 +106,28 @@ function getFallbackViewImage(product, view) {
     }
 
     if (view === "back") {
-        return (
-            getProductImageUrl(images[1]) ||
-            getProductImageUrl(images[0]) ||
-            getProductImageUrl(product?.main_image) ||
-            null
-        );
+        return (getProductImageUrl(images[1]) || getProductImageUrl(images[0]) || getProductImageUrl(product?.main_image) || null);
     }
 
-    return (
-        getProductImageUrl(images[0]) ||
-        getProductImageUrl(product?.main_image) ||
-        null
-    );
+    return (getProductImageUrl(images[0]) || getProductImageUrl(product?.main_image) || null);
 }
 
-// Builds the decorative overlay (stripes/border or minimal column/lines) for a template id
+// Builds decorative overlay
 function getTemplateDecor(templateId, view, textColor) {
     if (view === "back") return null;
 
     if (templateId === "clean-front-template") {
         return {
             type: "minimal",
-            accentColor:
-                textColor === "#ffffff"
-                    ? "rgba(255,255,255,0.18)"
-                    : "rgba(17,17,17,0.08)",
-            lineColor:
-                textColor === "#ffffff"
-                    ? "rgba(255,255,255,0.42)"
-                    : "rgba(17,17,17,0.22)",
+            accentColor: textColor === "#ffffff" ? "rgba(255,255,255,0.18)" : "rgba(17,17,17,0.08)",
+            lineColor: textColor === "#ffffff" ? "rgba(255,255,255,0.42)" : "rgba(17,17,17,0.22)",
         };
     }
 
     return {
         type: "classic",
-        stripeColor:
-            textColor === "#ffffff"
-                ? "rgba(255,255,255,0.14)"
-                : "rgba(17,17,17,0.06)",
-        borderColor:
-            textColor === "#ffffff"
-                ? "rgba(255,255,255,0.22)"
-                : "rgba(17,17,17,0.12)",
+        stripeColor: textColor === "#ffffff" ? "rgba(255,255,255,0.14)" : "rgba(17,17,17,0.06)",
+        borderColor: textColor === "#ffffff" ? "rgba(255,255,255,0.22)" : "rgba(17,17,17,0.12)",
     };
 }
 
@@ -179,50 +145,28 @@ export default function CustomizationPreview({
     const height = 760;
     const currentView = configuration?.view || "front";
 
-    const currentImageSrc = useMemo(
-        () => getFallbackViewImage(product, currentView),
-        [product, currentView]
-    );
+    const currentImageSrc = useMemo(() => getFallbackViewImage(product, currentView), [product, currentView]);
 
     const productImage = useHtmlImage(currentImageSrc);
-    const logoImage = useHtmlImage(
-        configuration?.logo?.enabled ? configuration?.logo?.src : null
-    );
+    const logoImage = useHtmlImage(configuration?.logo?.enabled ? configuration?.logo?.src : null);
 
-    const textLayers = Array.isArray(configuration?.text_layers)
-        ? configuration.text_layers
-        : [];
+    const textLayers = Array.isArray(configuration?.text_layers) ? configuration.text_layers : [];
 
-    const imageLayers = Array.isArray(configuration?.image_layers)
-        ? configuration.image_layers.filter((layer) => (layer?.view || "front") === currentView)
-        : [];
+    const imageLayers = Array.isArray(configuration?.image_layers) ? configuration.image_layers.filter((layer) => (layer?.view || "front") === currentView) : [];
 
-    const playerName =
-        typeof configuration?.player_name?.value === "string"
-            ? configuration.player_name.value.trim()
-            : "";
+    const playerName = typeof configuration?.player_name?.value === "string" ? configuration.player_name.value.trim() : "";
 
-    const playerNumber =
-        typeof configuration?.player_number?.value === "string"
-            ? configuration.player_number.value.trim()
-            : "";
+    const playerNumber = typeof configuration?.player_number?.value === "string" ? configuration.player_number.value.trim() : "";
 
-    const templateConfig =
-        getProductCustomizerViewConfig(
-            product,
-            currentView,
-            configuration?.template_id
-        ) || {
-            printZone: currentView === "back"
-                ? {x: 272, y: 205, width: 215, height: 238}
-                : {x: 268, y: 224, width: 225, height: 162},
-            designZone: currentView === "back"
-                ? {x: 272, y: 118, width: 205, height: 376}
-                : {x: 274, y: 118, width: 208, height: 380},
-            logoZone: configuration?.template_id === "clean-front-template" && currentView === "front"
-                ? {x: 286, y: 205, width: 42, height: 42}
-                : {x: 245, y: 220, width: 64, height: 64},
-        };
+    const templateConfig = getProductCustomizerViewConfig(product, currentView, configuration?.template_id) || {
+        printZone: currentView === "back" ? {x: 272, y: 205, width: 215, height: 238} : {
+            x: 268, y: 224, width: 225, height: 162
+        }, designZone: currentView === "back" ? {x: 272, y: 118, width: 205, height: 376} : {
+            x: 274, y: 118, width: 208, height: 380
+        }, logoZone: configuration?.template_id === "clean-front-template" && currentView === "front" ? {
+            x: 286, y: 205, width: 42, height: 42
+        } : {x: 245, y: 220, width: 64, height: 64},
+    };
 
     const printZone = templateConfig.printZone;
     const designZone = templateConfig.designZone;
@@ -235,267 +179,219 @@ export default function CustomizationPreview({
     const decor = getTemplateDecor(configuration?.template_id, currentView, textColor);
 
     const currentStyle = configuration?.style?.[currentView] || {
-        pattern: {enabled: false, id: null},
-        gradient: {enabled: false, id: null},
+        pattern: {enabled: false, id: null}, gradient: {enabled: false, id: null},
     };
 
-    const patternImageSrc = getPatternImageSrc(
-        currentStyle?.pattern?.enabled ? currentStyle?.pattern?.id : null
-    );
+    const patternImageSrc = getPatternImageSrc(currentStyle?.pattern?.enabled ? currentStyle?.pattern?.id : null);
 
-    const gradientImageSrc = getGradientImageSrc(
-        currentStyle?.gradient?.enabled ? currentStyle?.gradient?.id : null
-    );
+    const gradientImageSrc = getGradientImageSrc(currentStyle?.gradient?.enabled ? currentStyle?.gradient?.id : null);
 
     const patternImage = useHtmlImage(patternImageSrc);
     const gradientImage = useHtmlImage(gradientImageSrc);
 
-    return (
-        <div className="pc-preview-card">
-            <div className="pc-preview-toolbar">
-                <div className="pc-preview-toolbar-left">
-                    <span className="pc-preview-badge">Aperçu 2D</span>
-                    <span className="pc-preview-zone-label">
+    return (<div className="pc-preview-card">
+        <div className="pc-preview-toolbar">
+            <div className="pc-preview-toolbar-left">
+                <span className="pc-preview-badge">Aperçu 2D</span>
+                <span className="pc-preview-zone-label">
                         {currentView === "front" ? "Zone avant" : "Zone arrière"}
                     </span>
-                </div>
+            </div>
 
-                <span className="pc-preview-subtle">
+            <span className="pc-preview-subtle">
                     Évolution prévue vers configurateur 3D
                 </span>
-            </div>
-
-            <div className="pc-preview-stage">
-                <Stage width={width} height={height}>
-                    <Layer>
-                        <Rect
-                            x={0}
-                            y={0}
-                            width={width}
-                            height={height}
-                            cornerRadius={24}
-                        />
-
-                        {productImage ? (
-                            <KonvaImage
-                                image={productImage}
-                                x={130}
-                                y={30}
-                                width={500}
-                                height={690}
-                            />
-                        ) : (
-                            <Rect
-                                x={130}
-                                y={30}
-                                width={500}
-                                height={690}
-                                cornerRadius={24}
-                            />
-                        )}
-
-                        {currentStyle?.gradient?.enabled && gradientImage && (
-                            <Rect
-                                x={designZone.x}
-                                y={designZone.y}
-                                width={designZone.width}
-                                height={designZone.height}
-                                cornerRadius={34}
-                                fillPatternImage={gradientImage}
-                                fillPatternRepeat="no-repeat"
-                                fillPatternScaleX={designZone.width / gradientImage.width}
-                                fillPatternScaleY={designZone.height / gradientImage.height}
-                                opacity={0.35}
-                            />
-                        )}
-
-                        {currentStyle?.pattern?.enabled && patternImage && (
-                            <Rect
-                                x={designZone.x}
-                                y={designZone.y}
-                                width={designZone.width}
-                                height={designZone.height}
-                                cornerRadius={34}
-                                fillPatternImage={patternImage}
-                                fillPatternRepeat="repeat"
-                                opacity={0.22}
-                            />
-                        )}
-
-                        {decor?.type === "classic" && (
-                            <Group>
-                                <Rect
-                                    x={250}
-                                    y={242}
-                                    width={260}
-                                    height={22}
-                                    cornerRadius={14}
-                                    fill={decor.stripeColor}
-                                />
-                                <Rect
-                                    x={250}
-                                    y={296}
-                                    width={260}
-                                    height={22}
-                                    cornerRadius={14}
-                                    fill={decor.stripeColor}
-                                />
-                                <Rect
-                                    x={250}
-                                    y={350}
-                                    width={260}
-                                    height={22}
-                                    cornerRadius={14}
-                                    fill={decor.stripeColor}
-                                />
-                                <Line
-                                    points={[250, 242, 510, 242, 510, 372, 250, 372, 250, 242]}
-                                    closed
-                                    stroke={decor.borderColor}
-                                    strokeWidth={2}
-                                />
-                            </Group>
-                        )}
-
-                        {decor?.type === "minimal" && (
-                            <Group>
-                                <Rect
-                                    x={334}
-                                    y={170}
-                                    width={92}
-                                    height={265}
-                                    cornerRadius={24}
-                                    fill={decor.accentColor}
-                                />
-                                <Line
-                                    points={[380, 170, 380, 435]}
-                                    stroke={decor.lineColor}
-                                    strokeWidth={2}
-                                />
-                                <Line
-                                    points={[322, 448, 438, 448]}
-                                    stroke={decor.lineColor}
-                                    strokeWidth={2}
-                                />
-                            </Group>
-                        )}
-
-                        <Rect
-                            x={printZone.x}
-                            y={printZone.y}
-                            width={printZone.width}
-                            height={printZone.height}
-                            cornerRadius={16}
-                            dash={[8, 8]}
-                        />
-
-                        {imageLayers.map((layer, index) => (
-                            <UploadedImageLayer
-                                key={`${layer?.src || "image"}-${index}`}
-                                layer={layer}
-                                index={index}
-                                onPositionChange={onImageLayerPositionChange}
-                            />
-                        ))}
-
-                        {configuration?.logo?.enabled && currentView === "front" && (
-                            logoImage ? (
-                                <KonvaImage
-                                    image={logoImage}
-                                    x={logoX}
-                                    y={logoY}
-                                    width={logoWidth}
-                                    height={logoHeight}
-                                    draggable
-                                    onDragEnd={(e) =>
-                                        onLogoPositionChange?.({
-                                            x: e.target.x(),
-                                            y: e.target.y(),
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <Rect
-                                    x={logoX}
-                                    y={logoY}
-                                    width={logoWidth}
-                                    height={logoHeight}
-                                    cornerRadius={8}
-                                    draggable
-                                    onDragEnd={(e) =>
-                                        onLogoPositionChange?.({
-                                            x: e.target.x(),
-                                            y: e.target.y(),
-                                        })
-                                    }
-                                />
-                            )
-                        )}
-
-                        {currentView === "back" && playerNumber && (
-                            <Text
-                                x={configuration.player_number.x}
-                                y={configuration.player_number.y}
-                                width={120}
-                                align="center"
-                                text={playerNumber}
-                                fontSize={84}
-                                fontStyle="bold"
-                                fontFamily="Arial"
-                                fill={configuration.player_number.color || "#111111"}
-                                draggable
-                                onDragEnd={(e) =>
-                                    onPlayerNumberPositionChange?.({
-                                        x: e.target.x(),
-                                        y: e.target.y(),
-                                    })
-                                }
-                            />
-                        )}
-
-                        {currentView === "back" && playerName && (
-                            <Text
-                                x={configuration.player_name.x}
-                                y={configuration.player_name.y}
-                                width={220}
-                                align="center"
-                                text={playerName.toUpperCase()}
-                                fontSize={28}
-                                fontStyle="bold"
-                                fontFamily="Arial"
-                                fill={configuration.player_name.color || "#111111"}
-                                draggable
-                                onDragEnd={(e) =>
-                                    onPlayerNamePositionChange?.({
-                                        x: e.target.x(),
-                                        y: e.target.y(),
-                                    })
-                                }
-                            />
-                        )}
-
-                        {textLayers.map((layer, index) => (
-                            <Text
-                                key={`${layer.text}-${index}`}
-                                x={layer.x ?? printZone.x + 20}
-                                y={layer.y ?? printZone.y + 30}
-                                text={layer.text}
-                                fontSize={layer.size ?? 28}
-                                fontFamily={layer.font ?? "Arial"}
-                                fill={layer.color ?? "#111111"}
-                                rotation={layer.rotation ?? 0}
-                                draggable
-                                onDragEnd={(e) =>
-                                    onTextLayerPositionChange?.(index, {
-                                        x: e.target.x(),
-                                        y: e.target.y(),
-                                    })
-                                }
-                            />
-                        ))}
-                    </Layer>
-                </Stage>
-            </div>
         </div>
-    );
+
+        <div className="pc-preview-stage">
+            <Stage width={width} height={height}>
+                <Layer>
+                    <Rect
+                        x={0}
+                        y={0}
+                        width={width}
+                        height={height}
+                        cornerRadius={24}
+                    />
+
+                    {productImage ? (<KonvaImage
+                        image={productImage}
+                        x={130}
+                        y={30}
+                        width={500}
+                        height={690}
+                    />) : (<Rect
+                        x={130}
+                        y={30}
+                        width={500}
+                        height={690}
+                        cornerRadius={24}
+                    />)}
+
+                    {currentStyle?.gradient?.enabled && gradientImage && (<Rect
+                        x={designZone.x}
+                        y={designZone.y}
+                        width={designZone.width}
+                        height={designZone.height}
+                        cornerRadius={34}
+                        fillPatternImage={gradientImage}
+                        fillPatternRepeat="no-repeat"
+                        fillPatternScaleX={designZone.width / gradientImage.width}
+                        fillPatternScaleY={designZone.height / gradientImage.height}
+                        opacity={0.35}
+                    />)}
+
+                    {currentStyle?.pattern?.enabled && patternImage && (<Rect
+                        x={designZone.x}
+                        y={designZone.y}
+                        width={designZone.width}
+                        height={designZone.height}
+                        cornerRadius={34}
+                        fillPatternImage={patternImage}
+                        fillPatternRepeat="repeat"
+                        opacity={0.22}
+                    />)}
+
+                    {decor?.type === "classic" && (<Group>
+                        <Rect
+                            x={250}
+                            y={242}
+                            width={260}
+                            height={22}
+                            cornerRadius={14}
+                            fill={decor.stripeColor}
+                        />
+                        <Rect
+                            x={250}
+                            y={296}
+                            width={260}
+                            height={22}
+                            cornerRadius={14}
+                            fill={decor.stripeColor}
+                        />
+                        <Rect
+                            x={250}
+                            y={350}
+                            width={260}
+                            height={22}
+                            cornerRadius={14}
+                            fill={decor.stripeColor}
+                        />
+                        <Line
+                            points={[250, 242, 510, 242, 510, 372, 250, 372, 250, 242]}
+                            closed
+                            stroke={decor.borderColor}
+                            strokeWidth={2}
+                        />
+                    </Group>)}
+
+                    {decor?.type === "minimal" && (<Group>
+                        <Rect
+                            x={334}
+                            y={170}
+                            width={92}
+                            height={265}
+                            cornerRadius={24}
+                            fill={decor.accentColor}
+                        />
+                        <Line
+                            points={[380, 170, 380, 435]}
+                            stroke={decor.lineColor}
+                            strokeWidth={2}
+                        />
+                        <Line
+                            points={[322, 448, 438, 448]}
+                            stroke={decor.lineColor}
+                            strokeWidth={2}
+                        />
+                    </Group>)}
+
+                    <Rect
+                        x={printZone.x}
+                        y={printZone.y}
+                        width={printZone.width}
+                        height={printZone.height}
+                        cornerRadius={16}
+                        dash={[8, 8]}
+                    />
+
+                    {imageLayers.map((layer, index) => (<UploadedImageLayer
+                        key={`${layer?.src || "image"}-${index}`}
+                        layer={layer}
+                        index={index}
+                        onPositionChange={onImageLayerPositionChange}
+                    />))}
+
+                    {configuration?.logo?.enabled && currentView === "front" && (logoImage ? (<KonvaImage
+                        image={logoImage}
+                        x={logoX}
+                        y={logoY}
+                        width={logoWidth}
+                        height={logoHeight}
+                        draggable
+                        onDragEnd={(e) => onLogoPositionChange?.({
+                            x: e.target.x(), y: e.target.y(),
+                        })}
+                    />) : (<Rect
+                        x={logoX}
+                        y={logoY}
+                        width={logoWidth}
+                        height={logoHeight}
+                        cornerRadius={8}
+                        draggable
+                        onDragEnd={(e) => onLogoPositionChange?.({
+                            x: e.target.x(), y: e.target.y(),
+                        })}
+                    />))}
+
+                    {currentView === "back" && playerNumber && (<Text
+                        x={configuration.player_number.x}
+                        y={configuration.player_number.y}
+                        width={120}
+                        align="center"
+                        text={playerNumber}
+                        fontSize={84}
+                        fontStyle="bold"
+                        fontFamily="Arial"
+                        fill={configuration.player_number.color || "#111111"}
+                        draggable
+                        onDragEnd={(e) => onPlayerNumberPositionChange?.({
+                            x: e.target.x(), y: e.target.y(),
+                        })}
+                    />)}
+
+                    {currentView === "back" && playerName && (<Text
+                        x={configuration.player_name.x}
+                        y={configuration.player_name.y}
+                        width={220}
+                        align="center"
+                        text={playerName.toUpperCase()}
+                        fontSize={28}
+                        fontStyle="bold"
+                        fontFamily="Arial"
+                        fill={configuration.player_name.color || "#111111"}
+                        draggable
+                        onDragEnd={(e) => onPlayerNamePositionChange?.({
+                            x: e.target.x(), y: e.target.y(),
+                        })}
+                    />)}
+
+                    {textLayers.map((layer, index) => (<Text
+                        key={`${layer.text}-${index}`}
+                        x={layer.x ?? printZone.x + 20}
+                        y={layer.y ?? printZone.y + 30}
+                        text={layer.text}
+                        fontSize={layer.size ?? 28}
+                        fontFamily={layer.font ?? "Arial"}
+                        fill={layer.color ?? "#111111"}
+                        rotation={layer.rotation ?? 0}
+                        draggable
+                        onDragEnd={(e) => onTextLayerPositionChange?.(index, {
+                            x: e.target.x(), y: e.target.y(),
+                        })}
+                    />))}
+                </Layer>
+            </Stage>
+        </div>
+    </div>);
 }
