@@ -23,7 +23,7 @@ function renderLogin() {
 async function submitForm() {
     fireEvent.change(screen.getByLabelText('Email'), {target: {value: 'alice@example.com'}});
     fireEvent.change(screen.getByLabelText('Mot de passe'), {target: {value: 'secret'}});
-    act(async () => {
+    await act(async () => {
         fireEvent.click(screen.getByText('Se connecter'));
     });
 }

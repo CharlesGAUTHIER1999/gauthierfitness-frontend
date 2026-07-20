@@ -57,7 +57,7 @@ describe('CartProvider (guest)', () => {
             expect(screen.getByTestId('count')).toHaveTextContent('0');
         });
 
-        act(async () => {
+        await act(async () => {
             screen.getByText('add').click();
         });
 
