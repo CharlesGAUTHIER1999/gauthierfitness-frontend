@@ -1,21 +1,15 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { FiEye, FiTool, FiMousePointer, FiMove } from "react-icons/fi";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Stage } from "@react-three/drei";
+import {Suspense, useEffect, useMemo, useRef, useState} from "react";
+import {FiEye, FiTool, FiMousePointer, FiMove} from "react-icons/fi";
+import {Canvas} from "@react-three/fiber";
+import {OrbitControls, useGLTF, Stage} from "@react-three/drei";
 import * as THREE from "three";
-import { useTextureComposer } from "../hooks/useTextureComposer";
+import {useTextureComposer} from "../hooks/useTextureComposer";
 
 useGLTF.preload("/models/tshirt.glb");
 
-// GF12 V2: silences deprecated Three.js warnings we can't fix on the app
-// side (they come from drei / r3f internals, not our code).
-// Only done once, in dev, to avoid polluting the console.
 if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     const origWarn = console.warn;
-    const SILENCED = [
-        "THREE.Clock",
-        "THREE.WebGLShadowMap: PCFSoftShadowMap",
-    ];
+    const SILENCED = ["THREE.Clock", "THREE.WebGLShadowMap: PCFSoftShadowMap",];
     console.warn = function (...args) {
         const msg = args[0];
         if (typeof msg === "string" && SILENCED.some((s) => msg.includes(s))) return;
@@ -24,73 +18,31 @@ if (import.meta.env?.DEV && !window.__gf_three_warnings_silenced) {
     window.__gf_three_warnings_silenced = true;
 }
 
-// Set to true to see received UVs + hit-test results in the console.
 const DEBUG_DRAG = false;
 
-// GF12 V2: "safe" UV zone where texts/images are allowed to live.
-// If the user drags outside it (sleeve, back, collar of the t-shirt), we clamp
-// to avoid the layer landing on a different UV island and becoming unreachable.
-// The Studio-Lab GLB has non-overlapping UVs, so any UV in [0,1] is
-// safe (no "ghost zone"). We just keep a small margin to avoid
-// sticking to the extreme edge.
+// Safe UV zone
 const SAFE_UV = {
-    xMin: 0.02,
-    xMax: 0.98,
-    yMin: 0.02,
-    yMax: 0.98,
+    xMin: 0.02, xMax: 0.98, yMin: 0.02, yMax: 0.98,
 };
 
 function clampUV(u, v) {
     return {
-        x: Math.max(SAFE_UV.xMin, Math.min(SAFE_UV.xMax, u)),
-        y: Math.max(SAFE_UV.yMin, Math.min(SAFE_UV.yMax, v)),
+        x: Math.max(SAFE_UV.xMin, Math.min(SAFE_UV.xMax, u)), y: Math.max(SAFE_UV.yMin, Math.min(SAFE_UV.yMax, v)),
     };
 }
 
-// If the received UV is clearly outside the zone (> 0.15 margin), ignore it:
-// it means the cursor is on a different UV island (sleeve, back).
 function isWayOutsideSafeZone(u, v) {
-    return (
-        u < SAFE_UV.xMin - 0.15 ||
-        u > SAFE_UV.xMax + 0.15 ||
-        v < SAFE_UV.yMin - 0.15 ||
-        v > SAFE_UV.yMax + 0.15
-    );
+    return (u < SAFE_UV.xMin - 0.15 || u > SAFE_UV.xMax + 0.15 || v < SAFE_UV.yMin - 0.15 || v > SAFE_UV.yMax + 0.15);
 }
 
-/**
- * T-shirt mesh + pointer event handling (UV hit-test) for drag & drop.
- *
- * To prevent OrbitControls (which listens to native DOM events) from
- * hijacking the drag, we:
- *   1. call e.stopPropagation() on the r3f side
- *   2. call e.nativeEvent.stopPropagation() on the DOM side
- *   3. toggle isDragging → OrbitControls.enabled = false on the next render
- */
+// T-shirt mesh + pointer event handling (UV hit-test)
 function TShirtMesh({
-                        texture,
-                        bboxesRef,
-                        onDragStart,
-                        onDragMove,
-                        onDragEnd,
-                        glbPath,
-                        meshMode,
-                        activeMeshIndex,
+                        texture, bboxesRef, onDragStart, onDragMove, onDragEnd, glbPath, meshMode, activeMeshIndex,
                     }) {
-    const { scene: cachedScene } = useGLTF(glbPath);
-    // useGLTF caches the loaded scene globally by URL, shared across every
-    // mount that requests the same glbPath. The effect below mutates it
-    // (removing meshes, translating geometry) — without cloning, a second
-    // mount (e.g. navigating back to this page) prunes an already-pruned
-    // scene and can end up removing the last remaining mesh, leaving an
-    // empty scene. Cloning gives each mount its own disposable hierarchy;
-    // geometry/material stay shared references, so no extra GPU cost.
+    const {scene: cachedScene} = useGLTF(glbPath);
     const scene = useMemo(() => cachedScene.clone(true), [cachedScene]);
     const groupRef = useRef();
-    const dragState = useRef(null); // { id, type, pointerId }
-
-    // Replaces scene.userData._pruned / scene.userData._centered
-    // to avoid the ESLint react-hooks/immutability error.
+    const dragState = useRef(null);
     const prunedRef = useRef(false);
     const centeredRef = useRef(false);
 
@@ -102,7 +54,7 @@ function TShirtMesh({
             if (child.isMesh) meshes.push(child);
         });
 
-        // ── "pick" mode: GLB pack (Studio-Lab). We pick ONE mesh, remove the others.
+        // pick mode
         if (meshMode === "pick") {
             if (!prunedRef.current) {
                 const toRemove = meshes.filter((_, i) => i !== activeMeshIndex);
@@ -110,17 +62,15 @@ function TShirtMesh({
                 prunedRef.current = true;
             }
 
-        const activeMesh = meshes[activeMeshIndex];
-        if (!activeMesh) return;
+            const activeMesh = meshes[activeMeshIndex];
+            if (!activeMesh) return;
 
             if (!centeredRef.current) {
                 activeMesh.geometry.computeBoundingBox();
                 const box = activeMesh.geometry.boundingBox;
                 const center = box.getCenter(new THREE.Vector3());
-
                 activeMesh.geometry.translate(-center.x, -center.y, -center.z);
                 activeMesh.position.set(0, 0, 0);
-
                 centeredRef.current = true;
             }
 
@@ -139,28 +89,21 @@ function TShirtMesh({
             return;
         }
 
-        // ── "all" mode: classic GLB. All meshes make up the garment.
-        // We apply the texture to each one, and center the whole thing on the global centroid.
+        // all mode
         if (meshes.length === 0) return;
 
         if (!centeredRef.current) {
-            // Global bounding box (union of all local bboxes expressed in world space)
             const globalBox = new THREE.Box3();
 
             meshes.forEach((m) => {
                 m.geometry.computeBoundingBox();
                 const b = m.geometry.boundingBox.clone();
-
-                // We want the bbox in the shared local space (scene), so we apply the world matrix
                 m.updateWorldMatrix(true, false);
                 b.applyMatrix4(m.matrixWorld);
                 globalBox.union(b);
             });
 
             const center = globalBox.getCenter(new THREE.Vector3());
-
-            // Translate the scene root to center the whole model on the origin.
-            // (We don't touch individual geometries so UVs/normals stay intact.)
             scene.position.sub(center);
             centeredRef.current = true;
         }
@@ -185,12 +128,7 @@ function TShirtMesh({
         const list = bboxesRef?.current || [];
 
         for (const bb of list) {
-            if (
-                u >= bb.uv.x0 &&
-                u <= bb.uv.x1 &&
-                v >= bb.uv.y0 &&
-                v <= bb.uv.y1
-            ) {
+            if (u >= bb.uv.x0 && u <= bb.uv.x1 && v >= bb.uv.y0 && v <= bb.uv.y1) {
                 return bb;
             }
         }
@@ -207,26 +145,14 @@ function TShirtMesh({
         }
 
         if (DEBUG_DRAG) {
-            console.log(
-                "[DRAG] pointerDown UV =",
-                uv.x.toFixed(3),
-                uv.y.toFixed(3),
-                "| bboxes:",
-                (bboxesRef?.current || []).length
-            );
+            console.log("[DRAG] pointerDown UV =", uv.x.toFixed(3), uv.y.toFixed(3), "| bboxes:", (bboxesRef?.current || []).length);
 
             (bboxesRef?.current || []).forEach((bb) => {
-                console.log(
-                    "  bbox",
-                    bb.id,
-                    bb.type,
-                    `x:[${bb.uv.x0.toFixed(3)}-${bb.uv.x1.toFixed(3)}]`,
-                    `y:[${bb.uv.y0.toFixed(3)}-${bb.uv.y1.toFixed(3)}]`
-                );
+                console.log("  bbox", bb.id, bb.type, `x:[${bb.uv.x0.toFixed(3)}-${bb.uv.x1.toFixed(3)}]`, `y:[${bb.uv.y0.toFixed(3)}-${bb.uv.y1.toFixed(3)}]`);
             });
         }
 
-        // Hit-test with direct UV AND UV flipped on y (in case flipY applies)
+        // Hit-test with direct UV AND UV flipped on y
         let hit = hitTestUV(uv.x, uv.y);
         let flipped = false;
 
@@ -241,15 +167,12 @@ function TShirtMesh({
 
         if (!hit) return;
 
-        // Stop propagation on the r3f side AND the DOM side (to block OrbitControls)
+        // Stop propagation on the r3f side AND the DOM side
         e.stopPropagation();
         e.nativeEvent?.stopPropagation?.();
 
         dragState.current = {
-            id: hit.id,
-            type: hit.type,
-            pointerId: e.pointerId,
-            flipY: flipped,
+            id: hit.id, type: hit.type, pointerId: e.pointerId, flipY: flipped,
         };
 
         onDragStart?.();
@@ -271,63 +194,46 @@ function TShirtMesh({
         const rawY = state.flipY ? 1 - uv.y : uv.y;
         const rawX = uv.x;
 
-        // GF12 V2: if the cursor is clearly on a different UV island
-        // (sleeve / back / collar), ignore the movement to prevent the
-        // layer from "jumping" to a zone invisible from the front view.
         if (isWayOutsideSafeZone(rawX, rawY)) {
             if (DEBUG_DRAG) {
-                console.log(
-                    "[DRAG] move ignoré (hors safe zone)",
-                    rawX.toFixed(3),
-                    rawY.toFixed(3)
-                );
+                console.log("[DRAG] move ignoré (hors safe zone)", rawX.toFixed(3), rawY.toFixed(3));
             }
             return;
         }
 
-        // Clamp to the safe zone to guarantee the layer stays reachable.
+        // Clamp to safe zone
         const clamped = clampUV(rawX, rawY);
         onDragMove?.(state.id, state.type, clamped);
     }
 
     function handlePointerUp(e) {
         const state = dragState.current;
-
         if (!state) return;
         if (e.pointerId !== state.pointerId) return;
-
         e.stopPropagation?.();
         e.nativeEvent?.stopPropagation?.();
-
         dragState.current = null;
         onDragEnd?.();
     }
 
-    return (
-        <group
-            ref={groupRef}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
-        >
-            <primitive object={scene} />
-        </group>
-    );
+    return (<group
+        ref={groupRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+    >
+        <primitive object={scene}/>
+    </group>);
 }
 
-// If the tab stays hidden longer than this, the GPU context is likely to have
-// been reclaimed by the browser even without a clean "contextlost" event on
-// some platforms — remount proactively instead of waiting to find out.
 const STALE_AFTER_HIDDEN_MS = 15 * 60 * 1000;
 
 function Loader() {
-    return (
-        <mesh>
-            <boxGeometry args={[1, 1.5, 0.1]} />
-            <meshStandardMaterial color="#d1d5db" wireframe />
-        </mesh>
-    );
+    return (<mesh>
+        <boxGeometry args={[1, 1.5, 0.1]}/>
+        <meshStandardMaterial color="#d1d5db" wireframe/>
+    </mesh>);
 }
 
 export default function CustomizationCanvas3D({
@@ -340,8 +246,7 @@ export default function CustomizationCanvas3D({
                                                   onUpdatePlayerNumberUV,
                                                   onDragEnd,
                                               }) {
-    // UV debug: only if ?debuguv is present in the URL.
-    // Hidden by default in dev AND prod — add ?debuguv to enable it.
+    // UV debug
     const debugUVAllowed = new URLSearchParams(window.location.search).has("debuguv");
     const [debugUV, setDebugUV] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
@@ -351,20 +256,17 @@ export default function CustomizationCanvas3D({
     const wrapperRef = useRef(null);
     const glRef = useRef(null);
 
-    // Fully remounts the <Canvas> tree: cleanest way to get a fresh
-    // WebGLRenderer + re-uploaded textures/geometries after a context loss.
     function remountCanvas() {
         setContextLost(false);
         setRemountKey((k) => k + 1);
     }
 
-    // Detects a lost/restored WebGL context on the canvas element itself.
+    // Detects lost/restored WebGL context
     function handleCanvasCreated({gl}) {
         glRef.current = gl;
         const canvasEl = gl.domElement;
 
         canvasEl.addEventListener("webglcontextlost", (event) => {
-            // Required for the browser to actually attempt restoration.
             event.preventDefault();
             setContextLost(true);
         });
@@ -372,14 +274,6 @@ export default function CustomizationCanvas3D({
         canvasEl.addEventListener("webglcontextrestored", remountCanvas);
     }
 
-    // On some client-side route transitions (e.g. browser back/forward into
-    // this page), R3F's own resize handling can miss the wrapper's first
-    // real measurement and leave the drawing buffer at the browser's default
-    // 300x150 even though the CSS size is correct — the render then looks
-    // squashed. A ResizeObserver on the wrapper (rather than a one-shot check
-    // in onCreated) keeps re-asserting the real size onto the renderer for as
-    // long as the canvas is mounted, so it self-heals regardless of when the
-    // wrapper actually settles into its final layout.
     useEffect(() => {
         const wrapper = wrapperRef.current;
         if (!wrapper) return;
@@ -398,9 +292,7 @@ export default function CustomizationCanvas3D({
         return () => ro.disconnect();
     }, [remountKey]);
 
-    // Proactive safety net: if the tab was hidden for a while, assume the
-    // context may be stale and remount on return rather than wait for a
-    // "contextlost" event that some browsers/drivers don't always fire.
+    // Proactive safety net
     useEffect(() => {
         function handleVisibilityChange() {
             if (document.visibilityState === "hidden") {
@@ -420,9 +312,6 @@ export default function CustomizationCanvas3D({
         return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
     }, []);
 
-    // GF13: the 3D config (GLB, UV zones, template chest center) is read
-    // from productCustomizerConfigs.model3d via the model3d prop. Defensive
-    // fallback in case a 3D product has no config (shouldn't happen).
     const glbPath = model3d?.glb || "/models/tshirt.glb";
     const meshMode = model3d?.meshMode || "pick";
     const activeMeshIndex = model3d?.activeMeshIndex ?? 0;
@@ -430,11 +319,9 @@ export default function CustomizationCanvas3D({
     const templateChest = model3d?.templateChest;
     const transformFallback = model3d?.transformFallback;
 
-    const { texture, bboxesRef } = useTextureComposer(
-        configuration,
-        debugUV,
-        { uvZones, templateChest, transformFallback }
-    );
+    const {texture, bboxesRef} = useTextureComposer(configuration, debugUV, {
+        uvZones, templateChest, transformFallback
+    });
 
     function handleDragStart() {
         setIsDragging(true);
@@ -442,9 +329,9 @@ export default function CustomizationCanvas3D({
 
     function handleDragMove(layerId, type, uv) {
         if (type === "text") {
-            onUpdateTextLayer?.(layerId, { uv });
+            onUpdateTextLayer?.(layerId, {uv});
         } else if (type === "image") {
-            onUpdateImageLayer?.(layerId, { uv });
+            onUpdateImageLayer?.(layerId, {uv});
         } else if (type === "logo") {
             onUpdateLogoUV?.(uv);
         } else if (type === "player_name") {
@@ -459,78 +346,69 @@ export default function CustomizationCanvas3D({
         onDragEnd?.();
     }
 
-    return (
-        <div className="pc3d-canvas-wrapper" ref={wrapperRef}>
-            {debugUVAllowed && (
-                <button
-                    type="button"
-                    className="pc3d-debug-btn"
-                    onClick={() => setDebugUV((v) => !v)}
-                    title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
-                >
-                    {debugUV ? <><FiEye/> Mode normal</> : <><FiTool/> Debug UV</>}
-                </button>
-            )}
+    return (<div className="pc3d-canvas-wrapper" ref={wrapperRef}>
+        {debugUVAllowed && (<button
+            type="button"
+            className="pc3d-debug-btn"
+            onClick={() => setDebugUV((v) => !v)}
+            title="Affiche une grille numérotée pour calibrer les zones UV du modèle"
+        >
+            {debugUV ? <><FiEye/> Mode normal</> : <><FiTool/> Debug UV</>}
+        </button>)}
 
-            {contextLost && (
-                <div className="pc3d-context-lost">
-                    <p>L'aperçu 3D s'est interrompu (mise en veille du navigateur).</p>
-                    <button type="button" onClick={remountCanvas}>
-                        Relancer l'aperçu
-                    </button>
-                </div>
-            )}
+        {contextLost && (<div className="pc3d-context-lost">
+            <p>L'aperçu 3D s'est interrompu (mise en veille du navigateur).</p>
+            <button type="button" onClick={remountCanvas}>
+                Relancer l'aperçu
+            </button>
+        </div>)}
 
-            <Canvas
-                key={remountKey}
-                camera={{ position: [0, 0, 5], fov: 45 }}
-                gl={{ preserveDrawingBuffer: true }}
-                onCreated={handleCanvasCreated}
+        <Canvas
+            key={remountKey}
+            camera={{position: [0, 0, 5], fov: 45}}
+            gl={{preserveDrawingBuffer: true}}
+            onCreated={handleCanvasCreated}
+        >
+            <Stage
+                intensity={0.5}
+                preset="rembrandt"
+                shadows="contact"
+                environment={{files: "/hdri/studio_small_03_1k.hdr"}}
+                adjustCamera={1.2}
             >
-                <Stage
-                    intensity={0.5}
-                    preset="rembrandt"
-                    shadows="contact"
-                    environment={{ files: "/hdri/studio_small_03_1k.hdr" }}
-                    adjustCamera={1.2}
-                >
-                    <Suspense fallback={<Loader />}>
-                        <TShirtMesh
-                            key={glbPath}
-                            texture={texture}
-                            bboxesRef={bboxesRef}
-                            onDragStart={handleDragStart}
-                            onDragMove={handleDragMove}
-                            onDragEnd={handleDragEnd}
-                            glbPath={glbPath}
-                            activeMeshIndex={activeMeshIndex}
-                            meshMode={meshMode}
-                        />
-                    </Suspense>
-                </Stage>
+                <Suspense fallback={<Loader/>}>
+                    <TShirtMesh
+                        key={glbPath}
+                        texture={texture}
+                        bboxesRef={bboxesRef}
+                        onDragStart={handleDragStart}
+                        onDragMove={handleDragMove}
+                        onDragEnd={handleDragEnd}
+                        glbPath={glbPath}
+                        activeMeshIndex={activeMeshIndex}
+                        meshMode={meshMode}
+                    />
+                </Suspense>
+            </Stage>
 
-                {/* OrbitControls disabled while dragging a layer.
-                    enableDamping=false to avoid the inertia that keeps
-                    the rotation going after release. */}
-                <OrbitControls
-                    enablePan={false}
-                    enableZoom={true}
-                    enableDamping={false}
-                    rotateSpeed={0.6}
-                    minDistance={0.5}
-                    maxDistance={20}
-                    enabled={!isDragging}
-                    makeDefault
-                />
-            </Canvas>
+            <OrbitControls
+                enablePan={false}
+                enableZoom={true}
+                enableDamping={false}
+                rotateSpeed={0.6}
+                minDistance={0.5}
+                maxDistance={20}
+                enabled={!isDragging}
+                makeDefault
+            />
+        </Canvas>
 
-            <div className="pc3d-canvas-hint">
+        <div className="pc3d-canvas-hint">
                 <span>
                     <FiMousePointer/> Cliquer-glisser pour faire pivoter · Molette pour zoomer
                     {" · "}
                     <FiMove/> Cliquer un texte ou une image pour le déplacer
                 </span>
-            </div>
         </div>
-    );
+    </div>);
 }

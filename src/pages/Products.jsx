@@ -22,29 +22,19 @@ export default function Products() {
     }, [params]);
 
     if (loading) return <p>Chargement…</p>;
-
     const searchTerm = params.get("search");
 
-    return (
-        <div className="container">
-            <h1>Nos produits</h1>
+    return (<div className="container">
+        <h1>Nos produits</h1>
 
-            {products.length === 0 ? (
-                <div className="empty-state">
-                    <FiSearch className="empty-state-icon"/>
-                    <p className="ck-muted">
-                        {searchTerm
-                            ? <>Aucun produit trouvé pour « {searchTerm} ».</>
-                            : "Aucun produit ne correspond à ces critères."}
-                    </p>
-                </div>
-            ) : (
-                <div className="product-grid">
-                    {products.map((p) => (
-                        <ProductCard key={p.slug} product={p}/>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+        {products.length === 0 ? (<div className="empty-state">
+            <FiSearch className="empty-state-icon"/>
+            <p className="ck-muted">
+                {searchTerm ? <>Aucun produit trouvé pour
+                    « {searchTerm} ».</> : "Aucun produit ne correspond à ces critères."}
+            </p>
+        </div>) : (<div className="product-grid">
+            {products.map((p) => (<ProductCard key={p.slug} product={p}/>))}
+        </div>)}
+    </div>);
 }

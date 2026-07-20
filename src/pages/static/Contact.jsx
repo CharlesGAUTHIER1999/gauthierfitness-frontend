@@ -4,26 +4,24 @@ import api from "../../api/axios";
 
 const EMPTY = {name: "", email: "", reason: "", subject: "", message: ""};
 
-const REASONS = [
-    {value: "order", label: "Problème de commande"},
-    {value: "delivery", label: "Problème de livraison"},
-    {value: "payment", label: "Problème de paiement"},
-    {value: "customization", label: "Personnalisation d'un produit"},
-    {value: "other", label: "Autre"},
-];
+const REASONS = [{value: "order", label: "Problème de commande"}, {
+    value: "delivery", label: "Problème de livraison"
+}, {value: "payment", label: "Problème de paiement"}, {
+    value: "customization", label: "Personnalisation d'un produit"
+}, {value: "other", label: "Autre"},];
 
-// Contact page with a form that posts the message to the backend contact endpoint.
+// Contact page
 export default function Contact() {
     const [form, setForm] = useState(EMPTY);
-    const [status, setStatus] = useState(null); // null | "sending" | "ok" | "error"
+    const [status, setStatus] = useState(null);
     const [error, setError] = useState("");
 
-    // Updates a single form field from its input event
+    // Updates a single form field
     function update(e) {
         setForm((f) => ({...f, [e.target.name]: e.target.value}));
     }
 
-    // Submits the contact form to the API and resets it on success
+    // Submits the contact form
     async function onSubmit(e) {
         e.preventDefault();
         setStatus("sending");
@@ -34,71 +32,51 @@ export default function Contact() {
             setForm(EMPTY);
         } catch (err) {
             setStatus("error");
-            setError(
-                err?.response?.data?.message ||
-                "Une erreur est survenue. Réessaie dans un instant."
-            );
+            setError(err?.response?.data?.message || "Une erreur est survenue. Réessaie dans un instant.");
         }
     }
 
-    return (
-        <div>
-            <StaticPage
-                title="Contact"
-                subtitle="Vous avez des questions ? Posez-les nous en toute simplicité via notre formule de contact. Pour toute demande de partenariat, écrivez à : charles.gauthier99@gmail.com."
-            >
-                {status === "ok" && (
-                    <div className="contact-form__status contact-form__status--ok">
-                        Merci ! Votre message a bien été envoyé - nous allons vous répondre au plus vite.
-                    </div>
-                )}
-                {status === "error" && (
-                    <div className="contact-form__status contact-form__status--error">
-                        {error}
-                    </div>
-                )}
+    return (<div>
+        <StaticPage
+            title="Contact"
+            subtitle="Vous avez des questions ? Posez-les nous en toute simplicité via notre formule de contact. Pour toute demande de partenariat, écrivez à : charles.gauthier99@gmail.com."
+        >
+            {status === "ok" && (<div className="contact-form__status contact-form__status--ok">
+                Merci ! Votre message a bien été envoyé - nous allons vous répondre au plus vite.
+            </div>)}
+            {status === "error" && (<div className="contact-form__status contact-form__status--error">
+                {error}
+            </div>)}
 
-                <form className="contact-form" onSubmit={onSubmit}>
-                    <label>
-                        Nom
-                        <input name="name" value={form.name} onChange={update} required maxLength={120}/>
-                    </label>
-                    <label>
-                        Email
-                        <input type="email" name="email" value={form.email} onChange={update} required maxLength={190}/>
-                    </label>
-                    <label>
-                        Motif
-                        <select name="reason" value={form.reason} onChange={update} required>
-                            <option value="" disabled>Sélectionnez un motif</option>
-                            {REASONS.map((r) => (
-                                <option key={r.value} value={r.value}>{r.label}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>
-                        Sujet
-                        <select name="reason" value={form.reason} onChange={update} required>
-                            <option value="" disabled>Sélectionnez un motif</option>
-                            {REASONS.map((r) => (
-                                <option key={r.value} value={r.value}>{r.label}</option>
-                            ))}
-                        </select>
-                    </label>
-                    <label>
-                        Message
-                        <textarea name="message" value={form.message} onChange={update} required maxLength={5000}/>
-                    </label>
-                    <button
-                        type="submit"
-                        className="btn"
-                        disabled={status === "sending"}
-                    >
-                        {status === "sending" ? "Envoi…" : "Envoyer"}
-                    </button>
-                </form>
+            <form className="contact-form" onSubmit={onSubmit}>
+                <label>
+                    Nom
+                    <input name="name" value={form.name} onChange={update} required maxLength={120}/>
+                </label>
+                <label>
+                    Email
+                    <input type="email" name="email" value={form.email} onChange={update} required maxLength={190}/>
+                </label>
+                <label>
+                    Sujet
+                    <select name="reason" value={form.reason} onChange={update} required>
+                        <option value="" disabled>Sélectionnez un sujet</option>
+                        {REASONS.map((r) => (<option key={r.value} value={r.value}>{r.label}</option>))}
+                    </select>
+                </label>
+                <label>
+                    Message
+                    <textarea name="message" value={form.message} onChange={update} required maxLength={5000}/>
+                </label>
+                <button
+                    type="submit"
+                    className="btn"
+                    disabled={status === "sending"}
+                >
+                    {status === "sending" ? "Envoi…" : "Envoyer"}
+                </button>
+            </form>
 
-            </StaticPage>
-        </div>
-    );
+        </StaticPage>
+    </div>);
 }

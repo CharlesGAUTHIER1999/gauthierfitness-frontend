@@ -1,34 +1,25 @@
 import {useEffect, useMemo, useRef, useState} from "react";
 import {FiX} from "react-icons/fi";
 
-// Slide-in drawer showing the size guide table, with a CM/IN unit toggle.
+// Slide-in drawer
 export default function SizeGuideDrawer({open, onClose}) {
     const closeBtnRef = useRef(null);
     const panelRef = useRef(null);
     const [unit, setUnit] = useState("CM"); // "CM" | "IN"
 
-    // Base measurements in CM (XXS -> XXL)
-    const rowsCm = useMemo(
-        () => [
-            {size: "XXS", waist: 70, inseam: 82},
-            {size: "XS", waist: 75, inseam: 82},
-            {size: "S", waist: 80, inseam: 82},
-            {size: "M", waist: 85, inseam: 82},
-            {size: "L", waist: 90, inseam: 82},
-            {size: "XL", waist: 95, inseam: 82},
-            {size: "XXL", waist: 100, inseam: 82},
-        ],
-        []
-    );
+    // Base measurements in centimeters
+    const rowsCm = useMemo(() => [{size: "XXS", waist: 70, inseam: 82}, {size: "XS", waist: 75, inseam: 82}, {
+        size: "S", waist: 80, inseam: 82
+    }, {size: "M", waist: 85, inseam: 82}, {size: "L", waist: 90, inseam: 82}, {
+        size: "XL", waist: 95, inseam: 82
+    }, {size: "XXL", waist: 100, inseam: 82},], []);
 
     const toInches = (cm) => Number((cm / 2.54).toFixed(1));
 
     const rows = useMemo(() => {
         if (unit === "CM") return rowsCm;
         return rowsCm.map((r) => ({
-            ...r,
-            waist: toInches(r.waist),
-            inseam: toInches(r.inseam),
+            ...r, waist: toInches(r.waist), inseam: toInches(r.inseam),
         }));
     }, [unit, rowsCm]);
 
@@ -68,209 +59,177 @@ export default function SizeGuideDrawer({open, onClose}) {
 
     if (!open) return null;
 
-    return (
-        <div className="sg-overlay" role="presentation" onMouseDown={onClose}>
-            <aside
-                className="sg-panel"
-                role="dialog"
-                aria-modal="true"
-                aria-label="Guide des tailles"
-                ref={panelRef}
-                onMouseDown={(e) => e.stopPropagation()}
+    return (<div className="sg-overlay" role="presentation" onMouseDown={onClose}>
+        <aside
+            className="sg-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Guide des tailles"
+            ref={panelRef}
+            onMouseDown={(e) => e.stopPropagation()}
+            style={{
+                width: "min(680px, 92vw)", maxWidth: "92vw", height: "100vh", overflowY: "auto",
+            }}
+        >
+            {/* Inner container */}
+            <div
+                className="sg-inner"
                 style={{
-                    width: "min(680px, 92vw)",
-                    maxWidth: "92vw",
-                    height: "100vh",
-                    overflowY: "auto",
+                    height: "100%",
+                    padding: "40px 48px",
+                    boxSizing: "border-box",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "22px",
                 }}
             >
-                {/* Inner container */}
+                {/* Centered header */}
                 <div
-                    className="sg-inner"
+                    className="sg-head"
                     style={{
-                        height: "100%",
-                        padding: "40px 48px",
-                        boxSizing: "border-box",
+                        width: "100%",
+                        maxWidth: 560,
+                        position: "relative",
                         display: "flex",
-                        flexDirection: "column",
                         alignItems: "center",
-                        gap: "22px",
+                        justifyContent: "center",
+                        paddingTop: 6,
                     }}
                 >
-                    {/* Centered header */}
-                    <div
-                        className="sg-head"
+                    <h2
+                        className="sg-title"
                         style={{
-                            width: "100%",
-                            maxWidth: 560,
-                            position: "relative",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            paddingTop: 6,
+                            margin: 0, letterSpacing: "0.08em", fontWeight: 800, fontSize: 18, textAlign: "center",
                         }}
                     >
-                        <h2
-                            className="sg-title"
-                            style={{
-                                margin: 0,
-                                letterSpacing: "0.08em",
-                                fontWeight: 800,
-                                fontSize: 18,
-                                textAlign: "center",
-                            }}
-                        >
-                            GUIDE DES TAILLES
-                        </h2>
+                        GUIDE DES TAILLES
+                    </h2>
 
-                        <button
-                            ref={closeBtnRef}
-                            className="sg-close"
-                            type="button"
-                            onClick={onClose}
-                            aria-label="Fermer"
-                            title="Fermer"
-                            style={{
-                                position: "absolute",
-                                right: 0,
-                                top: 0,
-                                border: "none",
-                                background: "transparent",
-                                fontSize: 20,
-                                cursor: "pointer",
-                                padding: 8,
-                                lineHeight: 1,
-                            }}
-                        >
-                            <FiX/>
-                        </button>
-                    </div>
-
-                    <h3
-                        className="sg-subtitle"
+                    <button
+                        ref={closeBtnRef}
+                        className="sg-close"
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Fermer"
+                        title="Fermer"
                         style={{
-                            margin: 0,
+                            position: "absolute",
+                            right: 0,
+                            top: 0,
+                            border: "none",
+                            background: "transparent",
+                            fontSize: 20,
+                            cursor: "pointer",
+                            padding: 8,
+                            lineHeight: 1,
+                        }}
+                    >
+                        <FiX/>
+                    </button>
+                </div>
+
+                <h3
+                    className="sg-subtitle"
+                    style={{
+                        margin: 0, fontWeight: 800, letterSpacing: "0.06em", fontSize: 14, textAlign: "center",
+                    }}
+                >
+                    TROUVEZ VOTRE TAILLE
+                </h3>
+
+                <div
+                    className="sg-toggle"
+                    role="tablist"
+                    aria-label="Unité"
+                    style={{
+                        display: "inline-flex", gap: 0, background: "#eee", borderRadius: 999, padding: 3,
+                    }}
+                >
+                    <button
+                        type="button"
+                        className={`sg-toggle-btn ${unit === "IN" ? "is-active" : ""}`}
+                        onClick={() => setUnit("IN")}
+                        role="tab"
+                        aria-selected={unit === "IN"}
+                        style={{
+                            border: "none",
+                            cursor: "pointer",
+                            padding: "8px 18px",
+                            borderRadius: 999,
                             fontWeight: 800,
                             letterSpacing: "0.06em",
-                            fontSize: 14,
-                            textAlign: "center",
+                            background: unit === "IN" ? "#333" : "transparent",
+                            color: unit === "IN" ? "#fff" : "#111",
                         }}
                     >
-                        TROUVEZ VOTRE TAILLE
-                    </h3>
-
-                    <div
-                        className="sg-toggle"
-                        role="tablist"
-                        aria-label="Unité"
+                        IN
+                    </button>
+                    <button
+                        type="button"
+                        className={`sg-toggle-btn ${unit === "CM" ? "is-active" : ""}`}
+                        onClick={() => setUnit("CM")}
+                        role="tab"
+                        aria-selected={unit === "CM"}
                         style={{
-                            display: "inline-flex",
-                            gap: 0,
-                            background: "#eee",
+                            border: "none",
+                            cursor: "pointer",
+                            padding: "8px 18px",
                             borderRadius: 999,
-                            padding: 3,
+                            fontWeight: 800,
+                            letterSpacing: "0.06em",
+                            background: unit === "CM" ? "#333" : "transparent",
+                            color: unit === "CM" ? "#fff" : "#111",
                         }}
                     >
-                        <button
-                            type="button"
-                            className={`sg-toggle-btn ${unit === "IN" ? "is-active" : ""}`}
-                            onClick={() => setUnit("IN")}
-                            role="tab"
-                            aria-selected={unit === "IN"}
-                            style={{
-                                border: "none",
-                                cursor: "pointer",
-                                padding: "8px 18px",
-                                borderRadius: 999,
-                                fontWeight: 800,
-                                letterSpacing: "0.06em",
-                                background: unit === "IN" ? "#333" : "transparent",
-                                color: unit === "IN" ? "#fff" : "#111",
-                            }}
-                        >
-                            IN
-                        </button>
-                        <button
-                            type="button"
-                            className={`sg-toggle-btn ${unit === "CM" ? "is-active" : ""}`}
-                            onClick={() => setUnit("CM")}
-                            role="tab"
-                            aria-selected={unit === "CM"}
-                            style={{
-                                border: "none",
-                                cursor: "pointer",
-                                padding: "8px 18px",
-                                borderRadius: 999,
-                                fontWeight: 800,
-                                letterSpacing: "0.06em",
-                                background: unit === "CM" ? "#333" : "transparent",
-                                color: unit === "CM" ? "#fff" : "#111",
-                            }}
-                        >
-                            CM
-                        </button>
-                    </div>
-
-                    <div
-                        className="sg-table-wrap"
-                        style={{
-                            width: "100%",
-                            maxWidth: 560,
-                            marginTop: 8,
-                        }}
-                    >
-                        <table
-                            className="sg-table"
-                            style={{
-                                width: "100%",
-                                borderCollapse: "collapse",
-                                fontSize: 14,
-                            }}
-                        >
-                            <thead>
-                            <tr style={{borderBottom: "1px solid #e9e9e9"}}>
-                                <th style={{
-                                    textAlign: "left",
-                                    padding: "14px 0",
-                                    letterSpacing: "0.06em",
-                                    fontSize: 12
-                                }}>
-                                    TAILLE
-                                </th>
-                                <th style={{
-                                    textAlign: "left",
-                                    padding: "14px 0",
-                                    letterSpacing: "0.06em",
-                                    fontSize: 12
-                                }}>
-                                    TOUR DE TAILLE
-                                </th>
-                                <th style={{
-                                    textAlign: "left",
-                                    padding: "14px 0",
-                                    letterSpacing: "0.06em",
-                                    fontSize: 12
-                                }}>
-                                    ENTREJAMBE
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {rows.map((r) => (
-                                <tr key={r.size} style={{borderBottom: "1px solid #f0f0f0"}}>
-                                    <td style={{padding: "16px 0", fontWeight: 800}}>{r.size}</td>
-                                    <td style={{padding: "16px 0"}}>{r.waist}</td>
-                                    <td style={{padding: "16px 0"}}>{r.inseam}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* small bottom spacer */}
-                    <div style={{height: 10}}/>
+                        CM
+                    </button>
                 </div>
-            </aside>
-        </div>
-    );
+
+                <div
+                    className="sg-table-wrap"
+                    style={{
+                        width: "100%", maxWidth: 560, marginTop: 8,
+                    }}
+                >
+                    <table
+                        className="sg-table"
+                        style={{
+                            width: "100%", borderCollapse: "collapse", fontSize: 14,
+                        }}
+                    >
+                        <thead>
+                        <tr style={{borderBottom: "1px solid #e9e9e9"}}>
+                            <th style={{
+                                textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12
+                            }}>
+                                TAILLE
+                            </th>
+                            <th style={{
+                                textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12
+                            }}>
+                                TOUR DE TAILLE
+                            </th>
+                            <th style={{
+                                textAlign: "left", padding: "14px 0", letterSpacing: "0.06em", fontSize: 12
+                            }}>
+                                ENTREJAMBE
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {rows.map((r) => (<tr key={r.size} style={{borderBottom: "1px solid #f0f0f0"}}>
+                            <td style={{padding: "16px 0", fontWeight: 800}}>{r.size}</td>
+                            <td style={{padding: "16px 0"}}>{r.waist}</td>
+                            <td style={{padding: "16px 0"}}>{r.inseam}</td>
+                        </tr>))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* small bottom spacer */}
+                <div style={{height: 10}}/>
+            </div>
+        </aside>
+    </div>);
 }

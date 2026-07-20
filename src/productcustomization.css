@@ -74,8 +74,6 @@
     min-width: 0;
 }
 
-/* .pc-sidebar est défini dans le bloc "PANEL REFONDU" ci-dessous */
-
 .pc-preview-card {
     background: #ffffff;
     border: 1px solid #e5e7eb;
@@ -170,7 +168,6 @@
     gap: 8px;
 }
 
-/* La première carte (Aucun) prend toute la largeur */
 .pc-template-grid > :first-child {
     grid-column: 1 / -1;
 }
@@ -345,8 +342,6 @@
     flex-shrink: 0;
 }
 
-/* --- blocs motifs / dégradés --- */
-
 .pc-style-gallery {
     margin-top: 14px;
     display: grid;
@@ -481,11 +476,7 @@
     }
 }
 
-/* ============================================================
-   PANEL REFONDU — tabs, accordion, upload, footer
-   ============================================================ */
-
-/* Sidebar globale */
+/* Rebuild Panel */
 .pc-sidebar {
     display: flex;
     flex-direction: column;
@@ -499,7 +490,6 @@
     overflow: hidden;
 }
 
-/* En-tête du panel */
 .pc-panel-header {
     padding: 20px 20px 0;
     flex-shrink: 0;
@@ -518,7 +508,6 @@
     color: #9ca3af;
 }
 
-/* Tab bar */
 .pc-tabs {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -541,7 +530,10 @@
     text-align: center;
 }
 
-.pc-tab:hover { background: #f3f4f6; color: #374151; }
+.pc-tab:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
 
 .pc-tab.is-active {
     background: #111827;
@@ -549,7 +541,6 @@
     color: #ffffff;
 }
 
-/* Zone scrollable du contenu */
 .pc-tab-content {
     flex: 1;
     overflow-y: auto;
@@ -557,7 +548,6 @@
     padding: 4px 0;
 }
 
-/* Corps d'un onglet */
 .pc-tab-body {
     display: flex;
     flex-direction: column;
@@ -565,7 +555,6 @@
     padding: 8px 0;
 }
 
-/* Groupe de champs */
 .pc-field-group {
     display: flex;
     flex-direction: column;
@@ -574,7 +563,9 @@
     border-bottom: 1px solid #f3f4f6;
 }
 
-.pc-field-group:last-child { border-bottom: none; }
+.pc-field-group:last-child {
+    border-bottom: none;
+}
 
 .pc-field-label {
     margin: 0;
@@ -605,21 +596,18 @@
     justify-content: space-between;
 }
 
-/* Swatches couleur produit (inline) */
 .pc-swatches-row {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 }
 
-/* Grille variantes */
 .pc-variants-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
 }
 
-/* Accordion motifs/dégradés */
 .pc-accordion {
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -627,7 +615,9 @@
     overflow: hidden;
 }
 
-.pc-accordion + .pc-accordion { margin-top: 8px; }
+.pc-accordion + .pc-accordion {
+    margin-top: 8px;
+}
 
 .pc-accordion-head {
     display: flex;
@@ -637,7 +627,9 @@
     gap: 10px;
 }
 
-.pc-accordion-left { min-width: 0; }
+.pc-accordion-left {
+    min-width: 0;
+}
 
 .pc-accordion-title {
     font-size: 14px;
@@ -670,10 +662,14 @@
     transform: rotate(0deg);
 }
 
-.pc-accordion-chevron.is-open { transform: rotate(90deg); }
-.pc-accordion-chevron:hover { background: #f3f4f6; }
+.pc-accordion-chevron.is-open {
+    transform: rotate(90deg);
+}
 
-/* Toggle switch (remplace <input type=checkbox> pc-toggle) */
+.pc-accordion-chevron:hover {
+    background: #f3f4f6;
+}
+
 .pc-toggle-btn {
     position: relative;
     width: 42px;
@@ -699,10 +695,14 @@
     transition: transform 0.2s ease;
 }
 
-.pc-toggle-btn.is-on { background: #2563eb; }
-.pc-toggle-btn.is-on::after { transform: translateX(18px); }
+.pc-toggle-btn.is-on {
+    background: #2563eb;
+}
 
-/* Upload button custom */
+.pc-toggle-btn.is-on::after {
+    transform: translateX(18px);
+}
+
 .pc-upload-wrap {
     display: flex;
     flex-direction: column;
@@ -711,7 +711,7 @@
 
 .pc-upload-btn {
     appearance: none;
-    border: 1.5px dashed #d1d5db;
+    border: 2px dashed #d1d5db;
     background: #f9fafb;
     color: #374151;
     border-radius: 12px;
@@ -749,10 +749,18 @@
     line-height: 1.5;
 }
 
-.pc-upload-error { margin: 0; font-size: 12px; color: #b42318; }
-.pc-upload-ok    { margin: 0; font-size: 12px; color: #166534; }
+.pc-upload-error {
+    margin: 0;
+    font-size: 12px;
+    color: #b42318;
+}
 
-/* Liste d'images importées */
+.pc-upload-ok {
+    margin: 0;
+    font-size: 12px;
+    color: #166534;
+}
+
 .pc-image-list {
     display: flex;
     flex-direction: column;
@@ -780,7 +788,6 @@
     min-width: 0;
 }
 
-/* Bouton supprimer générique */
 .pc-remove-btn {
     appearance: none;
     border: 1px solid #fca5a5;
@@ -795,10 +802,14 @@
     white-space: nowrap;
 }
 
-.pc-remove-btn:hover { background: #fee2e2; }
-.pc-remove-btn-sm { padding: 4px 8px; }
+.pc-remove-btn:hover {
+    background: #fee2e2;
+}
 
-/* Footer CTA */
+.pc-remove-btn-sm {
+    padding: 4px 8px;
+}
+
 .pc-panel-footer {
     padding: 14px 16px;
     border-top: 1px solid #f3f4f6;
@@ -820,11 +831,7 @@
     padding: 10px 8px;
 }
 
-/* ============================================================
-   CONFIGURATEUR 3D — styles spécifiques
-   ============================================================ */
-
-/* Wrapper du canvas Three.js */
+/* 3D Configurator - specific styles */
 .pc3d-canvas-wrapper {
     position: relative;
     width: 100%;
@@ -841,7 +848,6 @@
     height: 100% !important;
 }
 
-/* Hint de rotation */
 .pc3d-canvas-hint {
     position: absolute;
     bottom: 14px;
@@ -857,7 +863,6 @@
     backdrop-filter: blur(4px);
 }
 
-/* Pastille de couleur */
 .pc3d-swatch {
     width: 30px;
     height: 30px;
@@ -866,7 +871,7 @@
     cursor: pointer;
     transition: transform 0.15s ease, border-color 0.15s ease;
     outline: none;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .pc3d-swatch:hover {
@@ -879,7 +884,6 @@
     box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.25);
 }
 
-/* Reprise après perte du contexte WebGL (onglet en arrière-plan trop longtemps, etc.) */
 .pc3d-context-lost {
     position: absolute;
     inset: 0;
@@ -913,13 +917,12 @@
     color: #fff;
 }
 
-/* Bouton debug UV (calibration temporaire) */
 .pc3d-debug-btn {
     position: absolute;
     top: 12px;
     right: 12px;
     z-index: 10;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -929,14 +932,12 @@
     backdrop-filter: blur(4px);
     transition: background 0.2s;
 }
+
 .pc3d-debug-btn:hover {
-    background: rgba(0,0,0,0.85);
+    background: rgba(0, 0, 0, 0.85);
 }
 
-/* ============================================================
-   SÉLECTEUR D'OPTIONS INLINE (taille / format / capacité)
-   ============================================================ */
-
+/* Options picker */
 .pc-option-picker {
     display: flex;
     flex-wrap: wrap;
@@ -1012,13 +1013,11 @@
     font-weight: 600;
 }
 
-/* Affichage compact quand la taille est déjà choisie */
 .pc-option-chosen {
     font-size: 14px;
     font-weight: 800;
     color: #111827;
     background: #111827;
-    color: #ffffff;
     border-radius: 8px;
     padding: 6px 12px;
 }

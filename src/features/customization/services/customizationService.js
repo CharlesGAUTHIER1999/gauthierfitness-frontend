@@ -8,12 +8,12 @@ function toRelativeStorageUrl(url) {
             return parsed.pathname;
         }
     } catch {
-        // Not an absolute URL → return it as-is
+        // Not absolute URL
     }
     return url;
 }
 
-// Creates a new customization session for a product on the backend
+// Creates new customization session
 export async function createCustomizationSession({
                                                      productId,
                                                      productOptionId = null,
@@ -31,13 +31,13 @@ export async function createCustomizationSession({
     return data?.data;
 }
 
-// Updates an existing customization session with new data
+// Updates existing customization session
 export async function updateCustomizationSession(sessionId, payload) {
     const {data} = await api.patch(`/customization/sessions/${sessionId}`, payload);
     return data?.data;
 }
 
-// Uploads a custom logo image asset for use in a customization
+// Uploads custom logo image asset
 export async function uploadCustomizationLogo(file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -55,23 +55,13 @@ export async function uploadCustomizationLogo(file) {
     return result;
 }
 
-// Generates a design via AI (OpenAI) and returns the persisted Design object.
+// Generates a design via AI (OpenAI)
 export async function generateAiDesign({
-                                           productId,
-                                           productOptionId = null,
-                                           prompt,
-                                           name = null,
+                                           productId, productOptionId = null, prompt, name = null,
                                        }) {
-    const {data} = await api.post(
-        "/ai/designs/generate",
-        {
-            product_id: productId,
-            product_option_id: productOptionId,
-            prompt,
-            name,
-        },
-        {timeout: 180000}
-    );
+    const {data} = await api.post("/ai/designs/generate", {
+        product_id: productId, product_option_id: productOptionId, prompt, name,
+    }, {timeout: 180000});
 
     const design = data?.data;
     if (design?.preview_url) {
@@ -80,7 +70,7 @@ export async function generateAiDesign({
     return design;
 }
 
-// Uploads a free image asset for use as a layer in a customization
+// Uploads free image asset
 export async function uploadCustomizationImage(file) {
     const formData = new FormData();
     formData.append("file", file);

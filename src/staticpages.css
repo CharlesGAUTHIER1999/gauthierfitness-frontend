@@ -1,7 +1,4 @@
-/* =========================
-   LOGO HEADER (image + texte)
-========================= */
-
+/* Header logo */
 .logo {
     display: inline-flex;
     align-items: center;
@@ -14,18 +11,8 @@
     display: block;
 }
 
-/* =========================
-   IMAGES PAGE "À PROPOS"
-========================= */
-
-/* =========================
-   PAGES DE CONTENU STATIQUES
-   (À propos, juridique, livraison/retours, aide, contact)
-========================= */
-
+/* Static Pages */
 .static-page {
-    /* Le <main> parent (AppLayout) fournit déjà max-width 1440 + padding 64/32.
-       Ici on centre une colonne de lecture confortable à l'intérieur. */
     max-width: 820px;
     margin: 0 auto;
     padding-bottom: 32px;
@@ -38,7 +25,7 @@
 }
 
 .static-page__header h1 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 38px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -59,7 +46,7 @@
 }
 
 .static-page__content h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 21px;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -68,7 +55,7 @@
 }
 
 .static-page__content h3 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 17px;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -89,7 +76,6 @@
     text-decoration: underline;
 }
 
-/* Champ à compléter (placeholders juridiques) */
 .placeholder-field {
     background: #fafafa;
     border: 1px dashed #c4c4c4;
@@ -100,7 +86,6 @@
     white-space: nowrap;
 }
 
-/* Encart d'information (mention pédagogique, avertissements) */
 .static-notice {
     background: #fff8e6;
     border: 1px solid #ffe2a8;
@@ -112,14 +97,12 @@
     color: #5b4a1f;
 }
 
-/* Séparateur de section (ex. CGV / CGU) */
 .static-divider {
     border: none;
     border-top: 1px solid #e5e5e5;
     margin: 48px 0;
 }
 
-/* Date de mise à jour */
 .static-page__updated {
     margin-top: 48px;
     font-size: 13px;
@@ -127,10 +110,7 @@
     font-style: italic;
 }
 
-/* =========================
-   ÉTAT "EN COURS / BIENTÔT"
-========================= */
-
+/* States Pending & soon */
 .coming-soon {
     text-align: center;
     padding: 72px 0 48px;
@@ -149,7 +129,7 @@
 }
 
 .coming-soon h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 26px;
     font-weight: 700;
     margin: 0 0 12px;
@@ -163,10 +143,7 @@
     margin: 0 auto 28px;
 }
 
-/* =========================
-   PAGE "À PROPOS" — layout éditorial 2 colonnes alternées
-========================= */
-
+/* "About us" page */
 .about-page {
     max-width: 1180px;
     margin: 0 auto;
@@ -181,7 +158,7 @@
 }
 
 .about-row__text h1 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 38px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -190,7 +167,7 @@
 }
 
 .about-row__text h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -213,7 +190,6 @@
     display: block;
 }
 
-/* Image produit sur fond clair (t-shirt) : pas de recadrage */
 .about-row__media--contain img {
     object-fit: contain;
     background: #f7f7f7;
@@ -228,7 +204,7 @@
 
 .about-value-item h3 {
     margin: 0 0 4px;
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -243,13 +219,12 @@
 
 .about-mission {
     max-width: 760px;
-    margin: 0 auto;
     text-align: center;
-    margin-bottom: 96px;
+    margin: 0 auto 96px;
 }
 
 .about-mission h2 {
-    font-family: var(--font-display);
+    font-family: var(--font-display), serif;
     font-size: 26px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -264,7 +239,6 @@
     margin: 0 0 14px;
 }
 
-/* Empilement en mobile : les colonnes passent l'une sous l'autre */
 @media (max-width: 860px) {
     .about-row {
         grid-template-columns: 1fr;
@@ -273,10 +247,7 @@
     }
 }
 
-/* =========================
-   FORMULAIRE DE CONTACT
-========================= */
-
+/* Contact Form */
 .contact-form {
     display: flex;
     flex-direction: column;
@@ -339,10 +310,7 @@
     color: #9b2222;
 }
 
-/* =========================
-   CENTRE D'AIDE (FAQ)
-========================= */
-
+/* Help Center */
 .faq-section {
     margin-bottom: 8px;
 }
@@ -384,4 +352,3 @@
     color: #555555;
     line-height: 1.7;
 }
-

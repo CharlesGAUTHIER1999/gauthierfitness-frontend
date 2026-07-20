@@ -1,19 +1,13 @@
 import {useEffect, useState} from "react";
 
-// Returns the style block for a given view, or a default disabled style if missing.
+// Returns style block
 export function ensureViewStyle(style, view) {
-    return (
-        style?.[view] || {
-            pattern: {enabled: false, id: null},
-            gradient: {enabled: false, id: null},
-        }
-    );
+    return (style?.[view] || {
+        pattern: {enabled: false, id: null}, gradient: {enabled: false, id: null},
+    });
 }
 
-// Shared state + simple field setters common to the 2D (ProductCustomizer) and
-// 3D (Product3DCustomizer) product customizers. Upload/AI-generation/save/checkout
-// logic differs enough between the two (image layer shape, preview image) that each
-// customizer keeps its own version of those handlers rather than sharing them here.
+// Shared state + simple field setters
 export function useCustomizationEditorBase(product, selectedOptionId, createDefault) {
     const [configuration, setConfiguration] = useState(() => createDefault(product));
     const [session, setSession] = useState(null);
@@ -35,8 +29,7 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
         setSuccessMessage("");
         setUploadLogoError(null);
         setUploadImageError(null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [product]);
+    }, [createDefault, product]);
 
     useEffect(() => {
         setSession(null);
@@ -72,56 +65,49 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
 
     function handleAddTextLayer(textLayer) {
         setConfiguration((prev) => ({
-            ...prev,
-            text_layers: [...(prev.text_layers || []), textLayer],
+            ...prev, text_layers: [...(prev.text_layers || []), textLayer],
         }));
         invalidateSavedSession();
     }
 
     function handlePlayerNameChange(value) {
         setConfiguration((prev) => ({
-            ...prev,
-            player_name: {...prev.player_name, value},
+            ...prev, player_name: {...prev.player_name, value},
         }));
         invalidateSavedSession();
     }
 
     function handlePlayerNumberChange(value) {
         setConfiguration((prev) => ({
-            ...prev,
-            player_number: {...prev.player_number, value},
+            ...prev, player_number: {...prev.player_number, value},
         }));
         invalidateSavedSession();
     }
 
     function handleToggleLogo(enabled) {
         setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, enabled},
+            ...prev, logo: {...prev.logo, enabled},
         }));
         invalidateSavedSession();
     }
 
     function handleLogoSelect(src) {
         setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, src},
+            ...prev, logo: {...prev.logo, src},
         }));
         invalidateSavedSession();
     }
 
     function handleRemoveLogo() {
         setConfiguration((prev) => ({
-            ...prev,
-            logo: {...prev.logo, enabled: false, src: ""},
+            ...prev, logo: {...prev.logo, enabled: false, src: ""},
         }));
         invalidateSavedSession();
     }
 
     function handleRemoveImageLayer(layerId) {
         setConfiguration((prev) => ({
-            ...prev,
-            image_layers: (prev.image_layers || []).filter((layer) => layer.id !== layerId),
+            ...prev, image_layers: (prev.image_layers || []).filter((layer) => layer.id !== layerId),
         }));
         invalidateSavedSession();
     }
@@ -132,14 +118,10 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
             const currentViewStyle = ensureViewStyle(prev.style, view);
 
             return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...currentViewStyle,
-                        pattern: {
-                            enabled,
-                            id: enabled ? currentViewStyle.pattern?.id || "motif1" : null,
+                ...prev, style: {
+                    ...prev.style, [view]: {
+                        ...currentViewStyle, pattern: {
+                            enabled, id: enabled ? currentViewStyle.pattern?.id || "motif1" : null,
                         },
                     },
                 },
@@ -154,12 +136,9 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
             const currentViewStyle = ensureViewStyle(prev.style, view);
 
             return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...currentViewStyle,
-                        pattern: {enabled: true, id: patternId},
+                ...prev, style: {
+                    ...prev.style, [view]: {
+                        ...currentViewStyle, pattern: {enabled: true, id: patternId},
                     },
                 },
             };
@@ -173,14 +152,10 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
             const currentViewStyle = ensureViewStyle(prev.style, view);
 
             return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...currentViewStyle,
-                        gradient: {
-                            enabled,
-                            id: enabled ? currentViewStyle.gradient?.id || "degrade1" : null,
+                ...prev, style: {
+                    ...prev.style, [view]: {
+                        ...currentViewStyle, gradient: {
+                            enabled, id: enabled ? currentViewStyle.gradient?.id || "degrade1" : null,
                         },
                     },
                 },
@@ -195,12 +170,9 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
             const currentViewStyle = ensureViewStyle(prev.style, view);
 
             return {
-                ...prev,
-                style: {
-                    ...prev.style,
-                    [view]: {
-                        ...currentViewStyle,
-                        gradient: {enabled: true, id: gradientId},
+                ...prev, style: {
+                    ...prev.style, [view]: {
+                        ...currentViewStyle, gradient: {enabled: true, id: gradientId},
                     },
                 },
             };
@@ -219,18 +191,30 @@ export function useCustomizationEditorBase(product, selectedOptionId, createDefa
     }
 
     return {
-        configuration, setConfiguration,
-        session, setSession,
-        saving, setSaving,
-        finishing, setFinishing,
-        error, setError,
-        successMessage, setSuccessMessage,
-        uploadLogoLoading, setUploadLogoLoading,
-        uploadLogoError, setUploadLogoError,
-        uploadImageLoading, setUploadImageLoading,
-        uploadImageError, setUploadImageError,
-        aiLoading, setAiLoading,
-        aiError, setAiError,
+        configuration,
+        setConfiguration,
+        session,
+        setSession,
+        saving,
+        setSaving,
+        finishing,
+        setFinishing,
+        error,
+        setError,
+        successMessage,
+        setSuccessMessage,
+        uploadLogoLoading,
+        setUploadLogoLoading,
+        uploadLogoError,
+        setUploadLogoError,
+        uploadImageLoading,
+        setUploadImageLoading,
+        uploadImageError,
+        setUploadImageError,
+        aiLoading,
+        setAiLoading,
+        aiError,
+        setAiError,
         invalidateSavedSession,
         handleTemplateChange,
         handleViewChange,

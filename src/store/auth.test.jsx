@@ -3,37 +3,30 @@ import {AuthProvider, useAuth} from './auth';
 import {CartProvider} from '../context/CartContext';
 import api, {peekGuestCartToken, clearGuestCartToken} from '../api/axios';
 
-// Tests for AuthProvider
-
 jest.mock('../api/axios');
 
-// Test component that exposes auth state and login/logout triggers.
+// Tests for AuthProvider
 function ConsumerSpy() {
     const auth = useAuth();
-    return (
-        <div>
-            <span data-testid="token">{auth.token ?? 'no-token'}</span>
-            <span data-testid="user-email">{auth.user?.email ?? 'no-user'}</span>
-            <span data-testid="is-auth">{String(auth.isAuthenticated)}</span>
-            <span data-testid="loading">{String(auth.loading)}</span>
-            <span data-testid="user-city">{auth.user?.city ?? 'no-city'}</span>
-            <button onClick={() => auth.login('alice@example.com', 'secret')}>login</button>
-            <button onClick={() => auth.logout()}>logout</button>
-            <button onClick={() => auth.updateProfile({city: 'Paris'})}>update-profile</button>
-        </div>
-    );
+    return (<div>
+        <span data-testid="token">{auth.token ?? 'no-token'}</span>
+        <span data-testid="user-email">{auth.user?.email ?? 'no-user'}</span>
+        <span data-testid="is-auth">{String(auth.isAuthenticated)}</span>
+        <span data-testid="loading">{String(auth.loading)}</span>
+        <span data-testid="user-city">{auth.user?.city ?? 'no-city'}</span>
+        <button onClick={() => auth.login('alice@example.com', 'secret')}>login</button>
+        <button onClick={() => auth.logout()}>logout</button>
+        <button onClick={() => auth.updateProfile({city: 'Paris'})}>update-profile</button>
+    </div>);
 }
 
-// Renders ConsumerSpy wrapped in CartProvider + AuthProvider (matching real app nesting:
-// AuthProvider calls useCart() to refresh the cart after login/register).
+// Renders ConsumerSpy wrapped in CartProvider + AuthProvider
 function renderWithProvider() {
-    return render(
-        <CartProvider>
-            <AuthProvider>
-                <ConsumerSpy/>
-            </AuthProvider>
-        </CartProvider>
-    );
+    return render(<CartProvider>
+        <AuthProvider>
+            <ConsumerSpy/>
+        </AuthProvider>
+    </CartProvider>);
 }
 
 describe('AuthProvider', () => {
@@ -43,16 +36,15 @@ describe('AuthProvider', () => {
     });
 
     it('starts with no token and loading=true when localStorage empty', async () => {
-        api.get.mockImplementation((url) =>
-            url === '/cart'
-                ? Promise.resolve({data: {items: [], count: 0, subtotal: 0}})
-                : Promise.reject(new Error('not called'))
-        );
+        api.get.mockImplementation((url) => url === '/cart' ? Promise.resolve({
+            data: {
+                items: [], count: 0, subtotal: 0
+            }
+        }) : Promise.reject(new Error('not called')));
         renderWithProvider();
 
         expect(screen.getByTestId('token')).toHaveTextContent('no-token');
 
-        // bootstrap finishes synchronously since no token → loading false
         await waitFor(() => {
             expect(screen.getByTestId('loading')).toHaveTextContent('false');
         });
@@ -63,8 +55,7 @@ describe('AuthProvider', () => {
         api.get.mockResolvedValue({data: {email: 'alice@example.com'}});
         api.post.mockResolvedValue({
             data: {
-                token: 'tok_42',
-                user: {id: 1, email: 'alice@example.com', is_admin: false},
+                token: 'tok_42', user: {id: 1, email: 'alice@example.com', is_admin: false},
             },
         });
 
@@ -94,8 +85,7 @@ describe('AuthProvider', () => {
         api.get.mockResolvedValue({data: {email: 'alice@example.com'}});
         api.post.mockResolvedValue({
             data: {
-                token: 'tok_42',
-                user: {id: 1, email: 'alice@example.com', is_admin: false},
+                token: 'tok_42', user: {id: 1, email: 'alice@example.com', is_admin: false},
             },
         });
 
@@ -163,11 +153,11 @@ describe('AuthProvider', () => {
         localStorage.setItem('user', JSON.stringify({email: 'a@a.fr'}));
         const err = new Error('Server error');
         err.response = {status: 500};
-        api.get.mockImplementation((url) =>
-            url === '/cart'
-                ? Promise.resolve({data: {items: [], count: 0, subtotal: 0}})
-                : Promise.reject(err)
-        );
+        api.get.mockImplementation((url) => url === '/cart' ? Promise.resolve({
+            data: {
+                items: [], count: 0, subtotal: 0
+            }
+        }) : Promise.reject(err));
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {
         });
         renderWithProvider();
