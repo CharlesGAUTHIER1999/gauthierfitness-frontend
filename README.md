@@ -1,145 +1,146 @@
 # GauthierFitness - Frontend
 
-> SPA React de la boutique GauthierFitness : catalogue, fiche produit, éditeur de personnalisation 3D, parcours d'achat
-> avec Stripe, et back-office admin (produits, commandes, stock).
+> React SPA for the GauthierFitness store: catalog, product page, 3D customization editor, Stripe checkout flow,
+> and admin back-office (products, orders, stock).
 
-Repo : `CharlesGAUTHIER1999/gauthierfitness-frontend` &nbsp; &nbsp; 🌐 Production : <https://gauthierfitness.fr>
+Repo: `CharlesGAUTHIER1999/gauthierfitness-frontend` &nbsp; &nbsp; 🌐 Production: <https://gauthierfitness.fr>
 
-> Documentation projet transverse (architecture, déploiement, manuel utilisateur, mise à jour) : [meta-repo
+> Cross-project documentation (architecture, deployment, user manual, upgrades): [meta-repo
 `gauthierfitness/docs`](https://github.com/CharlesGAUTHIER1999/gauthierfitness/tree/main/docs)
 
 ---
 
 ## Stack
 
-| Couche       | Technologie                                                 |
+| Layer        | Technology                                                  |
 |--------------|-------------------------------------------------------------|
 | Framework    | React 19                                                    |
 | Build        | Vite 7 (ESM, HMR)                                           |
 | Routing      | React-router-dom 7                                          |
-| State global | Context React (auth, cart)                                  |
-| HTTP         | Axios (intercepteurs auth + 401 handling)                   |
-| Éditeur 3D   | Three.js + `@react-three/fiber` + `drei`                    |
-| Paiement     | `@stripe/react-stripe-js` + Stripe.js                       |
-| Style        | CSS modules + fichiers globaux                              |
-| Lint         | ESLint 9 (config flat)                                      |
-| CI/CD        | GitHub Actions → image GHCR (nginx + dist) → dispatch infra |
+| Global state | React Context (auth, cart)                                  |
+| HTTP         | Axios (auth interceptors + 401 handling)                    |
+| 3D editor    | Three.js + `@react-three/fiber` + `drei`                    |
+| Payment      | `@stripe/react-stripe-js` + Stripe.js                       |
+| Style        | CSS modules + global files                                  |
+| Lint         | ESLint 9 (flat config)                                      |
+| CI/CD        | GitHub Actions → GHCR image (nginx + dist) → infra dispatch |
 
 ---
 
-## Démarrage local
+## Local setup
 
 ```bash
 cp .env.example .env.local
-# → remplir VITE_STRIPE_PUBLIC_KEY avec une clé pk_test_… de Stripe
+# → fill in VITE_STRIPE_PUBLIC_KEY with a Stripe pk_test_… key
 npm install
 npm run dev
 ```
 
-Frontend exposé sur `http://localhost:5173`. Le backend Laravel doit tourner en parallèle sur `http://localhost:8000` -
-le proxy Vite redirige `/api/*` et `/storage/*` vers ce port (cf. [`vite.config.js`](vite.config.js)).
+Frontend served at `http://localhost:5173`. The Laravel backend must be running in parallel on `http://localhost:8000` -
+the Vite proxy redirects `/api/*` and `/storage/*` to that port (see [`vite.config.js`](vite.config.js)).
 
-### Variables d'environnement
+### Environment variables
 
-| Var                      | Usage                                                                                |
-|--------------------------|--------------------------------------------------------------------------------------|
-| `VITE_API_URL`           | Laisser **vide** en dev (proxy Vite). En prod : `https://api.gauthierfitness.fr/api` |
-| `VITE_STRIPE_PUBLIC_KEY` | Clé publique Stripe (`pk_test_…` en dev, `pk_live_…` en prod)                        |
-| `VITE_SENTRY_DSN`        | DSN Sentry (monitoring erreurs front). Vide = monitoring désactivé (local/CI)        |
+| Var                      | Use                                                                                      |
+|--------------------------|------------------------------------------------------------------------------------------|
+| `VITE_API_URL`           | Leave **empty** in dev (Vite proxy). In production: `https://api.gauthierfitness.fr/api` |
+| `VITE_STRIPE_PUBLIC_KEY` | Stripe public key (`pk_test_…` in dev, `pk_live_…` in production)                        |
+| `VITE_SENTRY_DSN`        | Sentry DSN (frontend error monitoring). Empty = monitoring disabled (local/CI)           |
 
-En production, les variables `VITE_*` sont injectées au moment du `docker build` côté infra (cf. [
-`Dockerfile`](Dockerfile)) - elles sont donc figées dans le bundle.
+In production, the `VITE_*` variables are injected at `docker build` time on the infra side (see [
+`Dockerfile`](Dockerfile)) - they're therefore baked into the bundle.
 
 ---
 
-## Structure du code
+## Code structure
 
 ```
 src/
-├── api/                  Instance axios + intercepteurs (token, 401)
+├── api/                  Axios instance + interceptors (token, 401)
 │   ├── axios.js
 │   └── adminApi.js
-├── components/           Composants UI réutilisables
+├── components/           Reusable UI components
 │   ├── layout/           Header.jsx · Footer.jsx · MegaMenu.jsx · StaticPage.jsx
 │   ├── cart/             CartDrawer.jsx · CheckoutPayment.jsx
 │   └── product/          ProductCard.jsx · SizeGuideDrawer.jsx
-├── context/              Providers React (Cart, etc.)
-├── features/             Code par domaine fonctionnel
-│   └── customization/    Configurateur 3D, canvas, preview
-├── layouts/              AppLayout, AdminLayout
-├── pages/                Une page = une route
+├── context/              React providers (Cart, etc.)
+├── features/             Code organized by functional domain
+│   └── customization/    3D configurator, canvas, preview
+├── layouts/               AppLayout, AdminLayout
+├── pages/                 One page = one route
 │   ├── Home, Products, ProductDetail, ProductCustomizePage
 │   ├── CartPage, CheckoutPage, PaymentSuccess, PaymentCancel
 │   ├── Login, Register, AccountPage, OrdersPage, OrderDetailsPage
-│   ├── AddressesPage, Dashboard
+│   ├── AddressesPage
 │   ├── admin/            Back-office (Dashboard, Products, Orders, Stock)
-│   └── static/           Pages légales (CGV, mentions, etc.)
-├── routes/               Guards : ProtectedRoute, AdminRoute
-├── services/             Appels API (productService, …)
-├── store/                Provider React de l'auth (auth.jsx)
+│   └── static/           Legal pages (T&Cs, notices, etc.)
+├── routes/               Guards: ProtectedRoute, AdminRoute
+├── services/             API calls (productService, …)
+├── store/                Auth React provider (auth.jsx)
 ├── utils/                Helpers
-├── App.jsx               Routes principales + providers
-└── main.jsx              Entrée Vite
+├── App.jsx               Main routes + providers
+└── main.jsx              Vite entry point
 ```
 
 ---
 
 ## Conventions
 
-- **Navigation interne** : toujours `<Link>` / `<NavLink>` de `react-router-dom`, jamais `<a href>` (qui causerait un
-  full page reload). `<a href>` réservé aux liens externes (réseaux sociaux dans le Footer).
-- **Auth** : token JWT Sanctum stocké dans `localStorage`. L'intercepteur axios l'attache à chaque requête. Sur 401, le
-  token est purgé automatiquement.
-- **State** : Context React pour l'état partagé (auth, cart) et pour les valeurs locales à un sous-arbre. Pas de
-  Redux ni de state manager externe.
-- **Routes protégées** : composants `<ProtectedRoute>` (auth requise) et `<AdminRoute>` (auth + rôle admin) dans
+- **Internal navigation**: always `<Link>` / `<NavLink>` from `react-router-dom`, never `<a href>` (which would cause a
+  full page reload). `<a href>` reserved for external links (social media in the Footer).
+- **Auth**: Sanctum JWT token stored in `localStorage`. The axios interceptor attaches it to every request. On 401, the
+  token is purged automatically.
+- **State**: React Context for shared state (auth, cart) and for values local to a subtree. No Redux or external
+  state manager.
+- **Protected routes**: `<ProtectedRoute>` (auth required) and `<AdminRoute>` (auth + admin role) components in
   `src/routes/`.
-- **Customisation** : la session de design est créée côté backend (`POST /api/customization/sessions`) et liée à une
-  ligne de panier. Le frontend ne stocke pas la config localement après l'ajout au panier.
+- **Customization**: the design session is created on the backend (`POST /api/customization/sessions`) and linked to a
+  cart line. The frontend doesn't store the config locally after it's added to the cart.
 
 ---
 
-## Tests & qualité
+## Tests & quality
 
 ```bash
 npm run lint           # ESLint flat config (eslint.config.js)
-npm test                # Tests unitaires Jest (src/**/*.test.jsx, tests/smoke.test.js)
-npm run test:coverage  # Idem avec rapport de couverture
-npm run build          # Vérifie que la prod build passe (dist/)
-npm run preview        # Sert dist/ en local pour valider le bundle
+npm test                # Jest unit tests (src/**/*.test.jsx, tests/smoke.test.js)
+npm run test:coverage  # Same, with a coverage report
+npm run build          # Verifies the production build succeeds (dist/)
+npm run preview        # Serves dist/ locally to validate the bundle
 ```
 
-Tests unitaires Jest sur les composants/pages/contexte critiques (auth, panier, routes protégées). Les tests E2E
-Cypress sont gérés depuis le repo **infra** (`infra/e2e/`) et ciblent le staging déployé.
+Jest unit tests cover critical components/pages/context (auth, cart, protected routes). Cypress E2E tests are
+managed from the **infra** repo (`infra/e2e/`) and target the deployed staging environment.
 
-CI : `ESLint` → `Jest` → `build Vite` → `build image GHCR` → `dispatch infra`. Cf. [
+CI: `ESLint` → `Jest` → `build Vite` → `build GHCR image` → `dispatch infra`. See [
 `.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml).
 
 ---
 
-## Build de production
+## Production build
 
 ```bash
-npm run build          # Génère dist/ (assets statiques)
+npm run build          # Generates dist/ (static assets)
 ```
 
-En prod, `dist/` est servi par un container Nginx (image Docker générée par la CI, voir [`Dockerfile`](Dockerfile)). Les
-variables `VITE_*` sont passées en `--build-arg` lors du build de l'image.
+In production, `dist/` is served by an Nginx container (Docker image generated by CI, see [`Dockerfile`](Dockerfile)).
+The
+`VITE_*` variables are passed as `--build-arg` when the image is built.
 
 ---
 
-## Convention de branchage
+## Branching convention
 
-- `feature` : `GF{n}-{NomCourt}` (ex : `GF21-SwaggerDoc`, `GF22-Documentation`)
-- `develop` : push auto → image `ghcr.io/.../gauthierfitness-frontend:develop` → infra déploie staging
-- `main` : push → image `:latest` + tag SHA → déclenchement manuel prod
+- `feature`: `GF{n}-{ShortName}` (e.g. `GF21-SwaggerDoc`, `GF22-Documentation`)
+- `develop`: automatic push → image `ghcr.io/.../gauthierfitness-frontend:develop` → infra deploys staging
+- `main`: push → `:latest` image + SHA tag → manual production trigger
 
 ---
 
-## Liens utiles
+## Useful links
 
-- [Manuel utilisateur (parcours client + admin)](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/03-user-guide.md)
-- [Architecture détaillée](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/01-architecture.md)
-- [API REST — Swagger](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/05-api.md)
-- [Repo backend](https://github.com/CharlesGAUTHIER1999/gauthierfitness-backend)
-- [Repo infra](https://github.com/CharlesGAUTHIER1999/gauthierfitness-infra)
+- [User manual (customer + admin journeys)](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/03-user-guide.md)
+- [Detailed architecture](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/01-architecture.md)
+- [REST API — Swagger](https://github.com/CharlesGAUTHIER1999/gauthierfitness/blob/main/docs/05-api.md)
+- [Backend repo](https://github.com/CharlesGAUTHIER1999/gauthierfitness-backend)
+- [Infra repo](https://github.com/CharlesGAUTHIER1999/gauthierfitness-infra)
