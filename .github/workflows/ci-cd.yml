@@ -1,7 +1,7 @@
 # ════════════════════════════════════════════════════════════════════
 #  GauthierFitness Frontend — CI
-#  repo : CharlesGAUTHIER1999/gauthierfitness-frontend
-#  Séquence : ESLint → Jest → Build → Build image GHCR → Trigger deploy infra
+#  repo: CharlesGAUTHIER1999/gauthierfitness-frontend
+#  Sequence: ESLint → Jest → Build → Build GHCR image → Trigger infra deploy
 # ════════════════════════════════════════════════════════════════════
 
 name: CI Frontend
@@ -43,14 +43,14 @@ jobs:
       - name: Jest
         run: npm test -- --ci
 
-      - name: Build Vite (vérification compilation)
+      - name: Build Vite (compilation check)
         run: npm run build
         env:
           VITE_API_URL: "http://localhost/api"
           VITE_STRIPE_PUBLIC_KEY: "pk_test_dummy"
 
   # -----------------------------------------------------------
-  # JOB 2 - Build & Push image GHCR (push uniquement, pas PR)
+  # JOB 2 - Build & Push GHCR image (push only, not PR)
   # -----------------------------------------------------------
   build:
     name: "Build image frontend"
@@ -101,7 +101,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ---------------------------------------------------------
-  # JOB 3 - Déclencher le deploy dans gauthierfitness-infra
+  # JOB 3 - Trigger deploy in gauthierfitness-infra
   # ---------------------------------------------------------
   trigger-deploy:
     name: "Trigger deploy infra"
@@ -110,7 +110,7 @@ jobs:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
 
     steps:
-      - name: Dispatch vers gauthierfitness-infra
+      - name: Dispatch to gauthierfitness-infra
         uses: peter-evans/repository-dispatch@v4
         with:
           token: ${{ secrets.INFRA_DISPATCH_TOKEN }}

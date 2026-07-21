@@ -1,152 +1,223 @@
 # Changelog
 
-Toutes les évolutions notables du frontend GauthierFitness sont documentées ici.
+All notable changes to the GauthierFitness frontend are documented here.
 
-Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/). Avant le tag `v1.0.0`, chaque entrée correspond à une branche de fonctionnalité `GF{n}` fusionnée dans `main` (convention de branchage du projet), plutôt qu'à un numéro de version sémantique.
+Format inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Before the `v1.0.0` tag, each entry
+corresponds to a `GF{n}` feature branch merged into `main` (the project's branching convention), rather than a semantic
+version number.
 
 ## [v1.0.4] - 2026-07-13
 
 ### Changed
-- Mise à jour des dépendances npm mineures/patch groupées par Dependabot (10 paquets) et des actions GitHub utilisées en CI/CD (7 mises à jour). Les montées majeures (`@stripe/stripe-js`, `vite`, écosystème Jest) sont volontairement reportées après la soutenance, conformément au processus décrit en Bloc 4 (C4.1.1).
+
+- Updated minor/patch npm dependencies grouped by Dependabot (10 packages) and the GitHub Actions used in CI/CD (7
+  updates). Major upgrades (`@stripe/stripe-js`, `vite`, the Jest ecosystem) are deliberately deferred until after the
+  defense, per the process described in Bloc 4 (C4.1.1).
 
 ## [v1.0.3] - 2026-07-13
 
 ### Fixed
-- `auth.test.jsx` : mock `api.get` scopé par URL pour éviter qu'un `console.error` parasite de `CartProvider` (appel `/cart` échouant en cascade avec le `/me` simulé en échec pour les besoins du test) ne pollue la sortie des tests. Sans impact sur le comportement réel de l'application.
+
+- `auth.test.jsx`: `api.get` mock scoped by URL to prevent a stray `console.error` from `CartProvider` (a `/cart` call
+  cascading-failing alongside the simulated `/me` failure needed for the test) from polluting the test output. No impact
+  on the app's actual behavior.
 
 ## [v1.0.2] - 2026-07-12
 
 ### Changed
-- Composants réorganisés en `components/layout/` (Header, Footer, MegaMenu, StaticPage), `components/cart/` (CartDrawer, CheckoutPayment) et `components/product/` (ProductCard, SizeGuideDrawer), au lieu d'un dossier `components/` à plat.
+
+- Components reorganized into `components/layout/` (Header, Footer, MegaMenu, StaticPage), `components/cart/` (
+  CartDrawer, CheckoutPayment), and `components/product/` (ProductCard, SizeGuideDrawer), instead of a flat
+  `components/` folder.
 
 ## [v1.0.1] - 2026-07-10
 
 ### Fixed
-- Auto-hébergement de la texture HDR de l'éditeur 3D, suppression de la dépendance externe raw.githack (voir Fiche d'incident 8, CSP).
-- Redirection après connexion vers la page initialement demandée ; suppression d'un lien de connexion mort dans le checkout.
+
+- Self-hosted the 3D editor's HDR texture, removing the external raw.githack dependency (see Incident Report 8, CSP).
+- Redirect after login to the originally requested page; removed a dead login link in checkout.
 
 ### Removed
-- Composant SearchBar inutilisé.
+
+- Unused SearchBar component.
 
 ## [v1.0.0] - 2026-07-08
 
-Première release taguée du frontend. Regroupe l'ensemble des fonctionnalités développées de GF0 à GF31 : boutique,
-configurateur 2D/3D, panier, checkout Stripe, authentification, back-office admin, génération de designs par IA,
-pages légales.
+First tagged release of the frontend. Brings together all features developed from GF0 to GF31: storefront,
+2D/3D configurator, cart, Stripe checkout, authentication, admin back-office, AI design generation,
+legal pages.
 
 ### Added
-- Template GitHub Issue (`.github/ISSUE_TEMPLATE/bug_report.md`) pour structurer la consignation des anomalies.
-- Tests sur la page de connexion (`Login.test.jsx`).
+
+- GitHub Issue template (`.github/ISSUE_TEMPLATE/bug_report.md`) to structure bug reporting.
+- Tests for the login page (`Login.test.jsx`).
 
 ### Changed
-- Factorisation de la logique commune aux configurateurs 2D/3D dans un hook partagé (`useCustomizationEditorBase`).
-- Renommage `AdminRoutes`/`ProtectedRoutes` → `AdminRoute`/`ProtectedRoute` (cohérence de nommage).
-- Modèle 3D (`tshirt.glb`) et logo compressés pour réduire le poids du bundle.
 
-## [GF30 — V1GF Last Checkup] - 2026-07-05
+- Factored out logic shared by the 2D/3D configurators into a shared hook (`useCustomizationEditorBase`).
+- Renamed `AdminRoutes`/`ProtectedRoutes` → `AdminRoute`/`ProtectedRoute` (naming consistency).
+- Compressed the 3D model (`tshirt.glb`) and logo to reduce bundle size.
+
+## [GF30 - V1GF Last Checkup] - 2026-07-05
+
 ### Fixed
-- Dernières vérifications et correctifs avant la V1 finale.
 
-## [GF29 — Lighthouse] - 2026-07-05
+- Final checks and fixes before the final V1.
+
+## [GF29 - Lighthouse] - 2026-07-05
+
 ### Changed
-- Optimisations de performance et d'accessibilité suite aux audits Lighthouse (avant/après correctifs).
 
-## [GF28 — V1GF Fixs (2)] - 2026-07-04
+- Performance and accessibility optimizations following Lighthouse audits (before/after fixes).
+
+## [GF28 - V1GF Fixs (2)] - 2026-07-04
+
 ### Fixed
-- Corrections diverses identifiées lors de la préparation de la V1 finale.
 
-## [GF27 — Documentation V2] - 2026-07-02
+- Various fixes identified while preparing the final V1.
+
+## [GF27 - Documentation V2] - 2026-07-02
+
 ### Changed
-- Traduction en anglais des commentaires du code (aucune logique modifiée).
 
-## [GF26 — Forgot Password] - 2026-07-01
+- Translated code comments to English (no logic changed).
+
+## [GF26 - Forgot Password] - 2026-07-01
+
 ### Added
-- Pages "Mot de passe oublié" / "Réinitialisation" et méthodes associées dans le store d'authentification.
 
-## [Fix v1 — placeholder image] - 2026-07-01
+- "Forgot password" / "Reset password" pages and associated methods in the auth store.
+
+## [Fix v1 - placeholder image] - 2026-07-01
+
 ### Fixed
-- Image placeholder produit et image de commande correctement servies en production.
 
-## [GF25 — V1GF Fixs] - 2026-07-01
+- Product placeholder image and order image now correctly served in production.
+
+## [GF25 - V1GF Fixs] - 2026-07-01
+
 ### Fixed
-- Correctifs pré-V1 : liens du menu Header, redirection post-paiement, mémoire du formulaire de livraison en checkout.
 
-## [GF15 — IA Generation] - 2026-06-28
+- Pre-V1 fixes: Header menu links, post-payment redirect, checkout shipping form memory.
+
+## [GF15 - IA Generation] - 2026-06-28
+
 ### Added
-- Génération d'images par IA branchée dans les configurateurs 2D et 3D.
 
-## [GF24 — Sentry] - 2026-06-26
+- AI image generation wired into the 2D and 3D configurators.
+
+## [GF24 - Sentry] - 2026-06-26
+
 ### Added
-- Intégration Sentry frontend (capture des erreurs JS, performance, source maps).
 
-## [GF23 — Tests Strategy] - 2026-06-25
+- Frontend Sentry integration (JS error capture, performance, source maps).
+
+## [GF23 - Tests Strategy] - 2026-06-25
+
 ### Added
-- Stratégie de tests consolidée (suite Jest).
 
-## [GF21 — Swagger Doc] - 2026-06-18
+- Consolidated test strategy (Jest suite).
+
+## [GF21 - Swagger Doc] - 2026-06-18
+
 ### Changed
-- Ajustements liés à la documentation API.
 
-## [GF20 — Shipments & Returns] - 2026-06-16
+- Adjustments related to the API documentation.
+
+## [GF20 - Shipments & Returns] - 2026-06-16
+
 ### Added
-- Interfaces de livraison et retours de commande.
 
-## [GF19 — Help Service] - 2026-06-16
+- Order shipping and returns interfaces.
+
+## [GF19 - Help Service] - 2026-06-16
+
 ### Added
-- Service d'aide / contact.
 
-## [GF18 — Juridic] - 2026-06-15
+- Help / contact service.
+
+## [GF18 - Juridic] - 2026-06-15
+
 ### Added
-- Pages légales (mentions légales, CGV).
 
-## [GF17 — Build Pipeline V2] - 2026-05-27
+- Legal pages (legal notices, T&Cs).
+
+## [GF17 - Build Pipeline V2] - 2026-05-27
+
 ### Changed
-- Amélioration du pipeline CI/CD frontend.
 
-## [GF16 — Build Pipeline V0/V1] - 2026-02-19 / 2026-05-11
+- Improved the frontend CI/CD pipeline.
+
+## [GF16 - Build Pipeline V0/V1] - 2026-02-19 / 2026-05-11
+
 ### Added
-- Mise en place du pipeline d'intégration et de déploiement continu (ESLint, build Vite, image Docker).
 
-## [GF14 — Panel Admin] - 2026-05-11
+- Set up the continuous integration and deployment pipeline (ESLint, Vite build, Docker image).
+
+## [GF14 - Panel Admin] - 2026-05-11
+
 ### Added
-- Interface back-office admin (produits, stock, commandes, dashboard).
 
-## [GF13 — Configuration 3D Produit V3] - 2026-05-03
-## [GF12 — Configuration 3D Produit V2] - 2026-04-19
-## [GF11 — Configuration 3D Produit V1] - 2026-04-17
+- Admin back-office interface (products, stock, orders, dashboard).
+
+## [GF13 - Configuration 3D Produit V3] - 2026-05-03
+
+## [GF12 - Configuration 3D Produit V2] - 2026-04-19
+
+## [GF11 - Configuration 3D Produit V1] - 2026-04-17
+
 ### Added
-- Configurateur de produit 3D (Three.js), versions successives.
 
-## [GF10 — Configuration Produit V3] - 2026-04-16
-## [GF9 — Configuration Produit V2] - 2026-04-11
-## [GF8 — Configuration Produit V1] - 2026-04-07
+- 3D product configurator (Three.js), successive versions.
+
+## [GF10 - Configuration Produit V3] - 2026-04-16
+
+## [GF9 - Configuration Produit V2] - 2026-04-11
+
+## [GF8 - Configuration Produit V1] - 2026-04-07
+
 ### Added
-- Configurateur de produit 2D (Konva), versions successives.
 
-## [GF7 — App Stability] - 2026-03-25
+- 2D product configurator (Konva), successive versions.
+
+## [GF7 - App Stability] - 2026-03-25
+
 ### Fixed
-- Corrections de stabilité applicative.
 
-## [GF6 — Orders Details] - 2026-02-15
-### Added
-- Détail des commandes.
+- Application stability fixes.
 
-## [GF5 — Orders Checkout] - 2026-02-03
-### Added
-- Tunnel de commande et paiement Stripe.
+## [GF6 - Orders Details] - 2026-02-15
 
-## [GF4 — Users Authentification] - 2026-02-01
 ### Added
-- Authentification utilisateur.
 
-## [GF3 — Product Cart] - 2026-01-22
-### Added
-- Panier produit.
+- Order detail view.
 
-## [GF2 — Product Details] - 2026-01-18
-### Added
-- Fiche produit détaillée.
+## [GF5 - Orders Checkout] - 2026-02-03
 
-## [GF1 — Product Catalog] - 2026-01-18
 ### Added
-- Catalogue produits initial.
+
+- Order tunnel and Stripe payment.
+
+## [GF4 - Users Authentification] - 2026-02-01
+
+### Added
+
+- User authentication.
+
+## [GF3 - Product Cart] - 2026-01-22
+
+### Added
+
+- Product cart.
+
+## [GF2 - Product Details] - 2026-01-18
+
+### Added
+
+- Detailed product page.
+
+## [GF1 - Product Catalog] - 2026-01-18
+
+### Added
+
+- Initial product catalog.
