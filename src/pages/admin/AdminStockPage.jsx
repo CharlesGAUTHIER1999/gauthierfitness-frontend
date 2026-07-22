@@ -1,10 +1,7 @@
 import {useCallback, useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import {
-    addAdminStock,
-    adjustAdminStockLot,
-    getAdminProductStock,
-    getAdminStockMovements,
+    addAdminStock, adjustAdminStockLot, getAdminProductStock, getAdminStockMovements,
 } from "../../api/adminApi";
 
 // Helpers
@@ -51,56 +48,54 @@ function AddStockForm({productId, optionId, onSuccess, onCancel}) {
 
     const set = (key) => (e) => setForm((f) => ({...f, [key]: e.target.value}));
 
-    return (
-        <form className="adm-inline-form" onSubmit={handleSubmit}>
-            <p className="adm-inline-form-title">Ajouter du stock</p>
-            {error && <p className="adm-error">{error}</p>}
-            <div className="adm-form-row">
-                <div className="adm-form-group">
-                    <label className="adm-label" htmlFor="add-stock-lot-number">N° de lot *</label>
-                    <input
-                        id="add-stock-lot-number"
-                        className="adm-input"
-                        placeholder="LOT-001"
-                        value={form.lot_number}
-                        onChange={set("lot_number")}
-                        required
-                    />
-                </div>
-                <div className="adm-form-group">
-                    <label className="adm-label" htmlFor="add-stock-quantity">Quantité *</label>
-                    <input
-                        id="add-stock-quantity"
-                        className="adm-input"
-                        type="number"
-                        min="1"
-                        placeholder="0"
-                        value={form.quantity}
-                        onChange={set("quantity")}
-                        required
-                    />
-                </div>
-                <div className="adm-form-group">
-                    <label className="adm-label" htmlFor="add-stock-expiration">Date d'expiration</label>
-                    <input
-                        id="add-stock-expiration"
-                        className="adm-input"
-                        type="date"
-                        value={form.expiration_date}
-                        onChange={set("expiration_date")}
-                    />
-                </div>
+    return (<form className="adm-inline-form" onSubmit={handleSubmit}>
+        <p className="adm-inline-form-title">Ajouter du stock</p>
+        {error && <p className="adm-error">{error}</p>}
+        <div className="adm-form-row">
+            <div className="adm-form-group">
+                <label className="adm-label" htmlFor="add-stock-lot-number">N° de lot *</label>
+                <input
+                    id="add-stock-lot-number"
+                    className="adm-input"
+                    placeholder="LOT-001"
+                    value={form.lot_number}
+                    onChange={set("lot_number")}
+                    required
+                />
             </div>
-            <div className="adm-form-actions">
-                <button type="submit" className="adm-primary-btn" disabled={saving}>
-                    {saving ? "Enregistrement…" : "Confirmer"}
-                </button>
-                <button type="button" className="adm-secondary-btn" onClick={onCancel}>
-                    Annuler
-                </button>
+            <div className="adm-form-group">
+                <label className="adm-label" htmlFor="add-stock-quantity">Quantité *</label>
+                <input
+                    id="add-stock-quantity"
+                    className="adm-input"
+                    type="number"
+                    min="1"
+                    placeholder="0"
+                    value={form.quantity}
+                    onChange={set("quantity")}
+                    required
+                />
             </div>
-        </form>
-    );
+            <div className="adm-form-group">
+                <label className="adm-label" htmlFor="add-stock-expiration">Date d'expiration</label>
+                <input
+                    id="add-stock-expiration"
+                    className="adm-input"
+                    type="date"
+                    value={form.expiration_date}
+                    onChange={set("expiration_date")}
+                />
+            </div>
+        </div>
+        <div className="adm-form-actions">
+            <button type="submit" className="adm-primary-btn" disabled={saving}>
+                {saving ? "Enregistrement…" : "Confirmer"}
+            </button>
+            <button type="button" className="adm-secondary-btn" onClick={onCancel}>
+                Annuler
+            </button>
+        </div>
+    </form>);
 }
 
 // Adjust lot form
@@ -126,45 +121,44 @@ function AdjustLotForm({lot, onSuccess, onCancel}) {
         }
     }
 
-    return (
-        <form className="adm-inline-form adm-inline-form--adjust" onSubmit={handleSubmit}>
-            <p className="adm-inline-form-title">Corriger le lot {lot.lot_number}</p>
-            {error && <p className="adm-error">{error}</p>}
-            <div className="adm-form-row">
-                <div className="adm-form-group">
-                    <label className="adm-label" htmlFor={`adjust-quantity-${lot.id}`}>Nouvelle quantité *</label>
-                    <input
-                        id={`adjust-quantity-${lot.id}`}
-                        className="adm-input"
-                        type="number"
-                        min="0"
-                        value={quantity}
-                        onChange={(e) => setQuantity(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="adm-form-group adm-form-group--wide">
-                    <label className="adm-label" htmlFor={`adjust-reason-${lot.id}`}>Raison * (inventaire, casse, vol…)</label>
-                    <input
-                        id={`adjust-reason-${lot.id}`}
-                        className="adm-input"
-                        placeholder="Ex : Inventaire mensuel"
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        required
-                    />
-                </div>
+    return (<form className="adm-inline-form adm-inline-form--adjust" onSubmit={handleSubmit}>
+        <p className="adm-inline-form-title">Corriger le lot {lot.lot_number}</p>
+        {error && <p className="adm-error">{error}</p>}
+        <div className="adm-form-row">
+            <div className="adm-form-group">
+                <label className="adm-label" htmlFor={`adjust-quantity-${lot.id}`}>Nouvelle quantité *</label>
+                <input
+                    id={`adjust-quantity-${lot.id}`}
+                    className="adm-input"
+                    type="number"
+                    min="0"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    required
+                />
             </div>
-            <div className="adm-form-actions">
-                <button type="submit" className="adm-primary-btn" disabled={saving}>
-                    {saving ? "Enregistrement…" : "Confirmer"}
-                </button>
-                <button type="button" className="adm-secondary-btn" onClick={onCancel}>
-                    Annuler
-                </button>
+            <div className="adm-form-group adm-form-group--wide">
+                <label className="adm-label" htmlFor={`adjust-reason-${lot.id}`}>Raison * (inventaire, casse,
+                    vol…)</label>
+                <input
+                    id={`adjust-reason-${lot.id}`}
+                    className="adm-input"
+                    placeholder="Ex : Inventaire mensuel"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    required
+                />
             </div>
-        </form>
-    );
+        </div>
+        <div className="adm-form-actions">
+            <button type="submit" className="adm-primary-btn" disabled={saving}>
+                {saving ? "Enregistrement…" : "Confirmer"}
+            </button>
+            <button type="button" className="adm-secondary-btn" onClick={onCancel}>
+                Annuler
+            </button>
+        </div>
+    </form>);
 }
 
 // Lot row (table row + inline adjust form)
@@ -172,42 +166,36 @@ function AdjustLotForm({lot, onSuccess, onCancel}) {
 function LotRow({lot, onAdjusted}) {
     const [adjusting, setAdjusting] = useState(false);
 
-    return (
-        <>
-            <tr className="adm-lot-row">
-                <td className="adm-date">Lot {lot.lot_number}</td>
-                <td>{lot.quantity} unité{lot.quantity !== 1 ? "s" : ""}</td>
-                <td className="adm-date">
-                    {lot.expiration_date
-                        ? new Date(lot.expiration_date).toLocaleDateString("fr-FR")
-                        : "Sans expiration"}
-                </td>
-                <td>
-                    <button
-                        type="button"
-                        className="adm-action-btn"
-                        onClick={() => setAdjusting((v) => !v)}
-                    >
-                        {adjusting ? "Annuler" : "Corriger"}
-                    </button>
-                </td>
-            </tr>
-            {adjusting && (
-                <tr>
-                    <td colSpan={4} className="adm-lot-form-cell">
-                        <AdjustLotForm
-                            lot={lot}
-                            onSuccess={() => {
-                                setAdjusting(false);
-                                onAdjusted();
-                            }}
-                            onCancel={() => setAdjusting(false)}
-                        />
-                    </td>
-                </tr>
-            )}
-        </>
-    );
+    return (<>
+        <tr className="adm-lot-row">
+            <td className="adm-date">Lot {lot.lot_number}</td>
+            <td>{lot.quantity} unité{lot.quantity !== 1 ? "s" : ""}</td>
+            <td className="adm-date">
+                {lot.expiration_date ? new Date(lot.expiration_date).toLocaleDateString("fr-FR") : "Sans expiration"}
+            </td>
+            <td>
+                <button
+                    type="button"
+                    className="adm-action-btn"
+                    onClick={() => setAdjusting((v) => !v)}
+                >
+                    {adjusting ? "Annuler" : "Corriger"}
+                </button>
+            </td>
+        </tr>
+        {adjusting && (<tr>
+            <td colSpan={4} className="adm-lot-form-cell">
+                <AdjustLotForm
+                    lot={lot}
+                    onSuccess={() => {
+                        setAdjusting(false);
+                        onAdjusted();
+                    }}
+                    onCancel={() => setAdjusting(false)}
+                />
+            </td>
+        </tr>)}
+    </>);
 }
 
 // Option stock block
@@ -215,64 +203,51 @@ function LotRow({lot, onAdjusted}) {
 function OptionStockBlock({optionData, productId, onRefresh}) {
     const [showAdd, setShowAdd] = useState(false);
 
-    return (
-        <div className="adm-stock-block">
-            <div className="adm-stock-block-head">
-                <div className="adm-stock-block-info">
-                    <span className="adm-badge adm-badge-blue">{optionData.option_type}</span>
-                    <strong className="adm-stock-block-name">
-                        {optionData.option_code}
-                        {optionData.option_label &&
-                        optionData.option_label !== optionData.option_code
-                            ? ` — ${optionData.option_label}`
-                            : ""}
-                    </strong>
-                    <StockQty qty={optionData.total_qty}/>
-                </div>
-                <button
-                    type="button"
-                    className="adm-primary-btn adm-primary-btn--sm"
-                    onClick={() => setShowAdd((v) => !v)}
-                >
-                    {showAdd ? "Annuler" : "+ Réapprovisionner"}
-                </button>
+    return (<div className="adm-stock-block">
+        <div className="adm-stock-block-head">
+            <div className="adm-stock-block-info">
+                <span className="adm-badge adm-badge-blue">{optionData.option_type}</span>
+                <strong className="adm-stock-block-name">
+                    {optionData.option_code}
+                    {optionData.option_label && optionData.option_label !== optionData.option_code ? ` — ${optionData.option_label}` : ""}
+                </strong>
+                <StockQty qty={optionData.total_qty}/>
             </div>
-
-            {showAdd && (
-                <AddStockForm
-                    productId={productId}
-                    optionId={optionData.option_id}
-                    onSuccess={() => {
-                        setShowAdd(false);
-                        onRefresh();
-                    }}
-                    onCancel={() => setShowAdd(false)}
-                />
-            )}
-
-            {optionData.lots.length > 0 ? (
-                <div className="adm-table-wrapper adm-table-wrapper--nested">
-                    <table className="adm-table adm-table--lots">
-                        <thead>
-                        <tr>
-                            <th>Lot</th>
-                            <th>Quantité</th>
-                            <th>Expiration</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {optionData.lots.map((lot) => (
-                            <LotRow key={lot.id} lot={lot} onAdjusted={onRefresh}/>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            ) : (
-                <p className="adm-empty-inline">Aucun lot enregistré — stock à zéro.</p>
-            )}
+            <button
+                type="button"
+                className="adm-primary-btn adm-primary-btn--sm"
+                onClick={() => setShowAdd((v) => !v)}
+            >
+                {showAdd ? "Annuler" : "+ Réapprovisionner"}
+            </button>
         </div>
-    );
+
+        {showAdd && (<AddStockForm
+            productId={productId}
+            optionId={optionData.option_id}
+            onSuccess={() => {
+                setShowAdd(false);
+                onRefresh();
+            }}
+            onCancel={() => setShowAdd(false)}
+        />)}
+
+        {optionData.lots.length > 0 ? (<div className="adm-table-wrapper adm-table-wrapper--nested">
+            <table className="adm-table adm-table--lots">
+                <thead>
+                <tr>
+                    <th>Lot</th>
+                    <th>Quantité</th>
+                    <th>Expiration</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {optionData.lots.map((lot) => (<LotRow key={lot.id} lot={lot} onAdjusted={onRefresh}/>))}
+                </tbody>
+            </table>
+        </div>) : (<p className="adm-empty-inline">Aucun lot enregistré — stock à zéro.</p>)}
+    </div>);
 }
 
 // Main page
@@ -322,202 +297,164 @@ export default function AdminStockPage() {
 
     const hasOptions = (stockData.option_stocks?.length ?? 0) > 0;
 
-    return (
-        <div className="adm-page">
-            <div className="adm-page-head">
-                <button
-                    type="button"
-                    className="adm-back-btn"
-                    onClick={() => navigate("/admin/stock")}
-                >
-                    ← Stocks
-                </button>
-                <h1 className="adm-page-title">Stock — {stockData.product_name}</h1>
-            </div>
+    return (<div className="adm-page">
+        <div className="adm-page-head">
+            <button
+                type="button"
+                className="adm-back-btn"
+                onClick={() => navigate("/admin/stock")}
+            >
+                ← Stocks
+            </button>
+            <h1 className="adm-page-title">Stock — {stockData.product_name}</h1>
+        </div>
 
-            {/* Tabs */}
-            <div className="adm-tabs" role="tablist">
-                {[
-                    {id: "stock", label: "Stock actuel"},
-                    {id: "movements", label: "Historique des mouvements"},
-                ].map((tab) => (
-                    <button
-                        key={tab.id}
-                        type="button"
-                        role="tab"
-                        aria-selected={activeTab === tab.id}
-                        className={`adm-tab ${activeTab === tab.id ? "is-active" : ""}`}
-                        onClick={() => setActiveTab(tab.id)}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+        {/* Tabs */}
+        <div className="adm-tabs" role="tablist">
+            {[{id: "stock", label: "Stock actuel"}, {
+                id: "movements", label: "Historique des mouvements"
+            },].map((tab) => (<button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                className={`adm-tab ${activeTab === tab.id ? "is-active" : ""}`}
+                onClick={() => setActiveTab(tab.id)}
+            >
+                {tab.label}
+            </button>))}
+        </div>
 
-            {/* ── Actual Stock ── */}
-            {activeTab === "stock" && (
-                <div className="adm-stock-content">
-                    {hasOptions ? (
-                        stockData.option_stocks.map((optData) => (
-                            <OptionStockBlock
-                                key={optData.option_id}
-                                optionData={optData}
-                                productId={id}
-                                onRefresh={loadStock}
-                            />
-                        ))
-                    ) : (
-                        /* Product without variants — global stock */
-                        <div className="adm-stock-block">
-                            <div className="adm-stock-block-head">
-                                <div className="adm-stock-block-info">
-                                    <strong className="adm-stock-block-name">Stock global</strong>
-                                    <StockQty qty={stockData.global_stock.total_qty}/>
-                                </div>
-                                <button
-                                    type="button"
-                                    className="adm-primary-btn adm-primary-btn--sm"
-                                    onClick={() => setShowGlobalAdd((v) => !v)}
-                                >
-                                    {showGlobalAdd ? "Annuler" : "+ Réapprovisionner"}
-                                </button>
-                            </div>
-
-                            {showGlobalAdd && (
-                                <AddStockForm
-                                    productId={id}
-                                    optionId={null}
-                                    onSuccess={() => {
-                                        setShowGlobalAdd(false);
-                                        loadStock();
-                                    }}
-                                    onCancel={() => setShowGlobalAdd(false)}
-                                />
-                            )}
-
-                            {stockData.global_stock.lots.length > 0 ? (
-                                <div className="adm-table-wrapper adm-table-wrapper--nested">
-                                    <table className="adm-table adm-table--lots">
-                                        <thead>
-                                        <tr>
-                                            <th>Lot</th>
-                                            <th>Quantité</th>
-                                            <th>Expiration</th>
-                                            <th>Action</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {stockData.global_stock.lots.map((lot) => (
-                                            <LotRow
-                                                key={lot.id}
-                                                lot={lot}
-                                                onAdjusted={loadStock}
-                                            />
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : (
-                                <p className="adm-empty-inline">Aucun lot enregistré — stock à zéro.</p>
-                            )}
+        {/* ── Actual Stock ── */}
+        {activeTab === "stock" && (<div className="adm-stock-content">
+            {hasOptions ? (stockData.option_stocks.map((optData) => (<OptionStockBlock
+                key={optData.option_id}
+                optionData={optData}
+                productId={id}
+                onRefresh={loadStock}
+            />))) : (/* Product without variants — global stock */
+                <div className="adm-stock-block">
+                    <div className="adm-stock-block-head">
+                        <div className="adm-stock-block-info">
+                            <strong className="adm-stock-block-name">Stock global</strong>
+                            <StockQty qty={stockData.global_stock.total_qty}/>
                         </div>
-                    )}
-                </div>
-            )}
+                        <button
+                            type="button"
+                            className="adm-primary-btn adm-primary-btn--sm"
+                            onClick={() => setShowGlobalAdd((v) => !v)}
+                        >
+                            {showGlobalAdd ? "Annuler" : "+ Réapprovisionner"}
+                        </button>
+                    </div>
 
-            {/* ── Historic ── */}
-            {activeTab === "movements" && (
-                <div className="adm-stock-content">
-                    {!movements ? (
-                        <p className="adm-loading">Chargement...</p>
-                    ) : (
-                        <>
-                            <div className="adm-table-wrapper">
-                                <table className="adm-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Lot</th>
-                                        <th>Quantité</th>
-                                        <th>Raison</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {(movements.data?.length ?? 0) === 0 ? (
-                                        <tr>
-                                            <td colSpan={5} className="adm-empty">
-                                                Aucun mouvement enregistré.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        movements.data.map((mov) => {
-                                            const mt = MOVEMENT_LABELS[mov.type] ?? {
-                                                label: mov.type,
-                                                css: "",
-                                            };
-                                            const qty = Number(mov.quantity);
-                                            return (
-                                                <tr key={mov.id}>
-                                                    <td className="adm-date">
-                                                        {new Date(mov.created_at).toLocaleString(
-                                                            "fr-FR",
-                                                            {
-                                                                day: "2-digit",
-                                                                month: "2-digit",
-                                                                year: "numeric",
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            }
-                                                        )}
-                                                    </td>
-                                                    <td>
+                    {showGlobalAdd && (<AddStockForm
+                        productId={id}
+                        optionId={null}
+                        onSuccess={() => {
+                            setShowGlobalAdd(false);
+                            loadStock();
+                        }}
+                        onCancel={() => setShowGlobalAdd(false)}
+                    />)}
+
+                    {stockData.global_stock.lots.length > 0 ? (
+                        <div className="adm-table-wrapper adm-table-wrapper--nested">
+                            <table className="adm-table adm-table--lots">
+                                <thead>
+                                <tr>
+                                    <th>Lot</th>
+                                    <th>Quantité</th>
+                                    <th>Expiration</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {stockData.global_stock.lots.map((lot) => (<LotRow
+                                    key={lot.id}
+                                    lot={lot}
+                                    onAdjusted={loadStock}
+                                />))}
+                                </tbody>
+                            </table>
+                        </div>) : (<p className="adm-empty-inline">Aucun lot enregistré — stock à zéro.</p>)}
+                </div>)}
+        </div>)}
+
+        {/* ── Historic ── */}
+        {activeTab === "movements" && (<div className="adm-stock-content">
+            {!movements ? (<p className="adm-loading">Chargement...</p>) : (<>
+                <div className="adm-table-wrapper">
+                    <table className="adm-table">
+                        <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Lot</th>
+                            <th>Quantité</th>
+                            <th>Raison</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {(movements.data?.length ?? 0) === 0 ? (<tr>
+                            <td colSpan={5} className="adm-empty">
+                                Aucun mouvement enregistré.
+                            </td>
+                        </tr>) : (movements.data.map((mov) => {
+                            const mt = MOVEMENT_LABELS[mov.type] ?? {
+                                label: mov.type, css: "",
+                            };
+                            const qty = Number(mov.quantity);
+                            return (<tr key={mov.id}>
+                                <td className="adm-date">
+                                    {new Date(mov.created_at).toLocaleString("fr-FR", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
+                                </td>
+                                <td>
                                                             <span className={`adm-mov-badge ${mt.css}`}>
                                                                 {mt.label}
                                                             </span>
-                                                    </td>
-                                                    <td className="adm-date">
-                                                        {mov.lot?.lot_number ?? "—"}
-                                                    </td>
-                                                    <td>
-                                                        {qty > 0 ? `+${qty}` : qty}
-                                                    </td>
-                                                    <td>{mov.reason || "—"}</td>
-                                                </tr>
-                                            );
-                                        })
-                                    )}
-                                    </tbody>
-                                </table>
-                            </div>
+                                </td>
+                                <td className="adm-date">
+                                    {mov.lot?.lot_number ?? "—"}
+                                </td>
+                                <td>
+                                    {qty > 0 ? `+${qty}` : qty}
+                                </td>
+                                <td>{mov.reason || "—"}</td>
+                            </tr>);
+                        }))}
+                        </tbody>
+                    </table>
+                </div>
 
-                            {movements.last_page > 1 && (
-                                <div className="adm-pagination">
-                                    <button
-                                        type="button"
-                                        className="adm-page-btn"
-                                        disabled={movPage <= 1}
-                                        onClick={() => setMovPage((p) => p - 1)}
-                                    >
-                                        ← Précédent
-                                    </button>
-                                    <span className="adm-page-info">
+                {movements.last_page > 1 && (<div className="adm-pagination">
+                    <button
+                        type="button"
+                        className="adm-page-btn"
+                        disabled={movPage <= 1}
+                        onClick={() => setMovPage((p) => p - 1)}
+                    >
+                        ← Précédent
+                    </button>
+                    <span className="adm-page-info">
                                         Page {movements.current_page} / {movements.last_page}
                                     </span>
-                                    <button
-                                        type="button"
-                                        className="adm-page-btn"
-                                        disabled={movPage >= movements.last_page}
-                                        onClick={() => setMovPage((p) => p + 1)}
-                                    >
-                                        Suivant →
-                                    </button>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+                    <button
+                        type="button"
+                        className="adm-page-btn"
+                        disabled={movPage >= movements.last_page}
+                        onClick={() => setMovPage((p) => p + 1)}
+                    >
+                        Suivant →
+                    </button>
+                </div>)}
+            </>)}
+        </div>)}
+    </div>);
 }

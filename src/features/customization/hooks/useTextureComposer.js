@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
+import {invalidate} from "@react-three/fiber";
 
 const CANVAS_SIZE = 1024;
 
@@ -273,6 +274,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
                 drawDebugGrid(ctx, S);
                 ctx.restore();
                 textureRef.current.needsUpdate = true;
+                invalidate();
                 return;
             }
 
@@ -454,7 +456,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
                     const uv = layer.uv && typeof layer.uv.x === "number" ? layer.uv : fallbackUV;
 
-                    const size = layer.size && typeof layer.size.w === "number" ? layer.size : {w: 0.05, h: 0.05};
+                    const size = layer.size && typeof layer.size.w === "number" ? layer.size : {w: 0.15, h: 0.15};
 
                     const drawX = (uv.x - size.w / 2) * S;
                     const drawY = (uv.y - size.h / 2) * S;
@@ -473,6 +475,7 @@ export function useTextureComposer(configuration, debugUV = false, options = {})
 
             bboxesRef.current = newBboxes.reverse();
             textureRef.current.needsUpdate = true;
+            invalidate();
         }
 
         void compose();
