@@ -1,6 +1,6 @@
 import {Suspense, useEffect, useMemo, useRef, useState} from "react";
 import {FiEye, FiTool, FiMousePointer, FiMove} from "react-icons/fi";
-import {Canvas} from "@react-three/fiber";
+import {Canvas, invalidate} from "@react-three/fiber";
 import {OrbitControls, useGLTF, Stage} from "@react-three/drei";
 import * as THREE from "three";
 import {useTextureComposer} from "../hooks/useTextureComposer";
@@ -82,6 +82,7 @@ function TShirtMesh({
             if (texture) {
                 activeMesh.material.map = texture;
                 activeMesh.material.needsUpdate = true;
+                invalidate();
             }
 
             activeMesh.castShadow = true;
@@ -117,6 +118,7 @@ function TShirtMesh({
             if (texture && m.material && m.geometry?.attributes?.uv) {
                 m.material.map = texture;
                 m.material.needsUpdate = true;
+                invalidate();
             }
 
             m.castShadow = true;
@@ -365,6 +367,7 @@ export default function CustomizationCanvas3D({
 
         <Canvas
             key={remountKey}
+            frameloop="demand"
             camera={{position: [0, 0, 5], fov: 45}}
             gl={{preserveDrawingBuffer: true}}
             onCreated={handleCanvasCreated}

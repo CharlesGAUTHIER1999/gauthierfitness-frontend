@@ -68,8 +68,8 @@ export default function CheckoutPage() {
         if (items.length === 0) return false;
         if (!form.email) return false;
         if (!form.firstname || !form.lastname) return false;
-        if (!form.address || !form.zip || !form.city || !form.country) return false;
-        return true;
+        return !(!form.address || !form.zip || !form.city || !form.country);
+
     }, [items.length, form]);
 
     // Requests Stripe payment intent from backend

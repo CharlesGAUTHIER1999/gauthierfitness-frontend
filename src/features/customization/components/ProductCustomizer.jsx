@@ -9,12 +9,12 @@ import CustomizationPreview from "./CustomizationPreview";
 function getDefaultImageLayerPosition(view) {
     if (view === "back") {
         return {
-            x: 315, y: 255, width: 90, height: 90,
+            x: 305, y: 249, width: 150, height: 150,
         };
     }
 
     return {
-        x: 325, y: 285, width: 90, height: 90,
+        x: 306, y: 230, width: 150, height: 150,
     };
 }
 
@@ -118,7 +118,7 @@ export default function ProductCustomizer({
 
             invalidateSavedSession();
         } catch (e) {
-            setUploadImageError(e?.message || e?.response?.data?.message || "Impossible d'importer l'image.");
+            setUploadImageError(e?.response?.data?.message || "Impossible d'importer l'image.");
         } finally {
             setUploadImageLoading(false);
         }
