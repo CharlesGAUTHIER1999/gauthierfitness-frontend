@@ -49,9 +49,9 @@ jobs:
           VITE_API_URL: "http://localhost/api"
           VITE_STRIPE_PUBLIC_KEY: "pk_test_dummy"
 
-  # -----------------------------------------------------------
+  # -----------------------------------------------------
   # JOB 2 - Build & Push GHCR image (push only, not PR)
-  # -----------------------------------------------------------
+  # -----------------------------------------------------
   build:
     name: "Build image frontend"
     runs-on: ubuntu-latest
@@ -100,9 +100,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ---------------------------------------------------------
+  # -------------------------------------------------
   # JOB 3 - Trigger deploy in gauthierfitness-infra
-  # ---------------------------------------------------------
+  # -------------------------------------------------
   trigger-deploy:
     name: "Trigger deploy infra"
     runs-on: ubuntu-latest

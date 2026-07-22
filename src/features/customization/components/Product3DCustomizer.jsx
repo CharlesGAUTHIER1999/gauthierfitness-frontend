@@ -135,6 +135,13 @@ export default function Product3DCustomizer({
     }
 
     async function handleUploadImage(file) {
+        const existingLayers = Array.isArray(configuration?.image_layers) ? configuration.image_layers : [];
+
+        if (existingLayers.length >= 3) {
+            setUploadImageError("Maximum 3 images libres autorisées.");
+            return;
+        }
+
         try {
             setUploadImageLoading(true);
             setUploadImageError(null);
@@ -154,13 +161,13 @@ export default function Product3DCustomizer({
                     height: 90,
                     rotation: 0,
                     uv: {x: 0.45, y: 0.25},
-                    size: {w: 0.05, h: 0.05},
+                    size: {w: 0.15, h: 0.15},
                 },],
             }));
 
             invalidateSavedSession();
         } catch (e) {
-            setUploadImageError(e?.message || e?.response?.data?.message || "Impossible d'importer l'image.");
+            setUploadImageError(e?.response?.data?.message || "Impossible d'importer l'image.");
         } finally {
             setUploadImageLoading(false);
         }
@@ -169,6 +176,13 @@ export default function Product3DCustomizer({
     async function handleGenerateAiDesign(prompt) {
         if (disabled) {
             setAiError("Veuillez d'abord sélectionner l'option requise.");
+            return false;
+        }
+
+        const currentImageLayers = Array.isArray(configuration?.image_layers) ? configuration.image_layers : [];
+
+        if (currentImageLayers.length >= 3) {
+            setAiError("Maximum 3 images libres autorisées.");
             return false;
         }
 
@@ -195,7 +209,7 @@ export default function Product3DCustomizer({
                     height: 90,
                     rotation: 0,
                     uv: {x: 0.45, y: 0.25},
-                    size: {w: 0.05, h: 0.05},
+                    size: {w: 0.15, h: 0.15},
                 },],
             }));
             invalidateSavedSession();

@@ -49,10 +49,7 @@ export default function AdminProductFormPage() {
                     allow_ai_generation: p.customization?.ai ?? false,
                 });
                 setOptions(Array.isArray(p.options) ? p.options.map((o) => ({
-                    _localId: crypto.randomUUID(),
-                    type: o.type,
-                    code: o.code,
-                    label: o.label ?? ""
+                    _localId: crypto.randomUUID(), type: o.type, code: o.code, label: o.label ?? ""
                 })) : []);
             })
             .catch(() => setError("Produit introuvable."))
@@ -109,8 +106,7 @@ export default function AdminProductFormPage() {
                 await updateAdminProduct(id, payload);
             } else {
                 await createAdminProduct({
-                    ...payload,
-                    options: options.filter((o) => o.code.trim()).map(toOptionPayload),
+                    ...payload, options: options.filter((o) => o.code.trim()).map(toOptionPayload),
                 });
             }
             navigate("/admin/products");

@@ -66,8 +66,8 @@ export default function ProductDetail() {
     const canAddToCart = useMemo(() => {
         if (sizeOptions.length > 0 && !selectedSizeOpt) return false;
         if (formatOptions.length > 0 && !selectedFormatOpt) return false;
-        if (capacityOptions.length > 0 && !selectedCapacityOpt) return false;
-        return true;
+        return !(capacityOptions.length > 0 && !selectedCapacityOpt);
+
     }, [sizeOptions.length, formatOptions.length, capacityOptions.length, selectedSizeOpt, selectedFormatOpt, selectedCapacityOpt,]);
 
     const variantTitle = useMemo(() => {
