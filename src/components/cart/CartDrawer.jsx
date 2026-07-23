@@ -7,7 +7,7 @@ import {FREE_SHIPPING_THRESHOLD} from "../../constants/shipping.js";
 // Slide-in cart drawer
 export default function CartDrawer() {
     const navigate = useNavigate();
-    const {isOpen, closeCart, items, subtotal, inc, dec, remove} = useCart();
+    const {isOpen, closeCart, items, subtotal, inc, dec, remove, isLoading} = useCart();
     const drawerRef = useRef(null);
     const closeBtnRef = useRef(null);
     const freeShip = useMemo(() => {
@@ -62,7 +62,8 @@ export default function CartDrawer() {
             </div>
 
             <div className="cart-drawer-body">
-                {items.length === 0 ? (<p className="cart-empty">Ton panier est vide.</p>) : (<ul className="cart-list">
+                {isLoading ? (<p className="cart-empty">Chargement…</p>) : items.length === 0 ? (
+                    <p className="cart-empty">Ton panier est vide.</p>) : (<ul className="cart-list">
                     {items.map((it) => (<li key={it.key} className="cart-item">
                         <img className="cart-item-img" src={it.image} alt={it.name}/>
 
@@ -125,7 +126,7 @@ export default function CartDrawer() {
 
                 <button
                     className="cart-cta"
-                    disabled={items.length === 0}
+                    disabled={isLoading || items.length === 0}
                     onClick={() => {
                         closeCart();
                         navigate("/checkout");
