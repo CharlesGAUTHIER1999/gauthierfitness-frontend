@@ -6,11 +6,18 @@ import {estimateShippingCost} from "../constants/shipping.js";
 // Cart page
 export default function CartPage() {
     const navigate = useNavigate();
-    const {items, subtotal, inc, dec, remove} = useCart();
+    const {items, subtotal, inc, dec, remove, isLoading} = useCart();
 
     // Preview only
     const shippingCost = useMemo(() => estimateShippingCost("standard", subtotal), [subtotal]);
     const total = useMemo(() => subtotal + shippingCost, [subtotal, shippingCost]);
+
+    if (isLoading) {
+        return (<div className="p-6">
+            <h1>Votre panier</h1>
+            <p>Chargement…</p>
+        </div>);
+    }
 
     if (items.length === 0) {
         return (<div className="p-6">

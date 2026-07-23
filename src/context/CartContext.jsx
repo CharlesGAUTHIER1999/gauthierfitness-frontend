@@ -65,6 +65,7 @@ export function CartProvider({children}) {
     });
 
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const openCart = useCallback(() => {
         setIsOpen(true);
@@ -89,6 +90,8 @@ export function CartProvider({children}) {
             }
 
             console.error("Erreur refetchCart :", e);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -133,6 +136,7 @@ export function CartProvider({children}) {
         subtotal: state.subtotal,
         currency: state.currency,
         isOpen,
+        isLoading,
         openCart,
         closeCart,
         refetchCart,
@@ -142,7 +146,7 @@ export function CartProvider({children}) {
         dec: (item) => setQty(item.id, Math.max(1, item.quantity - 1)),
         remove: (item) => removeItem(item.id),
         clear,
-    }), [state.items, state.count, state.subtotal, state.currency, isOpen, openCart, closeCart, refetchCart, addItem, setQty, removeItem, clear,]);
+    }), [state.items, state.count, state.subtotal, state.currency, isOpen, isLoading, openCart, closeCart, refetchCart, addItem, setQty, removeItem, clear,]);
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
