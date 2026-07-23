@@ -38,7 +38,7 @@ function loadStoredForm() {
 
 // Checkout page
 export default function CheckoutPage() {
-    const {items, subtotal} = useCart();
+    const {items, subtotal, isLoading: cartLoading} = useCart();
     const {isAuthenticated} = useAuth();
     const [form, setForm] = useState(loadStoredForm);
     const [clientSecret, setClientSecret] = useState(null);
@@ -65,12 +65,13 @@ export default function CheckoutPage() {
     }
 
     const canCreateIntent = useMemo(() => {
+        if (cartLoading) return false;
         if (items.length === 0) return false;
         if (!form.email) return false;
         if (!form.firstname || !form.lastname) return false;
         return !(!form.address || !form.zip || !form.city || !form.country);
 
-    }, [items.length, form]);
+    }, [cartLoading, items.length, form]);
 
     // Requests Stripe payment intent from backend
     async function createIntent() {
@@ -90,7 +91,8 @@ export default function CheckoutPage() {
                 },
             };
 
-            const res = await api.post("/payment/intent", payload);
+            // Longer timeout than the global default: this call includes a real round trip to Stripe's API
+            const res = await api.post("/payment/intent", payload, {timeout: 30000});
             setClientSecret(String(res.data.client_secret));
         } catch (e) {
             const msg = e?.response?.data?.message || e?.response?.data?.error || e?.message || "Erreur lors de la création du paiement.";
@@ -107,6 +109,14 @@ export default function CheckoutPage() {
             clientSecret, appearance: {theme: "stripe"},
         };
     }, [clientSecret]);
+
+    if (cartLoading) {
+        return (<div className="pay-result">
+            <div className="pay-result-box">
+                <p className="ck-muted">Chargement de ton panier…</p>
+            </div>
+        </div>);
+    }
 
     return (<>
         <div className="checkout">
