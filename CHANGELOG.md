@@ -6,6 +6,66 @@ Format inspired by [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Bef
 corresponds to a `GF{n}` feature branch merged into `main` (the project's branching convention), rather than a semantic
 version number.
 
+## [v1.0.7] - 2026-07-23
+
+### Added
+
+- Backfilled missing changelog entries for v1.0.5 and v1.0.6.
+
+## [v1.0.6] - 2026-07-23
+
+### Fixed
+
+- `CartContext.jsx` now exposes an `isLoading` flag (defaults `true`, cleared once the first `/cart` fetch
+  resolves). `CartDrawer.jsx`, `CartPage.jsx`, and `CheckoutPage.jsx` gate their "empty cart" message on this
+  flag, fixing a hard-reload flash where a non-empty cart briefly rendered as empty before the initial fetch
+  completed.
+- `CheckoutPage.jsx`: the `/payment/intent` request now uses an explicit 30s timeout (up from the global 15s
+  axios default), since creating a Stripe PaymentIntent is a real external round trip.
+
+## [v1.0.5] - 2026-07-22
+
+Brings guest support to the 3D customizer and checkout, live shipping options, a Help Center, and several
+3D-configurator stability fixes (GF33 to GF40).
+
+### Added
+
+- Guest customization: `/products/:slug/customize` no longer requires login. AI design generation still
+  requires an account — `CustomizationPanel.jsx` now shows a "Connecte-toi pour générer un design par IA"
+  prompt instead of hiding the feature.
+- Guest checkout: `/checkout` no longer requires login, with a "Vous avez un compte ? Se connecter" link and
+  the email now sent in the payload. "Finish configuration" was reworked into "Add to cart" (stays on the
+  customizer instead of jumping straight to checkout).
+- Shipping method selection: new `src/constants/shipping.js` mirrors the backend pricing (`standard`: 3-5j,
+  free ≥70€, else 4.90€ / `express`: 24-48h, 9.90€ flat). Checkout now shows both options with live
+  price/ETA instead of a hardcoded rate; cart preview estimates use the same constant.
+- Help Center: full FAQ (Commandes, Livraison, Paiement, Personnalisation, Retours) replacing the placeholder
+  page; the contact form gained a required "Motif" reason dropdown.
+
+### Fixed
+
+- 3D configurator: self-hosted Bebas Neue/Manrope fonts instead of the Google Fonts CDN.
+- 3D configurator: recovers from WebGL context loss (detects `webglcontextlost`/`webglcontextrestored` and
+  remounts the canvas), and proactively remounts if the tab was hidden more than 15 minutes.
+- 3D configurator: canvas sized correctly after route transitions via a `ResizeObserver`, fixing cases where
+  the renderer kept a stale default drawing-buffer size.
+- 3D configurator: clones the cached GLB scene per mount so navigating back to the customizer doesn't mutate
+  an already-pruned shared Three.js scene.
+- Auth: login redirect correctly returns to the originally-requested page; later simplified so login always
+  lands on home, with admins reaching the back-office via a dedicated header link instead of an automatic
+  redirect.
+- Checkout: navigating back from checkout to the 3D configurator while the item is still in the cart now
+  resumes that exact customization and removes the stale cart line instead of leaving a duplicate.
+- Header: admin users get a back-office link.
+
+### Changed
+
+- Visual refresh across most pages/components (CSS/markup polish, no functional changes).
+- Updated minor/patch dependencies grouped by Dependabot (`globals`, `jest-environment-jsdom`, `babel-jest`,
+  `actions/setup-node`) and fixed a `brace-expansion` ReDoS advisory (`npm audit fix`).
+- Formatting/config cleanup (README, CI, ESLint) and admin-page refactors — no behavioral change to
+  customer-facing logic.
+
 ## [v1.0.4] - 2026-07-13
 
 ### Changed
