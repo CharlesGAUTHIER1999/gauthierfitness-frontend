@@ -30,7 +30,7 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.29.7",
+    "@babel/preset-env": "^8.0.2",
     "@babel/preset-react": "^7.29.7",
     "@eslint/js": "^9.39.1",
     "@testing-library/jest-dom": "^6.9.1",
